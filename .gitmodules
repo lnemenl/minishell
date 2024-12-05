@@ -1,0 +1,3 @@
+[submodule "libft_updated"]
+	path = libft_updated
+	url = https://github.com/FPyMEHTAPIU/libft_updated.git
