@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/05 15:17:31 by msavelie         ###   ########.fr        #
+#    Updated: 2024/12/05 16:24:28 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,7 +27,10 @@ NAME = minishell
 SRC_DIR = ./srcs
 
 SRCS = \
-	${SRC_DIR}/main.c 
+	${SRC_DIR}/main.c \
+	${SRC_DIR}/parse.c \
+	${SRC_DIR}/errors.c \
+	${SRC_DIR}/clean.c
 
 OBJS = ${SRCS:.c=.o}
 
