@@ -4,7 +4,7 @@
 # include "../libft_updated/libft.h"
 # include <stdio.h>
 
-typedef struct	mshell
+typedef struct	s_mshell
 {
 	char	*cmd_line;
 	char	**cmds;
@@ -14,7 +14,7 @@ typedef struct	mshell
 	int		total_cmds;
 	int		allocated_pipes;
 	int		**pipfd;
-} t_mshell;
+}	t_mshell;
 
 int		error_ret(int type, char *arg);
 char	**fetch_paths(char **envp);

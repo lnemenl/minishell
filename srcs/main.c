@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/05 16:26:04 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/05 16:49:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,8 +37,8 @@ int	main(int argc, char **argv, char **envp)
 	obj = init_shell(argv, envp);
 	ft_printf("mega-shell: ");
 	obj.cmd_line = get_next_line(0);
-	while (obj.cmd_line && ft_strncmp(obj.cmd_line, "exit", 
-		ft_strlen(obj.cmd_line) - 1) != 0)
+	while (obj.cmd_line && 
+		ft_strncmp(obj.cmd_line, "exit", ft_strlen(obj.cmd_line) - 1) != 0)
 	{
 		parse(&obj);
 		if (obj.cmd_line)
