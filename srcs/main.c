@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 12:49:26 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/11 16:00:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.is_heredoc = 0;
 	obj.allocated_pipes = 0;
 	obj.cmd_line = NULL;
-	//obj.cmds = NULL;
+	obj.cmds = NULL;
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
 	obj.total_cmds = 0;

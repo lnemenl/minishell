@@ -6,39 +6,60 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 12:52:06 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/11 16:23:54 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
+// char	**fetch_paths(char **envp)
+// {
+// 	int		i;
+// 	char	*check_path;
+// 	char	**paths;
+
+// 	i = 0;
+// 	paths = NULL;
+// 	check_path = NULL;
+// 	while (envp[i])
+// 	{
+// 		if (ft_strnstr(envp[i], "PATH=", 5))
+// 		{
+// 			check_path = ft_strdup(envp[i]);
+// 			if (!check_path)
+// 				error_ret(6, NULL);
+// 		}
+// 		i++;
+// 	}
+// 	if (check_path)
+// 	{
+// 		paths = ft_split(check_path + 5, ':');
+// 		free(check_path);
+// 		if (!paths)
+// 			error_ret(6, NULL);
+// 	}
+// 	return (paths);
+// }
+
 char	**fetch_paths(char **envp)
 {
 	int		i;
-	char	*check_path;
 	char	**paths;
 
 	i = 0;
 	paths = NULL;
-	check_path = NULL;
 	while (envp[i])
 	{
-		if (ft_strnstr(envp[i], "PATH=", 5))
+		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
 		{
-			check_path = ft_strdup(envp[i]);
-			if (!check_path)
-				error_ret(6, NULL);
+			paths = ft_split(envp[i] + 5, ':'); // Split the value after "PATH="
+			if (!paths)
+				error_ret(6, NULL); // Handle error on split failure
+			break; // Exit loop once PATH is found
 		}
 		i++;
 	}
-	if (check_path)
-	{
-		paths = ft_split(check_path + 5, ':');
-		free(check_path);
-		if (!paths)
-			error_ret(6, NULL);
-	}
-	return (paths);
+	return (paths); // Returns NULL if PATH is not found
 }
 
 void	parse(t_mshell *obj)
@@ -46,41 +67,47 @@ void	parse(t_mshell *obj)
     t_token *tokens;
     t_token *tmp;
 
-    // Call the tokenizer to process the input line
+    if (!obj->cmd_line)
+    {
+        ft_printf("Error: No input provided.\n");
+        return;
+    }
     tokens = tokenize(obj->cmd_line);
     if (!tokens)
     {
         ft_printf("Error: Failed to tokenize input.\n");
         return;
     }
-    // Print tokens for debugging
     tmp = tokens;
     while (tmp)
     {
         if (tmp->type == TOKEN_WORD)
-            ft_printf("TOKEN_WORD: %s\n", tmp->value);
+        {
+            ft_printf("TOKEN_WORD: ");
+            write(1, tmp->start, tmp->length);
+            write(1, "\n", 1);
+        }
         else if (tmp->type == TOKEN_PIPE)
-            ft_printf("TOKEN_PIPE: %s\n", tmp->value);
+            ft_printf("TOKEN_PIPE: |\n");
         else if (tmp->type == TOKEN_REDIRECT_OUT)
-            ft_printf("TOKEN_REDIRECT_OUT: %s\n", tmp->value);
+            ft_printf("TOKEN_REDIRECT_OUT: >\n");
         else if (tmp->type == TOKEN_REDIRECT_IN)
-            ft_printf("TOKEN_REDIRECT_IN: %s\n", tmp->value);
+            ft_printf("TOKEN_REDIRECT_IN: <\n");
         else if (tmp->type == TOKEN_REDIRECT_APPEND)
-            ft_printf("TOKEN_REDIRECT_APPEND: %s\n", tmp->value);
+            ft_printf("TOKEN_REDIRECT_APPEND: >>\n");
         else if (tmp->type == TOKEN_HEREDOC)
-            ft_printf("TOKEN_HEREDOC: %s\n", tmp->value);
+            ft_printf("TOKEN_HEREDOC: <<\n");
 
         tmp = tmp->next;
     }
-    // Free tokens after printing
     while (tokens)
     {
         tmp = tokens->next;
-        free(tokens->value); // Free the token value
-        free(tokens);        // Free the token itself
+        free(tokens);
         tokens = tmp;
     }
 }
+
 
 int	ft_isspace(int c)
 {
@@ -95,19 +122,6 @@ int	is_operator(char c)
 int	is_word_char(char c)
 {
     return (ft_isalnum(c) || c == '-' || c == '_');
-}
-
-char *ft_strndup(const char *s, size_t n)
-{
-    char *dup;
-
-    if (!s)
-        return (NULL);
-    dup = ft_calloc(sizeof(char), n + 1); // Allocate memory (n + 1 for null terminator)
-    if (!dup)
-        return (NULL);
-    ft_memcpy(dup, s, n); // Copy 'n' characters from 's' to 'dup'
-    return (dup);
 }
 
 t_token	*tokenize(const char *input)
@@ -138,7 +152,7 @@ t_token	*tokenize(const char *input)
 	return (head);
 }
 
-t_token	*new_token(t_token_type type, char *value)
+t_token	*new_token(t_token_type type, const char *start, int length)
 {
 	t_token	*token;
 	
@@ -146,7 +160,8 @@ t_token	*new_token(t_token_type type, char *value)
 	if (!token)
 		return (NULL);
 	token->type = type;
-	token->value = value;
+	token->start = start;
+	token->length = length;
 	token->next = NULL;
 	return (token);
 }
@@ -158,32 +173,27 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 
 	if (input[*i] == '>' && input[*i + 1] == '>')
 	{
-		value = ft_strdup(">>");
-		token = new_token(TOKEN_REDIRECT_APPEND, value);
+		token = new_token(TOKEN_REDIRECT_APPEND, &input[*i], 2);
 		*i += 2;
 	}
 	else if (input[*i] == '<' && input[*i + 1] == '<')
 	{
-		value = ft_strdup("<<");
-		token = new_token(TOKEN_HEREDOC, value);
+		token = new_token(TOKEN_HEREDOC, &input[*i], 2);
 		*i += 2;
 	}
 	else if (input[*i] == '>')
 	{
-		value = ft_strdup(">");
-		token = new_token(TOKEN_REDIRECT_OUT, value);
+		token = new_token(TOKEN_REDIRECT_OUT, &input[*i], 1);
 		(*i)++;
 	}
 	else if (input[*i] == '<')
 	{
-		value = ft_strdup("<");
-		token = new_token(TOKEN_REDIRECT_IN, value);
+		token = new_token(TOKEN_REDIRECT_IN, &input[*i], 1);
 		(*i)++;
 	}
 	else if (input[*i] == '|')
 	{
-		value = ft_strdup(">");
-		token = new_token(TOKEN_PIPE, value);
+		token = new_token(TOKEN_PIPE, &input[*i], 1);
 		(*i)++;
 	}
 	else
@@ -200,24 +210,20 @@ void	add_quoted_token(t_token **head, t_token **current, const char *input, int 
 	char	quote_char;
 	int		start;
 	int		len;
-	char	*value;
 	t_token	*token;
 
-	quote_char = input[*i];
-	start = ++(*i);
-
+	quote_char = input[*i];	// Store opening quote character
+	start = ++(*i);			// Move past the opening quote
 	while (input[*i] && input[*i] != quote_char)
 		(*i)++;
 	if (input[*i] != quote_char)
 	{
-		//handle error: unmatched quote
 		ft_printf("Error: Unmatched quote\n");
 		return ;
 	}
-	len = *i - start;
-	value = ft_strndup(&input[start], len);
-	(*i)++;
-	token = new_token(TOKEN_WORD, value);
+	len = *i - start;		// Length of the quoted string
+	(*i)++;					// Move past the closing quote
+	token = new_token(TOKEN_WORD, &input[start], len);
 	if (!*head)
 		*head = token;
 	else
@@ -229,7 +235,6 @@ void	add_word_token(t_token **head, t_token **current, const char *input, int *i
 {
 	int		start;
 	int		len;
-	char	*value;
 	t_token	*token;
 	
 	start = *i;
@@ -237,8 +242,7 @@ void	add_word_token(t_token **head, t_token **current, const char *input, int *i
 	while (input[*i] && !ft_isspace(input[*i]) && !is_operator(input[*i]))
 		(*i)++;
 	len = *i - start; // Calculating length of the word
-	value = ft_strndup(&input[start], len);
-	token = new_token(TOKEN_WORD, value);
+	token = new_token(TOKEN_WORD, &input[start], len);
 	if (!*head)
 		*head = token;
 	else//Append to the current list
