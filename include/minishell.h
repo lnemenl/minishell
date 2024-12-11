@@ -9,7 +9,8 @@ typedef struct	s_mshell
 	char	*cmd_line;      // Full input line entered by the user
     char    **cmds;         // Array of command strings (split version of cmd_line)
 	char	*cur_path;      // Current working directory path
-	int		is_heredoc;     // Flag for active heredoc mode
+	char    **paths;
+    int		is_heredoc;     // Flag for active heredoc mode
 	int		total_cmds;     // Total number of commands
 	int		allocated_pipes;// Number of pipes allocated
 	int		**pipfd;        // File descriptors for pipes

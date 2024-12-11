@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 16:00:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/11 16:32:36 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,30 @@ static t_mshell	init_shell(char **argv, char **envp)
 	return (obj);
 }
 
+// int	main(int argc, char **argv, char **envp)
+// {
+// 	t_mshell	obj;
+
+// 	if (argc != 1)
+// 		return (error_ret(1, NULL));
+// 	obj = init_shell(argv, envp);
+// 	ft_printf("mega-shell: ");
+// 	obj.cmd_line = get_next_line(0);
+// 	while (obj.cmd_line && 
+// 		ft_strcmp(obj.cmd_line, "exit\n") != 0)
+// 	{
+// 		parse(&obj);
+// 		if (obj.cmd_line)
+// 			free(obj.cmd_line);
+// 		ft_printf("mega-shell: ");
+// 		obj.cmd_line = get_next_line(0);
+// 	}
+// 	if (obj.cmd_line)
+// 		free(obj.cmd_line);
+// 	clean_mshell(&obj);
+// 	return (0);
+// }
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
@@ -35,19 +59,21 @@ int	main(int argc, char **argv, char **envp)
 	if (argc != 1)
 		return (error_ret(1, NULL));
 	obj = init_shell(argv, envp);
-	ft_printf("mega-shell: ");
-	obj.cmd_line = get_next_line(0);
-	while (obj.cmd_line && 
-		ft_strcmp(obj.cmd_line, "exit\n") != 0)
+	while (1)
 	{
-		parse(&obj);
-		if (obj.cmd_line)
+		ft_printf("mega-shell: "); // Prompt display
+		obj.cmd_line = get_next_line(0); // Read user input
+		if (!obj.cmd_line)
+			break; // Exit loop on EOF (Ctrl+D)
+		if (ft_strcmp(obj.cmd_line, "exit\n") == 0)
+		{
 			free(obj.cmd_line);
-		ft_printf("mega-shell: ");
-		obj.cmd_line = get_next_line(0);
-	}
-	if (obj.cmd_line)
+			break;
+		}
+		parse(&obj);
 		free(obj.cmd_line);
+		obj.cmd_line = NULL;
+	}
 	clean_mshell(&obj);
 	return (0);
 }
