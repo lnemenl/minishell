@@ -6,41 +6,40 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 12:38:03 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/11 12:52:06 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-#include "../include/parser.h"
 
-// char	**fetch_paths(char **envp)
-// {
-// 	int		i;
-// 	char	*check_path;
-// 	char	**paths;
+char	**fetch_paths(char **envp)
+{
+	int		i;
+	char	*check_path;
+	char	**paths;
 
-// 	i = 0;
-// 	paths = NULL;
-// 	check_path = NULL;
-// 	while (envp[i])
-// 	{
-// 		if (ft_strnstr(envp[i], "PATH=", 5))
-// 		{
-// 			check_path = ft_strdup(envp[i]);
-// 			if (!check_path)
-// 				error_ret(6, NULL);
-// 		}
-// 		i++;
-// 	}
-// 	if (check_path)
-// 	{
-// 		paths = ft_split(check_path + 5, ':');
-// 		free(check_path);
-// 		if (!paths)
-// 			error_ret(6, NULL);
-// 	}
-// 	return (paths);
-// }
+	i = 0;
+	paths = NULL;
+	check_path = NULL;
+	while (envp[i])
+	{
+		if (ft_strnstr(envp[i], "PATH=", 5))
+		{
+			check_path = ft_strdup(envp[i]);
+			if (!check_path)
+				error_ret(6, NULL);
+		}
+		i++;
+	}
+	if (check_path)
+	{
+		paths = ft_split(check_path + 5, ':');
+		free(check_path);
+		if (!paths)
+			error_ret(6, NULL);
+	}
+	return (paths);
+}
 
 void	parse(t_mshell *obj)
 {
