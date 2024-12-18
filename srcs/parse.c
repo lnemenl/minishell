@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 16:34:48 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/18 10:33:12 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -169,7 +169,6 @@ t_token	*new_token(t_token_type type, const char *start, int length)
 void	add_operator_token(t_token **head, t_token **current, const char *input, int *i)
 {
 	t_token	*token;
-	char	*value;
 
 	if (input[*i] == '>' && input[*i + 1] == '>')
 	{

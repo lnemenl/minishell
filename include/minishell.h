@@ -14,7 +14,6 @@ typedef struct	s_mshell
 	int		total_cmds;     // Total number of commands
 	int		allocated_pipes;// Number of pipes allocated
 	int		**pipfd;        // File descriptors for pipes
-	struct	s_command *commands; // Parsed list of commands
 }	t_mshell;
 
 //parsing
@@ -46,7 +45,14 @@ typedef struct s_ast_node
 
 int		error_ret(int type, char *arg);
 char	**fetch_paths(char **envp);
-void	parse(t_mshell *obj);
 void	clean_mshell(t_mshell *obj);
+
+//parsing
+void        parse(t_mshell *obj);
+t_token     *tokenize(const char *input);
+t_token     *new_token(t_token_type type, const char *start, int length);
+void        add_operator_token(t_token **head, t_token **current, const char *input, int *i);
+void        add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
+void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
 
 #endif
