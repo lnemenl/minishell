@@ -6,7 +6,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
-# define PROMPT "mega-shell: "
+# define PROMPT "💩-shell: "
 
 typedef struct	s_mshell
 {
@@ -62,7 +62,7 @@ void        add_word_token(t_token **head, t_token **current, const char *input,
 /* ===== BUILT-INS ===== */
 void	    open_dir(const char *dir);
 void	    pwd(void);
-void	    env(char **envp);
+void	    env(char **env_args, char **envp);
 void	    echo(char **args);
 
 #endif

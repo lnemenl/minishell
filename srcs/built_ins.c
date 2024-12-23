@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 16:24:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/23 17:25:57 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,28 +59,30 @@ void	pwd(void)
 	free(buf);
 }
 
-void	env(char **envp) // ????
+void	env(char **env_args, char **envp) // ????
 {
-	int	i;
-
-	i = 0;
-	while (envp[i])
-		printf("%s\n", envp[i++]);
-	//execve("/usr/bin/env", envp, NULL);
+	execve("/bin/sh", env_args, envp);
 }
 
 void	echo(char **args)
 {
 	execve("/usr/bin/echo", args, NULL);
 }
+void	export(char **args, char **envp)
+{
+	execve("/bin/sh", args, envp);
+	ft_printf("execve failed!\n");
+}
 
 // int main(int argc, char **argv, char **envp)
 // {
-// 	char *args[] = {"echo", "-n", "hello", NULL};
-// 	char *env_arg[] = {"env", NULL};
+// 	char *args_echo[] = {"echo", "-n", "hello", NULL};
+// 	char *env_arg[] = {"/bin/sh", "-c", "env", NULL};
+// 	char *args_export[] = {"/bin/sh", "-c", "export", NULL};
 // 	open_dir("srcs");
 // 	open_dir("..");
 // 	pwd();
-// 	env(envp);
-// 	echo(args);
+// 	//env(env_arg, envp);
+// 	//echo(args);
+// 	export(args_export, envp);
 // }
