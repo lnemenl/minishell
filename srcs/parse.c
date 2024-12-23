@@ -6,40 +6,11 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 11:53:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/23 12:18:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
-
-// char	**fetch_paths(char **envp)
-// {
-// 	int		i;
-// 	char	*check_path;
-// 	char	**paths;
-
-// 	i = 0;
-// 	paths = NULL;
-// 	check_path = NULL;
-// 	while (envp[i])
-// 	{
-// 		if (ft_strnstr(envp[i], "PATH=", 5))
-// 		{
-// 			check_path = ft_strdup(envp[i]);
-// 			if (!check_path)
-// 				error_ret(6, NULL);
-// 		}
-// 		i++;
-// 	}
-// 	if (check_path)
-// 	{
-// 		paths = ft_split(check_path + 5, ':');
-// 		free(check_path);
-// 		if (!paths)
-// 			error_ret(6, NULL);
-// 	}
-// 	return (paths);
-// }
 
 char	**fetch_paths(char **envp)
 {
@@ -82,11 +53,7 @@ void	parse(t_mshell *obj)
     while (tmp)
     {
         if (tmp->type == TOKEN_WORD)
-        {
             ft_printf("TOKEN_WORD: %s\n", tmp->start);
-            // write(1, tmp->start, tmp->length);
-            // write(1, "\n", 1);
-        }
         else if (tmp->type == TOKEN_PIPE)
             ft_printf("TOKEN_PIPE: |\n");
         else if (tmp->type == TOKEN_REDIRECT_OUT)
@@ -102,6 +69,8 @@ void	parse(t_mshell *obj)
     }
     while (tokens)
     {
+		if (tokens->start)
+			free(tokens->start);
         tmp = tokens->next;
         free(tokens);
         tokens = tmp;
@@ -160,7 +129,13 @@ t_token	*new_token(t_token_type type, const char *start, int length)
 	if (!token)
 		return (NULL);
 	token->type = type;
-	token->start = start;
+	token->start = ft_calloc(length + 1, sizeof(char));
+	if (!token->start)
+	{
+		free(token);
+		return (NULL);
+	}
+	ft_strlcpy(token->start, start, length + 1);
 	token->length = length;
 	token->next = NULL;
 	return (token);
@@ -172,6 +147,7 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 
 	if (!input || !input[*i])
 		return ;
+	token = NULL;
 	if (input[*i + 1] && input[*i] == '>' && input[*i + 1] == '>')
 	{
 		token = new_token(TOKEN_REDIRECT_APPEND, &input[*i], 2);
@@ -199,6 +175,11 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 	}
 	else
 		return ;
+	if (!token)
+	{
+		return ;
+		// TODO: free all head and current pointers
+	}
 	if (!*head)
 		*head = token;
 	else
@@ -244,8 +225,6 @@ void	add_word_token(t_token **head, t_token **current, const char *input, int *i
 		(*i)++;
 	len = *i - start; // Calculating length of the word
 	token = new_token(TOKEN_WORD, &input[start], len);
-	ft_printf("token: %s\n", token->start);
-	ft_printf("token len: %d\n", token->length);
 	if (!*head)
 		*head = token;
 	else//Append to the current list

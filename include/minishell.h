@@ -35,7 +35,7 @@ typedef enum e_token_type
 typedef struct s_token
 {
     t_token_type      type;   // Type of token (e.g., WORD, PIPE)
-    const char        *start; // Pointer to the start of the token in the input string
+    char        *start; // Pointer to the start of the token in the input string
     int               length; // Length of the token
     struct s_token    *next;  // Pointer to the next token
 }   t_token;
