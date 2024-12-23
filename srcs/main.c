@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/11 16:32:36 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/23 12:10:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,10 +61,11 @@ int	main(int argc, char **argv, char **envp)
 	obj = init_shell(argv, envp);
 	while (1)
 	{
-		ft_printf("mega-shell: "); // Prompt display
-		obj.cmd_line = get_next_line(0); // Read user input
-		if (!obj.cmd_line)
-			break; // Exit loop on EOF (Ctrl+D)
+		//ft_printf("mega-shell: "); // Prompt display
+		//obj.cmd_line = get_next_line(0); // Read user input
+		//if (!obj.cmd_line)
+		//	break; // Exit loop on EOF (Ctrl+D)
+		obj.cmd_line = readline(PROMPT);
 		if (ft_strcmp(obj.cmd_line, "exit\n") == 0)
 		{
 			free(obj.cmd_line);

@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/05 16:24:28 by msavelie         ###   ########.fr        #
+#    Updated: 2024/12/23 11:42:20 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ SRCS = \
 OBJS = ${SRCS:.c=.o}
 
 CFLAGS = -g -Wall -Werror -Wextra
+HEADERS = -L/usr/local/lib -I/usr/local/include -lreadline
 
 LIBFT_NAME = ./libft_updated/libft.a
 LIBFT_DIR = ./libft_updated
@@ -52,7 +53,7 @@ ${NAME}: ${OBJS}
 	@echo "$(MAGENTA)🗂  Copying libft 🗂$(DEF_COLOR)"
 	@cp ${LIBFT_DIR}/libft.a .
 	@echo "$(BLUE)🛠  Compiling minishell... 🛠$(DEF_COLOR)"
-	@cc ${CFLAGS} ${OBJS} libft.a -o ${NAME}
+	@cc ${CFLAGS} ${OBJS} libft.a $(HEADERS) -o ${NAME}
 	@echo "$(GREEN)🥳 Success!🥳$(DEF_COLOR)"
 
 %.o: %.c
