@@ -3,6 +3,10 @@
 
 # include "../libft_updated/libft.h"
 # include <stdio.h>
+# include <readline/readline.h>
+# include <readline/history.h>
+
+# define PROMPT "mega-shell: "
 
 typedef struct	s_mshell
 {

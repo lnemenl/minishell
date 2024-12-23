@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/18 10:33:12 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/23 11:53:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,9 +83,9 @@ void	parse(t_mshell *obj)
     {
         if (tmp->type == TOKEN_WORD)
         {
-            ft_printf("TOKEN_WORD: ");
-            write(1, tmp->start, tmp->length);
-            write(1, "\n", 1);
+            ft_printf("TOKEN_WORD: %s\n", tmp->start);
+            // write(1, tmp->start, tmp->length);
+            // write(1, "\n", 1);
         }
         else if (tmp->type == TOKEN_PIPE)
             ft_printf("TOKEN_PIPE: |\n");
@@ -170,15 +170,17 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 {
 	t_token	*token;
 
-	if (input[*i] == '>' && input[*i + 1] == '>')
+	if (!input || !input[*i])
+		return ;
+	if (input[*i + 1] && input[*i] == '>' && input[*i + 1] == '>')
 	{
 		token = new_token(TOKEN_REDIRECT_APPEND, &input[*i], 2);
-		*i += 2;
+		(*i) += 2;
 	}
-	else if (input[*i] == '<' && input[*i + 1] == '<')
+	else if (input[*i + 1] && input[*i] == '<' && input[*i + 1] == '<')
 	{
 		token = new_token(TOKEN_HEREDOC, &input[*i], 2);
-		*i += 2;
+		(*i) += 2;
 	}
 	else if (input[*i] == '>')
 	{
@@ -242,6 +244,8 @@ void	add_word_token(t_token **head, t_token **current, const char *input, int *i
 		(*i)++;
 	len = *i - start; // Calculating length of the word
 	token = new_token(TOKEN_WORD, &input[start], len);
+	ft_printf("token: %s\n", token->start);
+	ft_printf("token len: %d\n", token->length);
 	if (!*head)
 		*head = token;
 	else//Append to the current list
