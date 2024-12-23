@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/23 11:42:20 by msavelie         ###   ########.fr        #
+#    Updated: 2024/12/23 16:24:37 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,7 +30,8 @@ SRCS = \
 	${SRC_DIR}/main.c \
 	${SRC_DIR}/parse.c \
 	${SRC_DIR}/errors.c \
-	${SRC_DIR}/clean.c
+	${SRC_DIR}/clean.c \
+	${SRC_DIR}/built_ins.c
 
 OBJS = ${SRCS:.c=.o}
 
