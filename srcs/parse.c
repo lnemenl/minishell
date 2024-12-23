@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 12:18:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/23 19:37:21 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,24 +49,25 @@ void	parse(t_mshell *obj)
         ft_printf("Error: Failed to tokenize input.\n");
         return;
     }
-    tmp = tokens;
-    while (tmp)
-    {
-        if (tmp->type == TOKEN_WORD)
-            ft_printf("TOKEN_WORD: %s\n", tmp->start);
-        else if (tmp->type == TOKEN_PIPE)
-            ft_printf("TOKEN_PIPE: |\n");
-        else if (tmp->type == TOKEN_REDIRECT_OUT)
-            ft_printf("TOKEN_REDIRECT_OUT: >\n");
-        else if (tmp->type == TOKEN_REDIRECT_IN)
-            ft_printf("TOKEN_REDIRECT_IN: <\n");
-        else if (tmp->type == TOKEN_REDIRECT_APPEND)
-            ft_printf("TOKEN_REDIRECT_APPEND: >>\n");
-        else if (tmp->type == TOKEN_HEREDOC)
-            ft_printf("TOKEN_HEREDOC: <<\n");
-
-        tmp = tmp->next;
-    }
+    obj->ast = parse_pipeline(&tokens);
+	if (!obj->ast)
+	{
+		ft_printf("Error: Failed to create AST\n");
+		while (tokens)
+		{
+			if (tokens->start)
+				free(tokens->start);
+			tmp = tokens->next;
+			free(tokens);
+			tokens = tmp;
+		}
+		return ;
+	}
+	 // Debug print
+    ft_printf("\nAST Structure for: %s\n", obj->cmd_line);
+    ft_printf("------------------------\n");
+    print_ast(obj->ast, 0);
+    ft_printf("------------------------\n\n");
     while (tokens)
     {
 		if (tokens->start)
@@ -76,7 +77,6 @@ void	parse(t_mshell *obj)
         tokens = tmp;
     }
 }
-
 
 int	ft_isspace(int c)
 {
