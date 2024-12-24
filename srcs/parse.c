@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/24 14:51:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/24 16:53:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,7 @@ void	parse(t_mshell *obj)
         ft_printf("Error: Failed to tokenize input.\n");
         return;
     }
-    obj->ast = parse_pipeline(&tokens);
+    obj->ast = parse_pipeline(&tokens, obj);
 	if (!obj->ast)
 	{
 		ft_printf("Error: Failed to create AST\n");
@@ -93,9 +93,9 @@ int	is_word_char(char c)
     return (ft_isalnum(c) || c == '-' || c == '_');
 }
 
-int	is_quote(char c)
+int is_quote(char c)
 {
-	return (c == '\'' || c == '\"');
+    return (c == '\'' || c == '\"');
 }
 
 t_token	*tokenize(const char *input)
@@ -203,18 +203,18 @@ static t_quote_state	get_quote_state(char quote_char)
 
 static int	find_closing_quote(const char *input, int *i, char quote_char)
 {
-	int	j;
-	
-	j = *i;
-	if (!input[j])
-		return (0);
-	if (input[j] != quote_char)
-	{
-		*i = j;
-		return (1);
-	}
-	*i = j;
-	return (0);
+    int	j;
+    
+    j = *i;
+    while (input[j] && input[j] != quote_char)
+        j++;
+    if (!input[j])
+    {
+        *i = j;
+        return (1);
+    }
+    *i = j;
+    return (0);
 }
 
 void	add_quoted_token(t_token **head, t_token **current, const char *input, int *i)

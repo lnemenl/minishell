@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:17:20 by rkhakimu          #+#    #+#             */
-/*   Updated: 2024/12/24 15:02:40 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/24 16:55:39 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,6 @@
 
 static char	*expand_variables(char *str, t_quote_state quote_state, t_mshell *shell)
 {
-	char	*result;
 	char	*env_value;
 	
 	if (!str)
@@ -72,19 +71,34 @@ t_ast_node	*build_command_node(t_token **tokens, t_mshell *shell)
 	}
 	i = 0;
 	while (i < arg_count)
-	{
-		node->args[i] = expand_variables((*tokens)->start, (*tokens)->quote_state, shell);
-		if (!node->args[i])
-		{
-			while (--i >= 0)
-				free(node->args[i]);
-			free(node->args);
-			free(node);
-			return (NULL);
-		}
-		*tokens = (*tokens)->next;
-		i++;
-	}
+    {
+        node->args[i] = expand_variables((*tokens)->start, 
+                                       (*tokens)->quote_state, 
+                                       shell);
+        if (!node->args[i])
+        {
+            while (--i >= 0)
+                free(node->args[i]);
+            free(node->args);
+            free(node);
+            return (NULL);
+        }
+        if (node->args[i][0] == '\0')
+        {
+            free(node->args[i]);
+            node->args[i] = ft_strdup("");
+            if (!node->args[i])
+            {
+                while (--i >= 0)
+                    free(node->args[i]);
+                free(node->args);
+                free(node);
+                return (NULL);
+            }
+        }
+        *tokens = (*tokens)->next;
+        i++;
+    }
 	node->args[i] = NULL;
 	return (node);
 }
