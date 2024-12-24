@@ -18,6 +18,12 @@ typedef enum e_token_type
 	TOKEN_HEREDOC           //<<
 }   t_token_type;
 
+typedef	enum e_quote_state
+{
+	QUOTE_NONE,
+	QUOTE_SINGLE,
+	QUOTE_DOUBLE
+}	t_quote_state;
 
 typedef struct s_token
 {
@@ -25,6 +31,7 @@ typedef struct s_token
 	char				*start;		// Pointer to the start of the token in the input string
 	int					length;		// Length of the token
 	struct s_token		*next;		// Pointer to the next token
+	t_quote_state		quote_state;
 }   t_token;
 
 
@@ -62,6 +69,7 @@ t_token     *new_token(t_token_type type, const char *start, int length);
 void        add_operator_token(t_token **head, t_token **current, const char *input, int *i);
 void        add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
 void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
+
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);

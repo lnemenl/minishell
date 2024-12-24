@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 19:37:21 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/24 14:24:22 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,6 +91,11 @@ int	is_operator(char c)
 int	is_word_char(char c)
 {
     return (ft_isalnum(c) || c == '-' || c == '_');
+}
+
+int	is_quote(char c)
+{
+	return (c == '\'' || c == '\"');
 }
 
 t_token	*tokenize(const char *input)
@@ -187,31 +192,60 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 	*current = token;
 }
 
+static t_quote_state	get_quote_state(char quote_char)
+{
+	if (quote_char == '\'')
+		return (QUOTE_SINGLE);
+	return (QUOTE_DOUBLE);
+}
+
+static int	find_closing_quote(const char *input, int *i, char quote_char)
+{
+	int	j;
+	
+	j = *i;
+	if (!input[j])
+		return (0);
+	if (input[j] != quote_char)
+	{
+		*i = j;
+		return (1);
+	}
+	*i = j;
+	return (0);
+}
+
 void	add_quoted_token(t_token **head, t_token **current, const char *input, int *i)
 {
-	char	quote_char;
-	int		start;
-	int		len;
-	t_token	*token;
+	char			quote_char;
+	int				start;
+	int				len;
+	t_token			*token;
+	t_quote_state	quote_state;
 
 	quote_char = input[*i];	// Store opening quote character
-	start = ++(*i);			// Move past the opening quote
-	while (input[*i] && input[*i] != quote_char)
-		(*i)++;
-	if (input[*i] != quote_char)
+	quote_state = get_quote_state(quote_char);
+	start = *i + 1;
+	*i = start;
+	if (find_closing_quote(input, i, quote_char))
 	{
 		ft_printf("Error: Unmatched quote\n");
 		return ;
 	}
-	len = *i - start;		// Length of the quoted string
-	(*i)++;					// Move past the closing quote
+	len = *i - start;
+	(*i)++;
 	token = new_token(TOKEN_WORD, &input[start], len);
+	if (!token)
+		return ;
+	token->quote_state = quote_state;
 	if (!*head)
 		*head = token;
 	else
 		(*current)->next = token;
 	*current = token;
 }
+
+
 
 void	add_word_token(t_token **head, t_token **current, const char *input, int *i)
 {
