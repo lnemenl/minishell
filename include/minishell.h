@@ -54,6 +54,7 @@ typedef struct	s_mshell
 	int			allocated_pipes;	// Number of pipes allocated
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
+	int			last_exit_status;
 }	t_mshell;
 
 //parsing
@@ -73,10 +74,10 @@ void        add_word_token(t_token **head, t_token **current, const char *input,
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);
-t_ast_node	*build_command_node(t_token **tokens);
-t_ast_node	*parse_pipeline(t_token **tokens);
+t_ast_node	*build_command_node(t_token **tokens, t_mshell *shell);
+t_ast_node	*parse_pipeline(t_token **tokens, t_mshell *shell);
 t_ast_node	*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
-t_ast_node	*parse_command(t_token **tokens);
+t_ast_node	*parse_command(t_token **tokens, t_mshell *shell);
 void		free_ast(t_ast_node *node);
 
 //To be able to see for now whether it all works correctly

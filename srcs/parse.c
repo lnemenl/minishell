@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/24 14:24:22 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/24 14:51:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,6 +105,8 @@ t_token	*tokenize(const char *input)
 	char	*trimmed_input;
 	int		i;
 
+	if (!input)
+		return (NULL);
 	head = NULL;
 	current = NULL;
 	trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
@@ -244,8 +246,6 @@ void	add_quoted_token(t_token **head, t_token **current, const char *input, int 
 		(*current)->next = token;
 	*current = token;
 }
-
-
 
 void	add_word_token(t_token **head, t_token **current, const char *input, int *i)
 {

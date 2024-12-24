@@ -6,11 +6,30 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:17:20 by rkhakimu          #+#    #+#             */
-/*   Updated: 2024/12/24 14:12:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/24 15:02:40 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+static char	*expand_variables(char *str, t_quote_state quote_state, t_mshell *shell)
+{
+	char	*result;
+	char	*env_value;
+	
+	if (!str)
+		return (NULL);
+	if (quote_state == QUOTE_SINGLE)
+		return (ft_strdup(str));
+	if (!ft_strchr(str, '$'))
+		return (ft_strdup(str));
+	if (ft_strcmp(str, "$?") == 0)
+		return(ft_itoa(shell->last_exit_status));
+	env_value = getenv(str + 1);
+	if (!env_value)
+		return (ft_strdup(""));
+	return (ft_strdup(env_value));
+}
 
 t_ast_node	*create_ast_node(t_token_type type)
 {
@@ -26,7 +45,7 @@ t_ast_node	*create_ast_node(t_token_type type)
 	return (node);
 }
 
-t_ast_node	*build_command_node(t_token **tokens)
+t_ast_node	*build_command_node(t_token **tokens, t_mshell *shell)
 {
 	t_ast_node	*node;
 	t_token		*current;
@@ -43,13 +62,26 @@ t_ast_node	*build_command_node(t_token **tokens)
 	if (arg_count == 0)
 		return (NULL);
 	node = create_ast_node(TOKEN_WORD);
+	if (!node)
+		return (NULL);
 	node->args = malloc(sizeof(char *) * (arg_count + 1));
 	if (!node->args)
+	{
+		free(node);
 		return (NULL);
+	}
 	i = 0;
 	while (i < arg_count)
 	{
-		node->args[i] = ft_strdup((*tokens)->start);
+		node->args[i] = expand_variables((*tokens)->start, (*tokens)->quote_state, shell);
+		if (!node->args[i])
+		{
+			while (--i >= 0)
+				free(node->args[i]);
+			free(node->args);
+			free(node);
+			return (NULL);
+		}
 		*tokens = (*tokens)->next;
 		i++;
 	}
@@ -57,7 +89,7 @@ t_ast_node	*build_command_node(t_token **tokens)
 	return (node);
 }
 
-t_ast_node	*parse_pipeline(t_token **tokens)
+t_ast_node	*parse_pipeline(t_token **tokens, t_mshell *shell)
 {
 	t_ast_node	*left;
 	t_ast_node	*pipe_node;
@@ -65,7 +97,7 @@ t_ast_node	*parse_pipeline(t_token **tokens)
 
 	if (!tokens || !*tokens)
 		return (NULL);
-	left = parse_command(tokens);
+	left = parse_command(tokens, shell);
 	if (!left)
 		return (NULL);
 	current = *tokens;
@@ -74,7 +106,7 @@ t_ast_node	*parse_pipeline(t_token **tokens)
 		pipe_node = create_ast_node(TOKEN_PIPE);
 		*tokens = (*tokens)->next;
 		pipe_node->left = left;
-		pipe_node->right = parse_pipeline(tokens);
+		pipe_node->right = parse_pipeline(tokens, shell);
 		return (pipe_node);
 	}
 	return (left);
@@ -107,10 +139,11 @@ t_ast_node	*handle_redirection(t_token **tokens, t_ast_node *cmd_node)
 	return (cmd_node);
 }
 
-t_ast_node	*parse_command(t_token **tokens)
+t_ast_node	*parse_command(t_token **tokens, t_mshell *shell)
 {
 	t_ast_node	*cmd_node;
-	cmd_node = build_command_node(tokens);
+	
+	cmd_node = build_command_node(tokens, shell);
 	if (!cmd_node)
 		return (NULL);
 	return (handle_redirection(tokens, cmd_node));
@@ -136,6 +169,7 @@ void	free_ast(t_ast_node *node)
 	}
 	free(node);
 }
+
 //TO see whether this all works at the moment
 void print_ast(t_ast_node *node, int depth)
 {
