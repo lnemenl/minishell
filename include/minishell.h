@@ -6,7 +6,7 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 
-# define PROMPT "mega-shell: "
+# define PROMPT "💩-shell: "
 
 typedef enum e_token_type
 {
@@ -63,7 +63,7 @@ int		error_ret(int type, char *arg);
 char	**fetch_paths(char **envp);
 void	clean_mshell(t_mshell *obj);
 
-//parsing
+/* ===== PARSING ===== */
 void        parse(t_mshell *obj);
 t_token     *tokenize(const char *input);
 t_token     *new_token(t_token_type type, const char *start, int length);
@@ -71,6 +71,11 @@ void        add_operator_token(t_token **head, t_token **current, const char *in
 void        add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
 void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
 
+/* ===== BUILT-INS ===== */
+void	    open_dir(const char *dir);
+void	    pwd(void);
+void	    env(char **env_args, char **envp);
+void	    echo(char **args);
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);
@@ -82,6 +87,5 @@ void		free_ast(t_ast_node *node);
 
 //To be able to see for now whether it all works correctly
 void		print_ast(t_ast_node *node, int depth);
-
 
 #endif
