@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 12:18:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/24 16:53:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,24 +49,25 @@ void	parse(t_mshell *obj)
         ft_printf("Error: Failed to tokenize input.\n");
         return;
     }
-    tmp = tokens;
-    while (tmp)
-    {
-        if (tmp->type == TOKEN_WORD)
-            ft_printf("TOKEN_WORD: %s\n", tmp->start);
-        else if (tmp->type == TOKEN_PIPE)
-            ft_printf("TOKEN_PIPE: |\n");
-        else if (tmp->type == TOKEN_REDIRECT_OUT)
-            ft_printf("TOKEN_REDIRECT_OUT: >\n");
-        else if (tmp->type == TOKEN_REDIRECT_IN)
-            ft_printf("TOKEN_REDIRECT_IN: <\n");
-        else if (tmp->type == TOKEN_REDIRECT_APPEND)
-            ft_printf("TOKEN_REDIRECT_APPEND: >>\n");
-        else if (tmp->type == TOKEN_HEREDOC)
-            ft_printf("TOKEN_HEREDOC: <<\n");
-
-        tmp = tmp->next;
-    }
+    obj->ast = parse_pipeline(&tokens, obj);
+	if (!obj->ast)
+	{
+		ft_printf("Error: Failed to create AST\n");
+		while (tokens)
+		{
+			if (tokens->start)
+				free(tokens->start);
+			tmp = tokens->next;
+			free(tokens);
+			tokens = tmp;
+		}
+		return ;
+	}
+	 // Debug print
+    ft_printf("\nAST Structure for: %s\n", obj->cmd_line);
+    ft_printf("------------------------\n");
+    print_ast(obj->ast, 0);
+    ft_printf("------------------------\n\n");
     while (tokens)
     {
 		if (tokens->start)
@@ -76,7 +77,6 @@ void	parse(t_mshell *obj)
         tokens = tmp;
     }
 }
-
 
 int	ft_isspace(int c)
 {
@@ -93,6 +93,11 @@ int	is_word_char(char c)
     return (ft_isalnum(c) || c == '-' || c == '_');
 }
 
+int is_quote(char c)
+{
+    return (c == '\'' || c == '\"');
+}
+
 t_token	*tokenize(const char *input)
 {
 	t_token	*head;
@@ -100,6 +105,8 @@ t_token	*tokenize(const char *input)
 	char	*trimmed_input;
 	int		i;
 
+	if (!input)
+		return (NULL);
 	head = NULL;
 	current = NULL;
 	trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
@@ -187,25 +194,52 @@ void	add_operator_token(t_token **head, t_token **current, const char *input, in
 	*current = token;
 }
 
+static t_quote_state	get_quote_state(char quote_char)
+{
+	if (quote_char == '\'')
+		return (QUOTE_SINGLE);
+	return (QUOTE_DOUBLE);
+}
+
+static int	find_closing_quote(const char *input, int *i, char quote_char)
+{
+    int	j;
+    
+    j = *i;
+    while (input[j] && input[j] != quote_char)
+        j++;
+    if (!input[j])
+    {
+        *i = j;
+        return (1);
+    }
+    *i = j;
+    return (0);
+}
+
 void	add_quoted_token(t_token **head, t_token **current, const char *input, int *i)
 {
-	char	quote_char;
-	int		start;
-	int		len;
-	t_token	*token;
+	char			quote_char;
+	int				start;
+	int				len;
+	t_token			*token;
+	t_quote_state	quote_state;
 
 	quote_char = input[*i];	// Store opening quote character
-	start = ++(*i);			// Move past the opening quote
-	while (input[*i] && input[*i] != quote_char)
-		(*i)++;
-	if (input[*i] != quote_char)
+	quote_state = get_quote_state(quote_char);
+	start = *i + 1;
+	*i = start;
+	if (find_closing_quote(input, i, quote_char))
 	{
 		ft_printf("Error: Unmatched quote\n");
 		return ;
 	}
-	len = *i - start;		// Length of the quoted string
-	(*i)++;					// Move past the closing quote
+	len = *i - start;
+	(*i)++;
 	token = new_token(TOKEN_WORD, &input[start], len);
+	if (!token)
+		return ;
+	token->quote_state = quote_state;
 	if (!*head)
 		*head = token;
 	else
