@@ -7,6 +7,8 @@
 # include <readline/readline.h>
 # include <readline/history.h>
 # include <sys/types.h>
+# include <errno.h>
+# include <sys/wait.h>
 
 # define PROMPT "💩-shell: "
 
@@ -95,6 +97,6 @@ void		print_ast(t_ast_node *node, int depth);
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, char **args, t_mshell *obj);
-void	execute_cmd(t_mshell *obj);
+pid_t	execute_cmd(t_mshell *obj);
 
 #endif

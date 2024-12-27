@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/27 14:49:21 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/27 16:26:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
+	int status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
@@ -48,7 +49,8 @@ int	main(int argc, char **argv, char **envp)
 		add_history(obj.cmd_line);
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
-		execute_cmd(&obj);
+		pid_t p = execute_cmd(&obj);
+		waitpid(p, &status, 0);
 	}
 	clean_mshell(&obj);
 	return (0);

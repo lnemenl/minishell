@@ -6,27 +6,49 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 17:25:57 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/27 17:15:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+void	realloc_buffer(char **buf, size_t *buffer_size)
+{
+	*buffer_size *= 2;
+	free(*buf);
+	*buf = ft_calloc(*buffer_size, sizeof(char));
+	if (!*buf)
+	{
+		ft_fprintf(2, "Malloc error!\n");
+		exit(1);
+	}
+}
 
 void	open_dir(const char *dir)
 {
 	char	*buf;
 	char	*path;
 	char	*full_path;
-	
-	buf = ft_calloc(50, sizeof(char));
-	getcwd(buf, 50);
+	size_t	buffer_size;
+
+	buffer_size = 50;
+	buf = ft_calloc(buffer_size, sizeof(char));
+	if (!buf)
+	{
+		//cleanup struct
+		ft_fprintf(2, "Malloc error!\n");
+		exit(1);
+	}
+	while (!getcwd(buf, buffer_size))
+		realloc_buffer(&buf, &buffer_size);
 	ft_printf("buf: %s\n", buf);
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, dir);
 	free(path);
 	ft_printf("path: %s\n", full_path);
 	chdir(full_path);
-	getcwd(buf, 50);
+	while (!getcwd(buf, buffer_size))
+		realloc_buffer(&buf, &buffer_size);
 	ft_printf("buf: %s\n", buf);
 	free(buf);
 	free(full_path);
@@ -34,27 +56,19 @@ void	open_dir(const char *dir)
 
 void	pwd(void)
 {
-	int		buffer_size;
+	size_t	buffer_size;
 	char	*buf;
 
 	buffer_size = 50;
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
+		//cleanup struct
 		ft_fprintf(2, "Malloc error!\n");
 		exit(1);
 	}
 	while (!getcwd(buf, buffer_size))
-	{
-		buffer_size *= 2;
-		free(buf);
-		buf = ft_calloc(buffer_size, sizeof(char));
-		if (!buf)
-		{
-			ft_fprintf(2, "Malloc error!\n");
-			exit(1);
-		}
-	}
+		realloc_buffer(&buf, &buffer_size);
 	printf("%s\n", buf);
 	free(buf);
 }
@@ -68,21 +82,8 @@ void	echo(char **args)
 {
 	execve("/usr/bin/echo", args, NULL);
 }
+
 void	export(char **args, char **envp)
 {
 	execve("/bin/sh", args, envp);
-	ft_printf("execve failed!\n");
 }
-
-// int main(int argc, char **argv, char **envp)
-// {
-// 	char *args_echo[] = {"echo", "-n", "hello", NULL};
-// 	char *env_arg[] = {"/bin/sh", "-c", "env", NULL};
-// 	char *args_export[] = {"/bin/sh", "-c", "export", NULL};
-// 	open_dir("srcs");
-// 	open_dir("..");
-// 	pwd();
-// 	//env(env_arg, envp);
-// 	//echo(args);
-// 	export(args_export, envp);
-// }
