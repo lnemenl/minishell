@@ -55,6 +55,7 @@ typedef struct	s_mshell
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
 	int			last_exit_status;
+	int			pipes_count;
 }	t_mshell;
 
 //parsing

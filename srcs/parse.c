@@ -6,77 +6,12 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/24 16:53:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/27 19:49:26 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-char	**fetch_paths(char **envp)
-{
-	int		i;
-	char	**paths;
-
-	i = 0;
-	paths = NULL;
-	while (envp[i])
-	{
-		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
-		{
-			paths = ft_split(envp[i] + 5, ':'); // Split the value after "PATH="
-			if (!paths)
-				error_ret(6, NULL); // Handle error on split failure
-			break; // Exit loop once PATH is found
-		}
-		i++;
-	}
-	return (paths); // Returns NULL if PATH is not found
-}
-
-void	parse(t_mshell *obj)
-{
-    t_token *tokens;
-    t_token *tmp;
-
-    if (!obj->cmd_line)
-    {
-        ft_printf("Error: No input provided.\n");
-        return;
-    }
-    tokens = tokenize(obj->cmd_line);
-    if (!tokens)
-    {
-        ft_printf("Error: Failed to tokenize input.\n");
-        return;
-    }
-    obj->ast = parse_pipeline(&tokens, obj);
-	if (!obj->ast)
-	{
-		ft_printf("Error: Failed to create AST\n");
-		while (tokens)
-		{
-			if (tokens->start)
-				free(tokens->start);
-			tmp = tokens->next;
-			free(tokens);
-			tokens = tmp;
-		}
-		return ;
-	}
-	 // Debug print
-    ft_printf("\nAST Structure for: %s\n", obj->cmd_line);
-    ft_printf("------------------------\n");
-    print_ast(obj->ast, 0);
-    ft_printf("------------------------\n\n");
-    while (tokens)
-    {
-		if (tokens->start)
-			free(tokens->start);
-        tmp = tokens->next;
-        free(tokens);
-        tokens = tmp;
-    }
-}
 
 int	ft_isspace(int c)
 {
@@ -98,170 +33,342 @@ int is_quote(char c)
     return (c == '\'' || c == '\"');
 }
 
-t_token	*tokenize(const char *input)
+
+char **fetch_paths(char **envp)
 {
-	t_token	*head;
-	t_token	*current;
-	char	*trimmed_input;
-	int		i;
-
-	if (!input)
-		return (NULL);
-	head = NULL;
-	current = NULL;
-	trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
-	if (!trimmed_input)
-		return (NULL);
-	i = 0;
-	while (trimmed_input[i])
-	{
-		if (ft_isspace(trimmed_input[i]))
-			i++;
-		else if (is_operator(trimmed_input[i]))
-			add_operator_token(&head, &current, trimmed_input, &i);
-		else if (trimmed_input[i] == '"' || trimmed_input[i] == '\'')
-			add_quoted_token(&head, &current, trimmed_input, &i);
-		else
-			add_word_token(&head, &current, trimmed_input, &i);
-	}
-	free(trimmed_input);
-	return (head);
-}
-
-t_token	*new_token(t_token_type type, const char *start, int length)
-{
-	t_token	*token;
-	
-	token = malloc(sizeof(t_token));
-	if (!token)
-		return (NULL);
-	token->type = type;
-	token->start = ft_calloc(length + 1, sizeof(char));
-	if (!token->start)
-	{
-		free(token);
-		return (NULL);
-	}
-	ft_strlcpy(token->start, start, length + 1);
-	token->length = length;
-	token->next = NULL;
-	return (token);
-}
-
-void	add_operator_token(t_token **head, t_token **current, const char *input, int *i)
-{
-	t_token	*token;
-
-	if (!input || !input[*i])
-		return ;
-	token = NULL;
-	if (input[*i + 1] && input[*i] == '>' && input[*i + 1] == '>')
-	{
-		token = new_token(TOKEN_REDIRECT_APPEND, &input[*i], 2);
-		(*i) += 2;
-	}
-	else if (input[*i + 1] && input[*i] == '<' && input[*i + 1] == '<')
-	{
-		token = new_token(TOKEN_HEREDOC, &input[*i], 2);
-		(*i) += 2;
-	}
-	else if (input[*i] == '>')
-	{
-		token = new_token(TOKEN_REDIRECT_OUT, &input[*i], 1);
-		(*i)++;
-	}
-	else if (input[*i] == '<')
-	{
-		token = new_token(TOKEN_REDIRECT_IN, &input[*i], 1);
-		(*i)++;
-	}
-	else if (input[*i] == '|')
-	{
-		token = new_token(TOKEN_PIPE, &input[*i], 1);
-		(*i)++;
-	}
-	else
-		return ;
-	if (!token)
-	{
-		return ;
-		// TODO: free all head and current pointers
-	}
-	if (!*head)
-		*head = token;
-	else
-		(*current)->next = token;
-	*current = token;
-}
-
-static t_quote_state	get_quote_state(char quote_char)
-{
-	if (quote_char == '\'')
-		return (QUOTE_SINGLE);
-	return (QUOTE_DOUBLE);
-}
-
-static int	find_closing_quote(const char *input, int *i, char quote_char)
-{
-    int	j;
-    
-    j = *i;
-    while (input[j] && input[j] != quote_char)
-        j++;
-    if (!input[j])
+    while (*envp)
     {
-        *i = j;
-        return (1);
+        if (ft_strncmp(*envp, "PATH=", 5) == 0)
+            return ft_split(*envp + 5, ':');
+        envp++;
     }
-    *i = j;
+    return (NULL);
+}
+
+void    parse(t_mshell *obj)
+{
+    t_token *tokens;
+
+    if (!obj || !obj->cmd_line)
+    {
+        ft_printf("Error: Invalid input provided.\n");
+        return;
+    }
+    tokens = tokenize(obj->cmd_line);
+    if (!tokens)
+    {
+        ft_printf("Error: Failed to tokenize input.\n");
+        return;
+    }
+    obj->ast = parse_pipeline(&tokens, obj);
+    if (!obj->ast)
+    {
+        ft_printf("Error: Failed to create AST.\n");
+        clean_token_list(tokens);
+        return;
+    }
+    print_parse_debug(obj);
+    clean_token_list(tokens);
+}
+
+static void    print_parse_debug(t_mshell *obj)
+{
+    if (!obj || !obj->cmd_line)
+        return;
+    ft_printf("\nAST Structure for: %s\n", obj->cmd_line);
+    ft_printf("------------------------\n");
+    print_ast(obj->ast, 0);
+    ft_printf("------------------------\n\n");
+}
+
+static t_token    *process_token(t_token **head, t_token **current, 
+                               const char *input, int *i)
+{
+    if (ft_isspace(input[*i]))
+    {
+        (*i)++;
+        return (*current);
+    }
+    if (is_operator(input[*i]))
+        add_operator_token(head, current, input, i);
+    else if (is_quote(input[*i]))
+        add_quoted_token(head, current, input, i);
+    else
+        add_word_token(head, current, input, i);
+    if (!*current)
+        return (NULL);
+    return (*current);
+}
+
+static void    init_tokenize(t_token **head, t_token **current)
+{
+    *head = NULL;
+    *current = NULL;
+}
+
+t_token    *tokenize(const char *input)
+{
+    t_token *head;
+    t_token *current;
+    char    *trimmed_input;
+    int     i;
+
+    if (!input)
+        return (NULL);
+    init_tokenize(&head, &current);
+    trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
+    if (!trimmed_input)
+        return (NULL);
+    i = 0;
+    while (trimmed_input[i])
+    {
+        if (!process_token(&head, &current, trimmed_input, &i))
+        {
+            clean_parse_error(&head, &current);
+            free(trimmed_input);
+            return (NULL);
+        }
+    }
+    free(trimmed_input);
+    return (head);
+}
+
+static char    *allocate_token_content(const char *start, int length)
+{
+    char    *content;
+
+    if (!start || length <= 0)
+        return (NULL);
+    content = ft_calloc(length + 1, sizeof(char));
+    if (!content)
+        return (NULL);
+    ft_strlcpy(content, start, length + 1);
+    return (content);
+}
+
+t_token    *new_token(t_token_type type, const char *start, int length)
+{
+    t_token    *token;
+    char       *content;
+
+    if (!start || length <= 0)
+        return (NULL);
+    token = malloc(sizeof(t_token));
+    if (!token)
+        return (NULL);
+    content = allocate_token_content(start, length);
+    if (!content)
+    {
+        free(token);
+        return (NULL);
+    }
+    token->type = type;
+    token->start = content;
+    token->length = length;
+    token->next = NULL;
+    token->quote_state = QUOTE_NONE;
+    return (token);
+}
+
+static t_token    *create_token_from_str(const char *str, t_token_type type, int len)
+{
+    if (!str || len <= 0)
+        return (NULL);
+    return (new_token(type, str, len));
+}
+
+static t_token    *handle_double_redirect(const char *input, int *i)
+{
+    t_token *token;
+
+    token = NULL;
+    if (!ft_strncmp(&input[*i], ">>", 2))
+        token = create_token_from_str(">>", TOKEN_REDIRECT_APPEND, 2);
+    else if (!ft_strncmp(&input[*i], "<<", 2))
+        token = create_token_from_str("<<", TOKEN_HEREDOC, 2);
+    if (token)
+        (*i) += 2;
+    return (token);
+}
+
+static t_token    *handle_single_operator(const char *input, int *i)
+{
+    t_token *token;
+
+    token = NULL;
+    if (input[*i] == '>')
+        token = create_token_from_str(">", TOKEN_REDIRECT_OUT, 1);
+    else if (input[*i] == '<')
+        token = create_token_from_str("<", TOKEN_REDIRECT_IN, 1);
+    else if (input[*i] == '|')
+        token = create_token_from_str("|", TOKEN_PIPE, 1);
+    if (token)
+        (*i)++;
+    return (token);
+}
+
+void    add_operator_token(t_token **head, t_token **current, 
+                         const char *input, int *i)
+{
+    t_token *token;
+
+    if (!input || !input[*i])
+        return ;
+    if (ft_strlen(&input[*i]) >= 2)
+        token = handle_double_redirect(input, i);
+    else
+        token = handle_single_operator(input, i);
+    if (!token)
+    {
+        clean_parse_error(head, current);
+        return ;
+    }
+    if (!*head)
+        *head = token;
+    else
+        (*current)->next = token;
+    *current = token;
+}
+
+bool    is_quote(char c)
+{
+    return (c == '\'' || c == '\"');
+}
+
+static int    find_closing_quote(const char *input, int *i, char quote_char)
+{
+    if (!input || !input[*i])
+        return (1);
+    (*i)++;
+    while (input[*i] && input[*i] != quote_char)
+        (*i)++;
+    if (!input[*i])
+        return (1);
     return (0);
 }
 
-void	add_quoted_token(t_token **head, t_token **current, const char *input, int *i)
+static void    link_token(t_token **head, t_token **current, t_token *new)
 {
-	char			quote_char;
-	int				start;
-	int				len;
-	t_token			*token;
-	t_quote_state	quote_state;
-
-	quote_char = input[*i];	// Store opening quote character
-	quote_state = get_quote_state(quote_char);
-	start = *i + 1;
-	*i = start;
-	if (find_closing_quote(input, i, quote_char))
-	{
-		ft_printf("Error: Unmatched quote\n");
-		return ;
-	}
-	len = *i - start;
-	(*i)++;
-	token = new_token(TOKEN_WORD, &input[start], len);
-	if (!token)
-		return ;
-	token->quote_state = quote_state;
-	if (!*head)
-		*head = token;
-	else
-		(*current)->next = token;
-	*current = token;
+    if (!*head)
+        *head = new;
+    else
+        (*current)->next = new;
+    *current = new;
 }
 
-void	add_word_token(t_token **head, t_token **current, const char *input, int *i)
+static t_token    *handle_quote_content(const char *input, int *i, char quote)
 {
-	int		start;
-	int		len;
-	t_token	*token;
-	
-	start = *i;
-	// Collecting characters until a space or operator
-	while (input[*i] && !ft_isspace(input[*i]) && !is_operator(input[*i]))
-		(*i)++;
-	len = *i - start; // Calculating length of the word
-	token = new_token(TOKEN_WORD, &input[start], len);
-	if (!*head)
-		*head = token;
-	else//Append to the current list
-		(*current)->next = token;
-	*current = token;// Update current pointer
+    t_token *token;
+    int     start;
+    int     len;
+
+    start = *i + 1;
+    *i = start;
+    if (find_closing_quote(input, i, quote))
+        return (NULL);
+    len = *i - start;
+    (*i)++;
+    token = new_token(TOKEN_WORD, &input[start], len);
+    if (token)
+        token->quote_state = get_quote_state(quote);
+    return (token);
+}
+
+void    add_quoted_token(t_token **head, t_token **current, 
+                        const char *input, int *i)
+{
+    char    quote;
+    t_token *token;
+
+    if (!input || !input[*i])
+        return ;
+    quote = input[*i];
+    token = handle_quote_content(input, i, quote);
+    if (!token)
+    {
+        clean_parse_error(head, current);
+        ft_printf("Error: Unmatched quote\n");
+        return ;
+    }
+    link_token(head, current, token);
+}
+
+static t_token    *create_word_token(const char *input, int start, int len)
+{
+    if (!input || len <= 0)
+        return (NULL);
+    return (new_token(TOKEN_WORD, &input[start], len));
+}
+
+static int    calculate_word_length(const char *input, int *i)
+{
+    int start;
+
+    if (!input || !input[*i])
+        return (0);
+    start = *i;
+    while (input[*i] && !ft_isspace(input[*i]) && !is_operator(input[*i]))
+        (*i)++;
+    return (*i - start);
+}
+
+void    add_word_token(t_token **head, t_token **current, 
+                      const char *input, int *i)
+{
+    int     start;
+    int     len;
+    t_token *token;
+
+    if (!input || !input[*i])
+        return ;
+    start = *i;
+    len = calculate_word_length(input, i);
+    token = create_word_token(input, start, len);
+    if (!token)
+    {
+        clean_parse_error(head, current);
+        return ;
+    }
+    if (!*head)
+        *head = token;
+    else
+        (*current)->next = token;
+    *current = token;
+}
+
+
+// Cleaning functions
+
+void    clean_token(t_token *token)
+{
+    if (!token)
+        return;
+    if (token->start)
+        free(token->start);
+    free(token);
+}
+
+void    clean_token_list(t_token *head)
+{
+    t_token *current;
+    t_token *next;
+
+    if (!head)
+        return ;
+    current = head;
+    while (current)
+    {
+        next = current->next;
+        clean_token(current);
+        current = next;
+    }
+}
+
+void    clean_parse_error(t_token **head, t_token **current)
+{
+    if (!head || !*head)
+        return;
+    clean_token_list(*head);
+    *head = NULL;
+    *current = NULL;
 }
