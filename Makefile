@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/23 16:24:37 by msavelie         ###   ########.fr        #
+#    Updated: 2024/12/27 14:21:58 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,9 @@ SRCS = \
 	${SRC_DIR}/errors.c \
 	${SRC_DIR}/clean.c \
 	${SRC_DIR}/built_ins.c \
-	${SRC_DIR}/ast.c
+	${SRC_DIR}/ast.c \
+	${SRC_DIR}/execution.c \
+	${SRC_DIR}/validation.c
 
 OBJS = ${SRCS:.c=.o}
 

@@ -3,8 +3,10 @@
 
 # include "../libft_updated/libft.h"
 # include <stdio.h>
+# include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <sys/types.h>
 
 # define PROMPT "💩-shell: "
 
@@ -49,12 +51,13 @@ typedef struct	s_mshell
 	char		**cmds;         	// Array of command strings (split version of cmd_line)
 	char		*cur_path;      	// Current working directory path
 	char		**paths;
+	char		**envp;
 	int			is_heredoc;     	// Flag for active heredoc mode
 	int			total_cmds;     	// Total number of commands
 	int			allocated_pipes;	// Number of pipes allocated
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
-	int			last_exit_status;
+	int			exit_code;
 }	t_mshell;
 
 //parsing
@@ -76,6 +79,7 @@ void	    open_dir(const char *dir);
 void	    pwd(void);
 void	    env(char **env_args, char **envp);
 void	    echo(char **args);
+void		export(char **args, char **envp);
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);
@@ -87,5 +91,10 @@ void		free_ast(t_ast_node *node);
 
 //To be able to see for now whether it all works correctly
 void		print_ast(t_ast_node *node, int depth);
+
+/* ===== EXECUTION ===== */
+void	print_exit(char *mes, char *cmd, int exit_code);
+char	*check_paths_access(char **paths, char **args, t_mshell *obj);
+void	execute_cmd(t_mshell *obj);
 
 #endif

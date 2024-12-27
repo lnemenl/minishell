@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/23 17:09:02 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/27 14:49:21 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,6 +24,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.pipfd = NULL;
 	obj.total_cmds = 0;
 	obj.paths = fetch_paths(envp);
+	obj.envp = envp;
 	(void) argv;
 	return (obj);
 }
@@ -47,6 +48,7 @@ int	main(int argc, char **argv, char **envp)
 		add_history(obj.cmd_line);
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
+		execute_cmd(&obj);
 	}
 	clean_mshell(&obj);
 	return (0);
