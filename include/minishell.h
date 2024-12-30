@@ -49,17 +49,17 @@ typedef struct s_ast_node
 
 typedef struct	s_mshell
 {
-	char		*cmd_line;      	// Full input line entered by the user
-	char		**cmds;         	// Array of command strings (split version of cmd_line)
-	char		*cur_path;      	// Current working directory path
-	char		**paths;
-	char		**envp;
-	int			is_heredoc;     	// Flag for active heredoc mode
-	int			total_cmds;     	// Total number of commands
-	int			allocated_pipes;	// Number of pipes allocated
-	int			**pipfd;        	// File descriptors for pipes
-	t_ast_node	*ast;
-	int			exit_code;
+	char			*cmd_line;      	// Full input line entered by the user
+	char			**cmds;         	// Array of command strings (split version of cmd_line)
+	char			*cur_path;      	// Current working directory path
+	char			**paths;
+	char			**envp;
+	int				is_heredoc;     	// Flag for active heredoc mode
+	int				total_cmds;     	// Total number of commands
+	int				allocated_pipes;	// Number of pipes allocated
+	int				**pipfd;        	// File descriptors for pipes
+	t_ast_node		*ast;
+	int				exit_code;
 }	t_mshell;
 
 //parsing
@@ -77,12 +77,12 @@ void        add_quoted_token(t_token **head, t_token **current, const char *inpu
 void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-void	    open_dir(const char *dir);
+int	    	open_dir(const char *dir);
 void	    pwd(void);
 void	    env(char **env_args, char **envp);
 void	    echo(char **args);
-void		export(char **args, char **envp);
-void		unset(char **args);
+int			export(char **args, char **envp);
+int			unset(char **args);
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);

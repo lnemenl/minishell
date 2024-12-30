@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/30 10:45:46 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/30 11:57:53 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,10 @@ static void	create_env_file(char **envp)
 		exit (1);
 	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
-		exit(error_ret(7, NULL));
+	{
+		unlink(".env_temp.txt");
+		exit(error_ret(6, NULL));
+	}
 	i = 0;
 	while (envp[i])
 	{
@@ -47,7 +50,7 @@ static void	create_env_file(char **envp)
 		{
 			close(fd);
 			unlink(".env_temp.txt");
-			exit(error_ret(7, NULL));
+			exit(error_ret(6, NULL));
 		}
 		i++;
 	}
