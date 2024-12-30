@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/27 16:59:18 by msavelie         ###   ########.fr        #
+#    Updated: 2024/12/30 16:29:51 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,13 +25,15 @@ WHITE = \033[0;97m
 NAME = minishell
 
 SRC_DIR = ./srcs
+BUILTINS = ./builtins
 
 SRCS = \
 	${SRC_DIR}/main.c \
 	${SRC_DIR}/parse.c \
 	${SRC_DIR}/errors.c \
 	${SRC_DIR}/clean.c \
-	${SRC_DIR}/built_ins.c \
+	${SRC_DIR}/${BUILTINS}/built_ins.c \
+	${SRC_DIR}/${BUILTINS}/export.c \
 	${SRC_DIR}/ast.c \
 	${SRC_DIR}/execution.c \
 	${SRC_DIR}/validation.c
