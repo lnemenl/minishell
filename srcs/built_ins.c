@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/27 17:15:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/30 10:29:48 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,5 +85,17 @@ void	echo(char **args)
 
 void	export(char **args, char **envp)
 {
-	execve("/bin/sh", args, envp);
+	// read the env file
+	// append the variable to the proper place
+	// append the rest of data
+	(void) args;
+	(void) envp;
+}
+
+void	unset(char **args)
+{
+	// read the env file
+	(void) args;
+	// append the variable to the proper place
+	// append the rest of data
 }

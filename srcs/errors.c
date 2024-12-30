@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/05 15:58:18 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/30 10:26:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,5 +27,7 @@ int	error_ret(int type, char *arg)
 		ft_putstr_fd("Fork failed\n", 2);
 	else if (type == 6)
 		ft_putstr_fd("Malloc failed\n", 2);
-	exit(0);
+	else if (type == 7)
+		ft_putstr_fd("File handling error\n", 2);
+	exit(1);
 }

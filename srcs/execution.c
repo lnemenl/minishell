@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/27 16:38:43 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/30 10:20:50 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 static int	is_builtin_cmd(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0 
-		// || ft_strcmp(cmd, "cd") == 0
 		|| ft_strcmp(cmd, "pwd") == 0
 		|| ft_strcmp(cmd, "export") == 0
 		|| ft_strcmp(cmd, "unset") == 0
@@ -40,12 +39,12 @@ static void	run_builtins(char **args, t_mshell *obj)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		echo(args);
-	// else if (ft_strcmp(args[0], "cd") == 0)
-	// 	open_dir(args[1]);
 	else if (ft_strcmp(args[0], "pwd") == 0)
 		pwd();
 	else if (ft_strcmp(args[0], "export") == 0)
 		export(args, obj->envp);
+	else if (ft_strcmp(args[0], "unset") == 0)
+		unset(args);
 	else if (ft_strcmp(args[0], "env") == 0)
 		env(args, obj->envp);
 	exit_child(obj, args[0], 127);

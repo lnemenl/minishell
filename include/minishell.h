@@ -82,6 +82,7 @@ void	    pwd(void);
 void	    env(char **env_args, char **envp);
 void	    echo(char **args);
 void		export(char **args, char **envp);
+void		unset(char **args);
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);

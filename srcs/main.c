@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/27 16:26:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2024/12/30 10:45:46 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,13 +29,39 @@ static t_mshell	init_shell(char **argv, char **envp)
 	return (obj);
 }
 
+static void	create_env_file(char **envp)
+{
+	int	fd;
+	int	i;
+
+	if (!envp)
+		exit (1);
+	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	if (fd == -1)
+		exit(error_ret(7, NULL));
+	i = 0;
+	while (envp[i])
+	{
+		if (write(fd, envp[i], ft_strlen(envp[i])) < 0
+			|| write(fd, "\n", 1) < 0)
+		{
+			close(fd);
+			unlink(".env_temp.txt");
+			exit(error_ret(7, NULL));
+		}
+		i++;
+	}
+	close(fd);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-	int status;
+	int 		status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
+	create_env_file(envp);
 	obj = init_shell(argv, envp);
 	while (1)
 	{
