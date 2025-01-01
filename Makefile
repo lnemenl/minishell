@@ -6,7 +6,7 @@
 #    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/23 16:24:37 by msavelie         ###   ########.fr        #
+#    Updated: 2025/01/01 17:13:35 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -27,12 +27,24 @@ NAME = minishell
 SRC_DIR = ./srcs
 
 SRCS = \
-	${SRC_DIR}/main.c \
-	${SRC_DIR}/parse.c \
-	${SRC_DIR}/errors.c \
-	${SRC_DIR}/clean.c \
-	${SRC_DIR}/built_ins.c \
-	${SRC_DIR}/ast.c
+    ${SRC_DIR}/main.c \
+    ${SRC_DIR}/errors.c \
+    ${SRC_DIR}/clean.c \
+    ${SRC_DIR}/built_ins.c \
+    \
+    ${SRC_DIR}/parsing/parsing_utils.c \
+    ${SRC_DIR}/parsing/parse.c \
+    ${SRC_DIR}/parsing/token_create.c \
+    ${SRC_DIR}/parsing/token_word.c \
+    ${SRC_DIR}/parsing/token_operator.c \
+    ${SRC_DIR}/parsing/token_quote.c \
+    ${SRC_DIR}/parsing/token_env.c \
+    ${SRC_DIR}/parsing/token_clean.c \
+    \
+    ${SRC_DIR}/abstract_syntax_tree/ast_core.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_command.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_redirect.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_debug.c
 
 OBJS = ${SRCS:.c=.o}
 
