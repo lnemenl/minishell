@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/30 16:58:22 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:16:18 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,16 +42,16 @@ static char	*check_env_arg(char *arg)
 		equal = 0;
 	if (!ft_strchr(arg, '='))
 	{
-		new_arg = ft_calloc(len + 4, 1);
+		new_arg = ft_calloc(len + 2, 1);
 		if (!new_arg)
 		{
 			//cleanup
 		}
 		new_arg = ft_memcpy(new_arg, arg, len);
 		if (equal == 1)
-			ft_strlcat(new_arg, "=''", len + 4);
+			ft_strlcat(new_arg, "=", len + 2);
 		else
-			ft_strlcat(new_arg, "''", len + 3);
+			ft_strlcat(new_arg, "", len + 1);
 		return (new_arg);
 	}
 	return (ft_strdup(arg));
@@ -107,19 +107,6 @@ static void	append_env(char *arg, char **strs, size_t i)
 		exit(error_ret(6, NULL));
 	}
 	new_arg = check_env_arg(arg);
-	// str_len = ft_strlen(new_arg);
-	// last_str = strs[i];
-	// strs[i] = ft_calloc(str_len + 2, 1);
-	// if (!strs[i])
-	// {
-	// 	ft_free_strs(strs, i);
-	// 	exit(error_ret(6, NULL));
-	// }
-	// strs[i] = ft_memcpy(strs[i], new_arg, str_len);
-	// strs[i][str_len] = '\n';
-	// free(new_arg);
-	// strs[++i] = last_str;
-	// strs[++i] = NULL;
 	put_env_var(strs, new_arg, i);
 	free(new_arg);
 	j = 0;
@@ -136,13 +123,9 @@ static void	append_env(char *arg, char **strs, size_t i)
 	close(fd);
 }
 
-int	export(char **args, char **envp)
+int	export(char **args)
 {
-	// read the env file
-	// append the variable to the proper place
-	// append the rest of data
 	char	**strs;
-	size_t	buffer;
 	size_t	i;
 	int		fd;
 
@@ -154,32 +137,9 @@ int	export(char **args, char **envp)
 		//cleanup
 		error_ret(6, NULL);
 	}
-	buffer = 50;
-	strs = ft_calloc(buffer, sizeof(char *));
-	if (!strs)
-		error_ret(5, NULL);
 	i = 0;
-	strs[i] = get_next_line(fd);
-	while (strs[i])
-	{
-		printf("strs[%zu]: %s", i, strs[i]);
-		if (i == buffer - 1)
-		{
-			strs = ft_realloc(strs, buffer * sizeof(char *), (buffer + 50) * sizeof(char *));
-			buffer += 50;
-		}
-		i++;
-		strs[i] = get_next_line(fd);
-	}
-	close(fd);
-	if (i > buffer - 3)
-	{
-		strs = ft_realloc(strs, buffer * sizeof(char *), (buffer + 3) * sizeof(char *));
-		buffer += 3;
-	}
+	strs = read_alloc(fd, &i);
 	append_env(args[1], strs, --i);
 	ft_free_strs(strs, ++i);
-	(void) args;
-	(void) envp;
 	return (1);
 }

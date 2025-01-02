@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2024/12/30 16:29:51 by msavelie         ###   ########.fr        #
+#    Updated: 2025/01/02 14:09:04 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,9 +34,11 @@ SRCS = \
 	${SRC_DIR}/clean.c \
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/export.c \
+	${SRC_DIR}/${BUILTINS}/unset.c \
 	${SRC_DIR}/ast.c \
 	${SRC_DIR}/execution.c \
-	${SRC_DIR}/validation.c
+	${SRC_DIR}/validation.c \
+	${SRC_DIR}/utils.c
 
 OBJS = ${SRCS:.c=.o}
 

@@ -81,7 +81,7 @@ int	    	open_dir(const char *dir);
 void	    pwd(void);
 void	    env(char **env_args, char **envp);
 void	    echo(char **args);
-int			export(char **args, char **envp);
+int			export(char **args);
 int			unset(char **args);
 
 //ast
@@ -99,5 +99,6 @@ void		print_ast(t_ast_node *node, int depth);
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, char **args, t_mshell *obj);
 pid_t	execute_cmd(t_mshell *obj);
+char	**read_alloc(int fd, size_t *i);
 
 #endif

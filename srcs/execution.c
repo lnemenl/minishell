@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/30 13:17:35 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:07:56 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,12 +44,12 @@ static void	run_builtins_execve(char **args, t_mshell *obj)
 	exit_child(obj, args[0], 127);
 }
 
-static int	run_bultins(char **args, t_mshell *obj)
+static int	run_bultins(char **args)
 {
 	if (ft_strcmp(args[0], "cd") == 0)
 		return (open_dir(args[1]));
 	else if (ft_strcmp(args[0], "export") == 0)
-		return (export(args, obj->envp));
+		return (export(args));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args));
 	return (0);
@@ -64,7 +64,7 @@ pid_t	execute_cmd(t_mshell *obj)
 
 	// fork process
 	p = -1;
-	if (run_bultins(obj->ast->args, obj) == 1)
+	if (run_bultins(obj->ast->args) == 1)
 		return (p);
 	p = fork();
 	if (p == -1)
