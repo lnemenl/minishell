@@ -3,8 +3,12 @@
 
 # include "../libft_updated/libft.h"
 # include <stdio.h>
+# include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <sys/types.h>
+# include <errno.h>
+# include <sys/wait.h>
 
 # define PROMPT "💩-shell: "
 
@@ -45,16 +49,17 @@ typedef struct s_ast_node
 
 typedef struct	s_mshell
 {
-	char		*cmd_line;      	// Full input line entered by the user
-	char		**cmds;         	// Array of command strings (split version of cmd_line)
-	char		*cur_path;      	// Current working directory path
-	char		**paths;
-	int			is_heredoc;     	// Flag for active heredoc mode
-	int			total_cmds;     	// Total number of commands
-	int			allocated_pipes;	// Number of pipes allocated
-	int			**pipfd;        	// File descriptors for pipes
-	t_ast_node	*ast;
-	int			last_exit_status;
+	char			*cmd_line;      	// Full input line entered by the user
+	char			**cmds;         	// Array of command strings (split version of cmd_line)
+	char			*cur_path;      	// Current working directory path
+	char			**paths;
+	char			**envp;
+	int				is_heredoc;     	// Flag for active heredoc mode
+	int				total_cmds;     	// Total number of commands
+	int				allocated_pipes;	// Number of pipes allocated
+	int				**pipfd;        	// File descriptors for pipes
+	t_ast_node		*ast;
+	int				exit_code;
 }	t_mshell;
 
 //parsing
@@ -72,10 +77,12 @@ void        add_quoted_token(t_token **head, t_token **current, const char *inpu
 void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-void	    open_dir(const char *dir);
-void	    pwd(void);
-void	    env(char **env_args, char **envp);
-void	    echo(char **args);
+int			open_dir(const char *dir);
+void		pwd(void);
+int			env(void);
+void		echo(char **args);
+int			export(char **args);
+int			unset(char **args);
 
 //ast
 t_ast_node	*create_ast_node(t_token_type type);
@@ -87,5 +94,11 @@ void		free_ast(t_ast_node *node);
 
 //To be able to see for now whether it all works correctly
 void		print_ast(t_ast_node *node, int depth);
+
+/* ===== EXECUTION ===== */
+void	print_exit(char *mes, char *cmd, int exit_code);
+char	*check_paths_access(char **paths, char **args, t_mshell *obj);
+pid_t	execute_cmd(t_mshell *obj);
+char	**read_alloc(int fd, size_t *i);
 
 #endif

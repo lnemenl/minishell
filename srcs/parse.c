@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/24 16:53:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/30 11:58:14 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,14 +23,14 @@ char	**fetch_paths(char **envp)
 	{
 		if (ft_strncmp(envp[i], "PATH=", 5) == 0)
 		{
-			paths = ft_split(envp[i] + 5, ':'); // Split the value after "PATH="
+			paths = ft_split(envp[i] + 5, ':');
 			if (!paths)
-				error_ret(6, NULL); // Handle error on split failure
-			break; // Exit loop once PATH is found
+				error_ret(5, NULL);
+			break; 
 		}
 		i++;
 	}
-	return (paths); // Returns NULL if PATH is not found
+	return (paths);
 }
 
 void	parse(t_mshell *obj)

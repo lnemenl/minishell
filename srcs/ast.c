@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast.c                                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:17:20 by rkhakimu          #+#    #+#             */
-/*   Updated: 2024/12/24 16:55:39 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2024/12/27 14:22:22 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static char	*expand_variables(char *str, t_quote_state quote_state, t_mshell *sh
 	if (!ft_strchr(str, '$'))
 		return (ft_strdup(str));
 	if (ft_strcmp(str, "$?") == 0)
-		return(ft_itoa(shell->last_exit_status));
+		return(ft_itoa(shell->exit_code));
 	env_value = getenv(str + 1);
 	if (!env_value)
 		return (ft_strdup(""));
