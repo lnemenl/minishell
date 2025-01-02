@@ -77,10 +77,10 @@ void        add_quoted_token(t_token **head, t_token **current, const char *inpu
 void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-int	    	open_dir(const char *dir);
-void	    pwd(void);
-void	    env(char **env_args, char **envp);
-void	    echo(char **args);
+int			open_dir(const char *dir);
+void		pwd(void);
+int			env(void);
+void		echo(char **args);
 int			export(char **args);
 int			unset(char **args);
 

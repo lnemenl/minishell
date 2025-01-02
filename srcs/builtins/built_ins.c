@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 13:36:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/02 15:01:34 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,9 +76,26 @@ void	pwd(void)
 	free(buf);
 }
 
-void	env(char **env_args, char **envp)
+int	env(void)
 {
-	execve("/bin/sh", env_args, envp);
+	int		fd;
+	char	*str;
+
+	fd = open(".env_temp.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		//cleanup
+		error_ret(6, NULL);
+	}
+	str = get_next_line(fd);
+	while (str)
+	{
+		printf("%s", str);
+		free(str);
+		str = get_next_line(fd);
+	}
+	close(fd);
+	return (1);
 }
 
 void	echo(char **args)

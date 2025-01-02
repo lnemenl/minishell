@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 14:07:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:59:35 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,8 +39,6 @@ static void	run_builtins_execve(char **args, t_mshell *obj)
 		echo(args);
 	else if (ft_strcmp(args[0], "pwd") == 0)
 		pwd();
-	else if (ft_strcmp(args[0], "env") == 0)
-		env(args, obj->envp);
 	exit_child(obj, args[0], 127);
 }
 
@@ -52,6 +50,8 @@ static int	run_bultins(char **args)
 		return (export(args));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args));
+	else if (ft_strcmp(args[0], "env") == 0)
+		return (env());
 	return (0);
 }
 
