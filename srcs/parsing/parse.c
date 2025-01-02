@@ -6,18 +6,11 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/01 18:08:37 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 17:37:59 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-// void    parse(t_mshell *obj)
-// void    print_parse_debug(t_mshell *obj) will be removed
-// t_token *tokenize(const char *input)
-// void    init_tokenize(t_token **head, t_token **current)
-// t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed)
-// char	**fetch_paths(chat **envp)
 
 char	**fetch_paths(char **envp)
 {
@@ -39,7 +32,7 @@ void    parse(t_mshell *obj)
 		ft_printf("Error: Invalid input provided.\n");
 		return;
 	}
-	tokens = tokenize(obj->cmd_line);
+	tokens = tokenize(obj->cmd_line, obj);
 	if (!tokens)
 	{
 		ft_printf("Error: Failed to tokenize input.\n");
@@ -84,14 +77,14 @@ t_token	*process_trimmed_input(t_token **head, t_token **current,
         if (!process_token(head, current, trimmed_input, &i))
         {
             clean_parse_error(head, current);
-            free(trimmed_input);
+            //free(trimmed_input);
             return (NULL);
         }
     }
     return (*head);
 }
 
-t_token	*tokenize(const char *input)
+t_token	*tokenize(const char *input, t_mshell *mshell)
 {
     t_token *head;
     t_token *current;
@@ -107,6 +100,9 @@ t_token	*tokenize(const char *input)
         free(trimmed_input);
         return (NULL);
     }
+	head->mshell = mshell;
+	current->mshell = mshell;
+	result->mshell = mshell;
     result = process_trimmed_input(&head, &current, trimmed_input);
     free(trimmed_input);
     return (result);

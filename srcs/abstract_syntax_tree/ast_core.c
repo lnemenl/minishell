@@ -6,15 +6,18 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 18:32:47 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 16:30:59 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 
 #include "../../include/minishell.h"
 
-static t_ast_node	*free_ast_return_null(t_ast_node *node);
-t_ast_node			*parse_command(t_token **tokens);
+static t_ast_node	*free_ast_return_null(t_ast_node *node)
+{
+	free_ast(node);
+	return (NULL);
+}
 
 t_ast_node	*create_ast_node(t_token_type type)
 {
@@ -30,11 +33,6 @@ t_ast_node	*create_ast_node(t_token_type type)
 	return (node);
 }
 
-static t_ast_node	*free_ast_return_null(t_ast_node *node)
-{
-	free_ast(node);
-	return (NULL);
-}
 
 t_ast_node	*parse_pipeline(t_token **tokens)
 {

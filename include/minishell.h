@@ -41,6 +41,7 @@ typedef struct s_token
 	int					length;		// Length of the token
 	struct s_token		*next;		// Pointer to the next token
 	t_quote_state		quote_state;
+	struct s_mshell		*mshell;	// Pointer to the mshell object
 }   t_token;
 
 
@@ -80,7 +81,7 @@ t_quote_state	get_quote_state(char quote);
 /* ===== PARSING ===== */
 void			parse(t_mshell *obj);
 void			print_parse_debug(t_mshell *obj);
-t_token			*tokenize(const char *input);
+t_token			*tokenize(const char *input, t_mshell *mshell);
 void			init_tokenize(t_token **head, t_token **current);
 t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed);
 char			**fetch_paths(char **envp);
@@ -107,10 +108,9 @@ t_token			*handle_single_operator(const char *input, int *i);
 
 /* ===== QUOTE HANDLING (token_quote.c) ===== */
 void			add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
-t_token			*handle_quote_content(const char *input, int *i, char quote);
-t_token			*handle_double_quote_content(const char *input, int *i, int start);
+t_token			*handle_quote_content(const char *input, int *i, char quote, t_mshell *mshell);
+t_token			*handle_double_quote_content(const char *input, int *i, int start, t_mshell *mshell);
 int				find_closing_quote(const char *input, int *i, char quote_char);
-t_token			*handle_double_quote_env(const char *input, int *i, int start);
 
 /* ===== ENVIRONMENT VARIABLES (token_env.c) ===== */
 void			handle_env_var(t_token **head, t_token **current, const char *input, int *i);
@@ -143,6 +143,5 @@ t_ast_node		*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
 
 /* ===== AST DEBUG (ast_debug.c) ===== */
 void			print_ast(t_ast_node *node, int depth);
-
 
 #endif

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:28:31 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 19:38:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 17:17:59 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,22 +22,22 @@ static char	*process_quoted_content(const char *content)
     char	*processed;
     int		i;
     int		j;
-    char    outer_quote;
+    //char    outer_quote;
 
     processed = ft_calloc(ft_strlen(content) + 1, sizeof(char));
     if (!processed)
         return (NULL);
     i = 0;
     j = 0;
-    outer_quote = 0;
+    //outer_quote = 0;
     while (content[i])
     {
-        if (!outer_quote && (content[i] == '\'' || content[i] == '"'))
-            outer_quote = content[i];
-        else if (content[i] == outer_quote)
-            outer_quote = 0;
-        else
-            processed[j++] = content[i];
+        // if (!outer_quote && (content[i] == '\'' || content[i] == '"'))
+        //     outer_quote = content[i];
+        // else if (content[i] == outer_quote)
+        //     outer_quote = 0;
+        // else
+        processed[j++] = content[i];
         i++;
     }
     processed[j] = '\0';

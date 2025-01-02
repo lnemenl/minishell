@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 14:56:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 19:26:01 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 17:42:45 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,8 @@ static int	update_token_content(t_token **current, const char *input, int add_le
 	temp = (*current)->start;
 	(*current)->start = new_content;
 	(*current)->length += add_len;
-	free(temp);
+    if (temp)
+	    free(temp);
 	return (1);
 }
 
@@ -113,10 +114,11 @@ int	extend_current_token(t_token **current, const char *input, int *i)
 {
     int		add_len;
     int		start;
+    char    quote;
 
     if (is_quote(input[*i]))
     {
-        char quote = input[*i];
+        quote = input[*i];
         start = ++(*i);
         while (input[*i] && input[*i] != quote)
             (*i)++;

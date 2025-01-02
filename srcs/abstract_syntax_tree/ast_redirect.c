@@ -6,17 +6,11 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:30:06 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 18:08:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 16:34:30 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-// t_ast_node    *handle_redirection(t_token **tokens, t_ast_node *cmd_node);
-// static t_ast_node    *create_redirect_node(t_token **tokens);
-// static int    is_redirect_token(t_token_type type);
-// static int    setup_redirect_node(t_ast_node *node, t_token **tokens, t_ast_node *cmd);
-
 
 static int	is_redirect_token(t_token_type type)
 {

@@ -6,17 +6,11 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 15:19:12 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 11:59:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-// void    handle_env_var(t_token **head, t_token **current, const char *input, int *i)
-// t_token *handle_env_var_token(const char *input, int *i)
-// void    add_exit_status_token(t_token **head, t_token **current)
-// int     get_env_var_len(const char *str)
-
 
 void	handle_env_var(t_token **head, t_token **current, const char *input, int *i)
 {
