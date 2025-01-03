@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/02 14:09:04 by msavelie         ###   ########.fr        #
+#    Updated: 2025/01/03 14:15:22 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,13 +29,25 @@ BUILTINS = ./builtins
 
 SRCS = \
 	${SRC_DIR}/main.c \
-	${SRC_DIR}/parse.c \
-	${SRC_DIR}/errors.c \
-	${SRC_DIR}/clean.c \
+    ${SRC_DIR}/errors.c \
+    ${SRC_DIR}/clean.c \
+    \
+    ${SRC_DIR}/parsing/parsing_utils.c \
+    ${SRC_DIR}/parsing/parse.c \
+    ${SRC_DIR}/parsing/token_core.c \
+    ${SRC_DIR}/parsing/token_quote.c \
+    ${SRC_DIR}/parsing/token_env.c \
+    ${SRC_DIR}/parsing/token_process.c \
+    \
+    ${SRC_DIR}/abstract_syntax_tree/ast_core.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_command.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_redirect.c \
+    ${SRC_DIR}/abstract_syntax_tree/ast_debug.c \
+	\
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/export.c \
 	${SRC_DIR}/${BUILTINS}/unset.c \
-	${SRC_DIR}/ast.c \
+	\
 	${SRC_DIR}/execution.c \
 	${SRC_DIR}/validation.c \
 	${SRC_DIR}/utils.c

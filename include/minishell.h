@@ -19,7 +19,7 @@ typedef enum e_token_type
 	TOKEN_REDIRECT_OUT,     //>
 	TOKEN_REDIRECT_IN,      //<
 	TOKEN_REDIRECT_APPEND,  //>>
-	TOKEN_HEREDOC           //<<
+	TOKEN_HEREDOC,          //<<
 }   t_token_type;
 
 typedef	enum e_quote_state
@@ -29,13 +29,23 @@ typedef	enum e_quote_state
 	QUOTE_DOUBLE
 }	t_quote_state;
 
+
+typedef struct s_quote_context
+{
+	char				*buffer;
+	size_t				capacity;
+	size_t				length;
+	char				quote_type;
+	t_quote_state		state;
+}   t_quote_context;
+
 typedef struct s_token
 {
 	t_token_type		type;		// Type of token (e.g., WORD, PIPE)
-	char				*start;		// Pointer to the start of the token in the input string
-	int					length;		// Length of the token
-	struct s_token		*next;		// Pointer to the next token
+	char				*content;
 	t_quote_state		quote_state;
+	struct s_token		*next;		// Pointer to the next token
+	struct s_mshell		*mshell;	// Pointer to the mshell object
 }   t_token;
 
 
@@ -49,32 +59,56 @@ typedef struct s_ast_node
 
 typedef struct	s_mshell
 {
-	char			*cmd_line;      	// Full input line entered by the user
-	char			**cmds;         	// Array of command strings (split version of cmd_line)
-	char			*cur_path;      	// Current working directory path
-	char			**paths;
-	char			**envp;
-	int				is_heredoc;     	// Flag for active heredoc mode
-	int				total_cmds;     	// Total number of commands
-	int				allocated_pipes;	// Number of pipes allocated
-	int				**pipfd;        	// File descriptors for pipes
-	t_ast_node		*ast;
-	int				exit_code;
+	char		*cmd_line;      	// Full input line entered by the user
+	char		**cmds;         	// Array of command strings (split version of cmd_line)
+	char		*cur_path;      	// Current working directory path
+	char		**paths;
+	int			is_heredoc;     	// Flag for active heredoc mode
+	int			total_cmds;     	// Total number of commands
+	int			allocated_pipes;	// Number of pipes allocated
+	int			**pipfd;        	// File descriptors for pipes
+	t_ast_node	*ast;
+	int			last_exit_status;
+	int			pipes_count;
 }	t_mshell;
 
-//parsing
+int				error_ret(int type, char *arg);
+void			clean_mshell(t_mshell *obj);
 
-int		error_ret(int type, char *arg);
-char	**fetch_paths(char **envp);
-void	clean_mshell(t_mshell *obj);
+/* ===== PARSING UTILS (parsing_utils.c) ===== */
+int				ft_isspace(int c);
+int				is_operator(char c);
+int				is_word_char(char c);
+int				is_quote(char c);
+t_quote_state	get_quote_state(char quote);
 
 /* ===== PARSING ===== */
-void        parse(t_mshell *obj);
-t_token     *tokenize(const char *input);
-t_token     *new_token(t_token_type type, const char *start, int length);
-void        add_operator_token(t_token **head, t_token **current, const char *input, int *i);
-void        add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
-void        add_word_token(t_token **head, t_token **current, const char *input, int *i);
+void			parse(t_mshell *obj);
+void			print_parse_debug(t_mshell *obj);
+t_token			*tokenize(const char *input, t_mshell *mshell);
+void			init_tokenize(t_token **head, t_token **current);
+t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
+char			**fetch_paths(char **envp);
+
+/* ===== TOKEN CORE (token_core.c) ===== */
+t_token			*new_token(t_token_type type, const char *content, size_t len);
+void			link_token(t_token **head, t_token **current, t_token *new);
+void			clean_tokens(t_token *head);
+//t_token			*process_token(t_token **head, t_token **current, const char *input, int *i);
+
+/* ===== ENVIRONMENT VARIABLES (token_env.c) ===== */
+char			*get_env_value(const char *var_name, t_mshell *mshell);
+char			*expand_env_vars(const char *str, t_mshell *mshell);
+
+/* ===== TOKEN PROCESS (token_process.c) ===== */
+t_token			*handle_operator(t_token **head, t_token **current, const char *input, int *i);
+t_token			*handle_word(t_token **head, t_token **current, const char *input, int *i);
+t_token			*process_token(t_token **head, t_token **current, const char *input, int *i);
+
+/* ===== QUOTE HANDLING (token_quote.c) ===== */
+t_token			*handle_single_quotes(const char *input, int *i);
+t_token			*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
+t_token			*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
 int			open_dir(const char *dir);
@@ -84,21 +118,27 @@ void		echo(char **args);
 int			export(char **args);
 int			unset(char **args);
 
-//ast
-t_ast_node	*create_ast_node(t_token_type type);
-t_ast_node	*build_command_node(t_token **tokens, t_mshell *shell);
-t_ast_node	*parse_pipeline(t_token **tokens, t_mshell *shell);
-t_ast_node	*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
-t_ast_node	*parse_command(t_token **tokens, t_mshell *shell);
-void		free_ast(t_ast_node *node);
+/* ===== AST CORE (ast_core.c) ===== */
+t_ast_node		*create_ast_node(t_token_type type);
+t_ast_node		*parse_pipeline(t_token **tokens);
+t_ast_node		*parse_command(t_token **tokens);
+void			free_ast(t_ast_node *node);
 
-//To be able to see for now whether it all works correctly
-void		print_ast(t_ast_node *node, int depth);
+/* ===== AST COMMAND (ast_command.c) ===== */
+t_ast_node		*build_command_node(t_token **tokens);
+
+/* ===== AST REDIRECT (ast_redirect.c) ===== */
+t_ast_node		*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
+
+/* ===== AST DEBUG (ast_debug.c) ===== */
+void			print_ast(t_ast_node *node, int depth);
+
 
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, char **args, t_mshell *obj);
 pid_t	execute_cmd(t_mshell *obj);
 char	**read_alloc(int fd, size_t *i);
+
 
 #endif
