@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 12:24:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 14:25:56 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
     (*i)++;
     if (!input[*i])
     {
-        (*current)->mshell->last_exit_status = 1;
+        (*current)->mshell->exit_code = 1;
         ft_putendl_fd("minishell: syntax error: unclosed quote", 2);
         return (NULL);
     }
@@ -87,7 +87,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
         token = handle_single_quotes(input, i);
     if (!token)
     {
-        (*current)->mshell->last_exit_status = 1;
+        (*current)->mshell->exit_code = 1;
         return (NULL);
     }
     link_token(head, current, token);

@@ -68,8 +68,9 @@ typedef struct	s_mshell
 	int			allocated_pipes;	// Number of pipes allocated
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
-	int			last_exit_status;
+	int			exit_code;
 	int			pipes_count;
+	char 		**envp;
 }	t_mshell;
 
 int				error_ret(int type, char *arg);

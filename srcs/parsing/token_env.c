@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 12:16:48 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 14:26:17 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ char *get_env_value(const char *var_name, t_mshell *mshell)
     if (!var_name)
         return (NULL);
     if (ft_strcmp(var_name, "?") == 0)
-        return (ft_itoa(mshell->last_exit_status));
+        return (ft_itoa(mshell->exit_code));
     value = getenv(var_name);
     if (!value)
         return (ft_strdup(""));
