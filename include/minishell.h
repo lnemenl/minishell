@@ -3,8 +3,12 @@
 
 # include "../libft_updated/libft.h"
 # include <stdio.h>
+# include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
+# include <sys/types.h>
+# include <errno.h>
+# include <sys/wait.h>
 
 # define PROMPT "💩-shell: "
 
@@ -107,10 +111,12 @@ t_token			*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
 t_token			*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-void			open_dir(const char *dir);
-void			pwd(void);
-void			env(char **env_args, char **envp);
-void			echo(char **args);
+int			open_dir(const char *dir);
+void		pwd(void);
+int			env(void);
+void		echo(char **args);
+int			export(char **args);
+int			unset(char **args);
 
 /* ===== AST CORE (ast_core.c) ===== */
 t_ast_node		*create_ast_node(t_token_type type);
@@ -126,5 +132,13 @@ t_ast_node		*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
 
 /* ===== AST DEBUG (ast_debug.c) ===== */
 void			print_ast(t_ast_node *node, int depth);
+
+
+/* ===== EXECUTION ===== */
+void	print_exit(char *mes, char *cmd, int exit_code);
+char	*check_paths_access(char **paths, char **args, t_mshell *obj);
+pid_t	execute_cmd(t_mshell *obj);
+char	**read_alloc(int fd, size_t *i);
+
 
 #endif

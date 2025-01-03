@@ -6,7 +6,7 @@
 #    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/03 13:29:03 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/01/03 14:15:22 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,12 +25,12 @@ WHITE = \033[0;97m
 NAME = minishell
 
 SRC_DIR = ./srcs
+BUILTINS = ./builtins
 
 SRCS = \
-    ${SRC_DIR}/main.c \
+	${SRC_DIR}/main.c \
     ${SRC_DIR}/errors.c \
     ${SRC_DIR}/clean.c \
-    ${SRC_DIR}/built_ins.c \
     \
     ${SRC_DIR}/parsing/parsing_utils.c \
     ${SRC_DIR}/parsing/parse.c \
@@ -42,7 +42,15 @@ SRCS = \
     ${SRC_DIR}/abstract_syntax_tree/ast_core.c \
     ${SRC_DIR}/abstract_syntax_tree/ast_command.c \
     ${SRC_DIR}/abstract_syntax_tree/ast_redirect.c \
-    ${SRC_DIR}/abstract_syntax_tree/ast_debug.c
+    ${SRC_DIR}/abstract_syntax_tree/ast_debug.c \
+	\
+	${SRC_DIR}/${BUILTINS}/built_ins.c \
+	${SRC_DIR}/${BUILTINS}/export.c \
+	${SRC_DIR}/${BUILTINS}/unset.c \
+	\
+	${SRC_DIR}/execution.c \
+	${SRC_DIR}/validation.c \
+	${SRC_DIR}/utils.c
 
 OBJS = ${SRCS:.c=.o}
 
