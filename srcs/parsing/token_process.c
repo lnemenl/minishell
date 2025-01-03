@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 12:20:35 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 18:31:38 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
     char *expanded;
     int start;
     char *temp;
-
+    
     if (!*current)
         return (NULL);
     start = *i;
@@ -69,6 +69,19 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
     temp = ft_substr(input, start, *i - start);
     if (!temp)
         return (NULL);
+    
+    // Check if previous token exists and has quote state
+    if (*current && (*current)->quote_state != QUOTE_NONE)
+    {
+        char *joined = ft_strjoin((*current)->content, temp);
+        free(temp);
+        if (!joined)
+            return (NULL);
+        free((*current)->content);
+        (*current)->content = joined;
+        return (*current);
+    }
+    
     expanded = expand_env_vars(temp, (*current)->mshell);
     free(temp);
     if (!expanded)
@@ -84,6 +97,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 
 t_token *process_token(t_token **head, t_token **current, const char *input, int *i)
 {
+
     if (ft_isspace(input[*i]))
     {
         (*i)++;

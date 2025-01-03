@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/03 12:23:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 17:40:22 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ void    parse(t_mshell *obj)
     obj->ast = parse_pipeline(&tokens);
     if (!obj->ast)
     {
-        clean_tokens(tokens);  // Updated to use new function name
+        clean_tokens(tokens);
         return;
     }
 	print_ast(obj->ast, 0);
@@ -65,7 +65,6 @@ t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_
     t_token *first_token;
 
     i = 0;
-    // Creating initial empty token to store mshell
     first_token = new_token(TOKEN_WORD, "", 0);
     if (!first_token)
         return (NULL);
@@ -81,7 +80,6 @@ t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_
             return (NULL);
         }
     }
-    // Removing the initial empty token
     *head = (*head)->next;
     free(first_token->content);
     free(first_token);
