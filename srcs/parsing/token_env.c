@@ -6,84 +6,91 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/02 11:59:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 12:16:48 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-void	handle_env_var(t_token **head, t_token **current, const char *input, int *i)
+static char *get_var_name(const char *str, int *i)
 {
-	t_token     *token;
-	t_env_data  data;
-	
-	(*i)++;
-	if (!input[*i])
-		return ;
-	if (input[*i] == '?')
-	{
-		token = new_token(TOKEN_EXIT_STATUS, &input[*i], 1);
-		if (token)
-			link_token(head, current, token);
-		(*i)++;
-		return ;
-	}
-	data.input = input;
-	data.start = *i;
-	data.len = get_env_var_len(&input[*i]);
-	if (data.len > 0)
-	{
-		token = new_token(TOKEN_ENV_VAR, &input[data.start], data.len);
-		if (token)
-			link_token(head, current, token);
-		(*i) += data.len;
-	}
-}
+    int start;
+    int len;
 
-t_token	*handle_env_var_token(const char *input, int *i)
-{
-	t_token	*token;
-	int     len;
-	
-	if (input[*i] == '?')
-	{
-		token = new_token(TOKEN_EXIT_STATUS, "?", 1);
-		(*i)++;
-		return (token);
-	}
-	len = get_env_var_len(&input[*i + 1]);
-	if (len <= 0)
-		return (NULL);
-	token = new_token(TOKEN_ENV_VAR, &input[*i + 1], len);
-	*i += len + 1;
-	return (token);
-}
-
-void	add_exit_status_token(t_token **head, t_token **currnt)
-{
-    t_token *token;
-    
-    token = new_token(TOKEN_EXIT_STATUS, "?", 1);
-    if (!token)
+    start = *i;
+    if (str[*i] == '?')
     {
-        clean_parse_error(head, currnt);
-        return ;
+        (*i)++;
+        return (ft_strdup("?"));
     }
-    link_token(head, currnt, token);
+    while (str[*i] && (ft_isalnum(str[*i]) || str[*i] == '_'))
+        (*i)++;
+    len = *i - start;
+    if (len == 0)
+        return (NULL);
+    return (ft_substr(str, start, len));
 }
 
-int	get_env_var_len(const char *str)
+char *get_env_value(const char *var_name, t_mshell *mshell)
 {
-	int len;
+    char *value;
 
-	len = 0;
-	if (!str)
-		return (0);
-	while (str[len])
-	{
-		if (!ft_isalnum(str[len]) && str[len] != '_')
-			break ;
-		len++;
-	}
-	return (len);
+    if (!var_name)
+        return (NULL);
+    if (ft_strcmp(var_name, "?") == 0)
+        return (ft_itoa(mshell->last_exit_status));
+    value = getenv(var_name);
+    if (!value)
+        return (ft_strdup(""));
+    return (ft_strdup(value));
+}
+
+static char *join_and_free(char *s1, char *s2)
+{
+    char *result;
+
+    if (!s1)
+        return (s2);
+    if (!s2)
+        return (s1);
+    result = ft_strjoin(s1, s2);
+    free(s1);
+    free(s2);
+    return (result);
+}
+
+char *expand_env_vars(const char *str, t_mshell *mshell)
+{
+    char *result;
+    char *var_name;
+    char *var_value;
+    int i;
+    int start;
+
+    if (!str || !mshell)
+        return (ft_strdup(""));
+    result = NULL;
+    i = 0;
+    while (str[i])
+    {
+        start = i;
+        while (str[i] && str[i] != '$')
+            i++;
+        if (i > start)
+            result = join_and_free(result, ft_substr(str, start, i - start));
+        if (str[i] == '$')
+        {
+            i++;
+            var_name = get_var_name(str, &i);
+            if (var_name)
+            {
+                var_value = get_env_value(var_name, mshell);
+                result = join_and_free(result, var_value);
+                free(var_name);
+            }
+        }
+    }
+    if (!result)
+        return (ft_strdup(""));
+    return (result);
 }

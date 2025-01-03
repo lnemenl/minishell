@@ -16,8 +16,6 @@ typedef enum e_token_type
 	TOKEN_REDIRECT_IN,      //<
 	TOKEN_REDIRECT_APPEND,  //>>
 	TOKEN_HEREDOC,          //<<
-	TOKEN_ENV_VAR,			//for $VAR
-	TOKEN_EXIT_STATUS		//for $?
 }   t_token_type;
 
 typedef	enum e_quote_state
@@ -27,20 +25,22 @@ typedef	enum e_quote_state
 	QUOTE_DOUBLE
 }	t_quote_state;
 
-typedef struct s_env_data
+
+typedef struct s_quote_context
 {
-	const char	*input;
-	int			start;
-	int			len;
-}	t_env_data;
+	char				*buffer;
+	size_t				capacity;
+	size_t				length;
+	char				quote_type;
+	t_quote_state		state;
+}   t_quote_context;
 
 typedef struct s_token
 {
 	t_token_type		type;		// Type of token (e.g., WORD, PIPE)
-	char				*start;		// Pointer to the start of the token in the input string
-	int					length;		// Length of the token
-	struct s_token		*next;		// Pointer to the next token
+	char				*content;
 	t_quote_state		quote_state;
+	struct s_token		*next;		// Pointer to the next token
 	struct s_mshell		*mshell;	// Pointer to the mshell object
 }   t_token;
 
@@ -113,10 +113,7 @@ t_token			*handle_double_quote_content(const char *input, int *i, int start, t_m
 int				find_closing_quote(const char *input, int *i, char quote_char);
 
 /* ===== ENVIRONMENT VARIABLES (token_env.c) ===== */
-void			handle_env_var(t_token **head, t_token **current, const char *input, int *i);
-t_token			*handle_env_var_token(const char *input, int *i);
-void			add_exit_status_token(t_token **head, t_token **current);
-int				get_env_var_len(const char *str);
+
 
 /* ===== CLEANUP (token_clean.c) ===== */
 void			clean_token(t_token *token);

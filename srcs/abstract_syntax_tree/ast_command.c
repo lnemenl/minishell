@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:28:31 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/02 17:17:59 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 12:11:25 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,42 +44,58 @@ static char	*process_quoted_content(const char *content)
     return (processed);
 }
 
-t_ast_node	*build_command_node(t_token **tokens)
+static int count_word_tokens(t_token *token)
 {
-    t_ast_node	*node;
-    int			arg_count;
-    int			i;
+    int count;
 
-    arg_count = count_word_tokens(*tokens);
-    if (arg_count == 0)
-        return (NULL);
-    node = create_ast_node(TOKEN_WORD);
-    if (!node || !init_command_args(node, arg_count))
-        return (NULL);
-    i = 0;
-    while (i < arg_count)
+    count = 0;
+    while (token && token->type == TOKEN_WORD)
     {
-        node->args[i] = process_quoted_content((*tokens)->start);
-        if (!node->args[i])
-            return (free_command_node(node, i));
-        *tokens = (*tokens)->next;
-        i++;
+        count++;
+        token = token->next;
     }
-    node->args[i] = NULL;
-    return (node);
+    return (count);
 }
 
-static int	count_word_tokens(t_token *token)
+t_ast_node *build_command_node(t_token **tokens)
 {
-	int	count;
+    t_ast_node  *node;
+    int         arg_count;
+    int         i;
+    t_token     *current;
 
-	count = 0;
-	while (token && token->type == TOKEN_WORD)
-	{
-		count++;
-		token = token->next;
-	}
-	return (count);
+    if (!tokens || !*tokens)
+        return (NULL);
+    node = ft_calloc(1, sizeof(t_ast_node));
+    if (!node)
+        return (NULL);
+    node->type = TOKEN_WORD;
+    arg_count = count_word_tokens(*tokens);
+    node->args = ft_calloc(arg_count + 1, sizeof(char *));
+    if (!node->args)
+    {
+        free(node);
+        return (NULL);
+    }
+    i = 0;
+    current = *tokens;
+    while (i < arg_count)
+    {
+        node->args[i] = ft_strdup(current->content);
+        if (!node->args[i])
+        {
+            while (--i >= 0)
+                free(node->args[i]);
+            free(node->args);
+            free(node);
+            return (NULL);
+        }
+        current = current->next;
+        i++;
+    }
+    node->args[arg_count] = NULL;
+    *tokens = current;
+    return (node);
 }
 
 static int	init_command_args(t_ast_node *node, int arg_count)

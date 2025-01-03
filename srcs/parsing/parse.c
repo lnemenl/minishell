@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 17:37:59 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 12:23:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,27 +27,20 @@ void    parse(t_mshell *obj)
 {
 	t_token *tokens;
 
-	if (!obj || !obj->cmd_line)
-	{
-		ft_printf("Error: Invalid input provided.\n");
-		return;
-	}
-	tokens = tokenize(obj->cmd_line, obj);
-	if (!tokens)
-	{
-		ft_printf("Error: Failed to tokenize input.\n");
-		return;
-	}
-	obj->ast = parse_pipeline(&tokens);
-	if (!obj->ast)
-	{
-		ft_printf("Error: Failed to create AST.\n");
-		clean_token_list(tokens);
-		return;
-	}
+    if (!obj || !obj->cmd_line)
+        return;
+    tokens = tokenize(obj->cmd_line, obj);
+    if (!tokens)
+        return;
+    obj->ast = parse_pipeline(&tokens);
+    if (!obj->ast)
+    {
+        clean_tokens(tokens);  // Updated to use new function name
+        return;
+    }
 	print_ast(obj->ast, 0);
 	print_parse_debug(obj);
-	clean_token_list(tokens);
+	clean_tokens(tokens);
 }
 
 void    print_parse_debug(t_mshell *obj)
@@ -66,30 +59,41 @@ void    init_tokenize(t_token **head, t_token **current)
 	*current = NULL;
 }
 
-t_token	*process_trimmed_input(t_token **head, t_token **current,
-                                       char *trimmed_input)
+t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_input, t_mshell *mshell)
 {
-    int    i;
+    int i;
+    t_token *first_token;
 
     i = 0;
+    // Creating initial empty token to store mshell
+    first_token = new_token(TOKEN_WORD, "", 0);
+    if (!first_token)
+        return (NULL);
+    first_token->mshell = mshell;
+    *head = first_token;
+    *current = first_token;
+
     while (trimmed_input[i])
     {
         if (!process_token(head, current, trimmed_input, &i))
         {
-            clean_parse_error(head, current);
-            //free(trimmed_input);
+            clean_tokens(*head);
             return (NULL);
         }
     }
+    // Removing the initial empty token
+    *head = (*head)->next;
+    free(first_token->content);
+    free(first_token);
     return (*head);
 }
 
 t_token	*tokenize(const char *input, t_mshell *mshell)
 {
-    t_token *head;
-    t_token *current;
-    t_token *result;
-    char    *trimmed_input;
+    t_token	*head;
+    t_token	*current;
+    t_token	*result;
+    char	*trimmed_input;
 
     if (!input)
         return (NULL);
@@ -100,10 +104,9 @@ t_token	*tokenize(const char *input, t_mshell *mshell)
         free(trimmed_input);
         return (NULL);
     }
-	head->mshell = mshell;
-	current->mshell = mshell;
-	result->mshell = mshell;
-    result = process_trimmed_input(&head, &current, trimmed_input);
+    result = process_trimmed_input(&head, &current, trimmed_input, mshell);
+    if (result)
+        result->mshell = mshell;
     free(trimmed_input);
     return (result);
 }

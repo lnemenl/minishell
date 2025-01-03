@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:05:13 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/01 15:18:54 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 11:43:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	is_word_char(char c)
 
 int is_quote(char c)
 {
-	return (c == '\'' || c == '\"');
+	return (c == '\'' || c == '"');
 }
 
 t_quote_state	get_quote_state(char quote)
