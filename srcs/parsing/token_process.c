@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 18:31:38 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 19:17:02 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,10 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
         return (NULL);
     (*i)++;
     link_token(head, current, token);
+    while (input[*i] && ft_isspace(input[*i]))
+        (*i)++;
+    if (input[*i] && !is_operator(input[*i]) && !is_quote(input[*i]))
+        return (handle_word(head, current, input, i));
     return (token);
 }
 

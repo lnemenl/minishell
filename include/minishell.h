@@ -130,9 +130,11 @@ t_ast_node		*build_command_node(t_token **tokens);
 
 /* ===== AST REDIRECT (ast_redirect.c) ===== */
 t_ast_node		*handle_redirection(t_token **tokens, t_ast_node *cmd_node);
+int				is_redirect_token(t_token_type type);
 
 /* ===== AST DEBUG (ast_debug.c) ===== */
 void			print_ast(t_ast_node *node, int depth);
+void			print_tokens(t_token *tokens);
 
 
 /* ===== EXECUTION ===== */

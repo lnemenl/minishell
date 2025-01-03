@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/03 17:40:22 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 19:00:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,16 @@ char	**fetch_paths(char **envp)
 	return (NULL);
 }
 
+void print_tokens(t_token *tokens)
+{
+    while (tokens)
+    {
+        printf("Token: type=%d, content='%s'\n", 
+               tokens->type, tokens->content);
+        tokens = tokens->next;
+    }
+}
+
 void    parse(t_mshell *obj)
 {
 	t_token *tokens;
@@ -32,6 +42,7 @@ void    parse(t_mshell *obj)
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
         return;
+    print_tokens(tokens);
     obj->ast = parse_pipeline(&tokens);
     if (!obj->ast)
     {

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 16:12:10 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 18:57:11 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,6 +63,13 @@ t_ast_node	*parse_command(t_token **tokens)
 
 	if (!tokens || !*tokens)
 		return (NULL);
+	if (!is_redirect_token((*tokens)->type))
+	{
+		cmd_node = create_ast_node(TOKEN_WORD);
+		if (!cmd_node)
+			return (NULL);
+		return (handle_redirection(tokens, cmd_node));
+	}
 	if ((*tokens)->type != TOKEN_WORD)
 		return (NULL);
 	cmd_node = build_command_node(tokens);
