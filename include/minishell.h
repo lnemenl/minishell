@@ -83,42 +83,28 @@ void			parse(t_mshell *obj);
 void			print_parse_debug(t_mshell *obj);
 t_token			*tokenize(const char *input, t_mshell *mshell);
 void			init_tokenize(t_token **head, t_token **current);
-t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed);
+t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
 char			**fetch_paths(char **envp);
 
-/* ===== TOKEN CREATION (token_create.c) ===== */
-t_token			*new_token(t_token_type type, const char *start, int length);
-char			*allocate_token_content(const char *start, int length);
-t_token			*create_token_from_str(const char *str, t_token_type type, int len);
+/* ===== TOKEN CORE (token_core.c) ===== */
+t_token			*new_token(t_token_type type, const char *content, size_t len);
 void			link_token(t_token **head, t_token **current, t_token *new);
-t_token			*process_token(t_token **head, t_token **current, const char *input, int *i);
-int				extend_current_token(t_token **current, const char *input, int *i);
-
-/* ===== WORD TOKENS (token_word.c) ===== */
-void			add_word_token(t_token **head, t_token **current, const char *input, int *i);
-t_token			*create_word_token(const char *input, int start, int len);
-int				calculate_word_length(const char *input, int *i);
-char			**fetch_paths(char **envp);
-t_quote_state	get_quote_state(char quote);
-
-/* ===== OPERATOR TOKENS (token_operator.c) ===== */
-void			add_operator_token(t_token **head, t_token **current, const char *input, int *i);
-t_token			*handle_double_redirect(const char *input, int *i);
-t_token			*handle_single_operator(const char *input, int *i);
-
-/* ===== QUOTE HANDLING (token_quote.c) ===== */
-void			add_quoted_token(t_token **head, t_token **current, const char *input, int *i);
-t_token			*handle_quote_content(const char *input, int *i, char quote, t_mshell *mshell);
-t_token			*handle_double_quote_content(const char *input, int *i, int start, t_mshell *mshell);
-int				find_closing_quote(const char *input, int *i, char quote_char);
+void			clean_tokens(t_token *head);
+//t_token			*process_token(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== ENVIRONMENT VARIABLES (token_env.c) ===== */
+char			*get_env_value(const char *var_name, t_mshell *mshell);
+char			*expand_env_vars(const char *str, t_mshell *mshell);
 
+/* ===== TOKEN PROCESS (token_process.c) ===== */
+t_token			*handle_operator(t_token **head, t_token **current, const char *input, int *i);
+t_token			*handle_word(t_token **head, t_token **current, const char *input, int *i);
+t_token			*process_token(t_token **head, t_token **current, const char *input, int *i);
 
-/* ===== CLEANUP (token_clean.c) ===== */
-void			clean_token(t_token *token);
-void			clean_token_list(t_token *head);
-void			clean_parse_error(t_token **head, t_token **current);
+/* ===== QUOTE HANDLING (token_quote.c) ===== */
+t_token			*handle_single_quotes(const char *input, int *i);
+t_token			*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
+t_token			*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
 void			open_dir(const char *dir);

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:30:06 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/02 16:34:30 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/03 13:27:40 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static int	setup_redirect_node(t_ast_node *node, t_token **tokens,
 		free_ast(node);
 		return (0);
 	}
-	node->args[0] = ft_strdup((*tokens)->start);
+	node->args[0] = ft_strdup((*tokens)->content);
 	node->args[1] = NULL;
 	if (!node->args[0])
 	{
