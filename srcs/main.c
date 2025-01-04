@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 16:21:23 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/04 16:25:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,6 +96,6 @@ int	main(int argc, char **argv, char **envp)
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(envp);
 	}
-	//clean_mshell(&obj);
+	clean_mshell(&obj);
 	return (0);
 }

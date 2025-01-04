@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 15:52:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/04 17:08:40 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,8 @@ void	redirection_input(t_mshell *obj, t_ast_node *node)
 
 void	redirection_output(t_mshell *obj, t_ast_node *node)
 {
-	if (node->type == TOKEN_HEREDOC)
+	printf("node-type: %d\n", node->type);
+	if (node->type == TOKEN_REDIRECT_APPEND)
 		obj->fd_out = open(node->args[0],
 				O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else
@@ -67,12 +68,12 @@ void	redirection_output(t_mshell *obj, t_ast_node *node)
 				O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (obj->fd_out == -1)
 		exit_child(obj, node->args[0], 1);
+	dup2(obj->fd_out, STDOUT_FILENO);
+	close(obj->fd_out);
 }
 
 void	pipe_redirection(t_mshell *obj)
 {
-	printf("cur pid = %d\n", obj->cur_pid);
-	printf("alloced pipes = %d\n", obj->allocated_pipes);
 	if (obj->cur_pid == 0)
 	{
 		dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
@@ -90,5 +91,4 @@ void	pipe_redirection(t_mshell *obj)
 		dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
 		close(obj->pipfd[obj->cur_pid][1]);
 	}
-	//obj->cur_pid++;
 }

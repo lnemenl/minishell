@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 16:04:44 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/04 17:12:01 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -135,6 +135,8 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	// count pipes and allocate memory for them
 
 	//choose_actions(obj);
+	if (!left)
+		return ;
 	if (run_bultins(left->args) == 1)
 		return ;
 	obj->exec_cmds++;
@@ -159,13 +161,13 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		}
 		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
 			redirection_input(obj, left);
-		if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
-			redirection_output(obj, right);
 		if (obj->allocated_pipes >= 1)
 		{
 			if (left && left->type == TOKEN_WORD)
 				pipe_redirection(obj);
 		}
+		if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
+			redirection_output(obj, right);
 		close_fds(obj);
 		// choose cmd (built-ins or common ones)
 		// execute
@@ -203,8 +205,16 @@ void	choose_actions(t_mshell *obj)
 				// exec command
 	while (temp)
 	{
+		//printf("node-type: %s\n", temp->left->args[0]);
 		if (temp->type == TOKEN_WORD)
 			execute_cmd(obj, temp, NULL);
+		else if (temp->type == TOKEN_PIPE && temp->left &&
+			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
+			execute_cmd(obj, temp->left->left, temp);
+		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
+			execute_cmd(obj, temp->left, temp);
+		else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
+			execute_cmd(obj, temp->left, temp);
 		else
 			execute_cmd(obj, temp->left, temp->right);
 		temp = temp->right;
