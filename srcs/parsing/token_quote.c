@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 14:25:56 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/04 13:10:07 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ static int	find_closing_quote(const char *input, int *i, char quote)
     return (0);
 }
 
-t_token	*handle_single_quotes(const char *input, int *i)
+t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
     int		start;
     t_token	*token;
@@ -32,7 +32,7 @@ t_token	*handle_single_quotes(const char *input, int *i)
     start = *i;
     if (find_closing_quote(input, i, '\''))
         return (NULL);
-    token = new_token(TOKEN_WORD, input + start, *i - start);
+    token = new_token(TOKEN_WORD, input + start, *i - start, mshell);
     if (!token)
         return (NULL);
     token->quote_state = QUOTE_SINGLE;
@@ -57,7 +57,7 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
     free(content);
     if (!expanded)
         return (NULL);
-    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded));
+    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), mshell);
     free(expanded);
     if (!token)
         return (NULL);
@@ -84,7 +84,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
     if (quote == '"')
         token = handle_double_quotes(input, i, (*current)->mshell);
     else
-        token = handle_single_quotes(input, i);
+        token = handle_single_quotes(input, i, (*current)->mshell);
     if (!token)
     {
         (*current)->mshell->exit_code = 1;
