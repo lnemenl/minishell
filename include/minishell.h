@@ -154,6 +154,7 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code);
 void	redirection_input(t_mshell *obj, t_ast_node *node);
 void	redirection_output(t_mshell *obj, t_ast_node *node);
 void	pipe_redirection(t_mshell *obj);
+void	handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 
 #endif

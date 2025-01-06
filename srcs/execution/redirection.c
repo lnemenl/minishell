@@ -6,16 +6,17 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 17:08:40 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:57:07 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static void	handle_here_doc(t_mshell *obj, t_ast_node *node)
+void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
 	char	*str;
 
+	printf("args in heredoc: %s\n", node->args[0]);
 	if (node->type != TOKEN_HEREDOC)
 		return ;
 	obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
@@ -48,7 +49,6 @@ void	redirection_input(t_mshell *obj, t_ast_node *node)
 	}
 	else
 	{
-		handle_here_doc(obj, node);
 		obj->fd_in = open(".heredoc_temp", O_RDONLY);
 			if (obj->fd_in == -1)
 				exit_child(obj, ".heredoc_temp", 1);

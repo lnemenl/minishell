@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 17:12:01 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 14:59:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,40 +94,6 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-// pid_t	execute_cmd(t_mshell *obj)
-// {
-// 	// count number of commands
-// 	// allocate memory for pids
-// 	// count pipes and allocate memory for them
-// 	pid_t p;
-
-// 	// fork process
-// 	p = -1;
-// 	//choose_actions(obj);
-// 	if (run_bultins(obj->ast->args) == 1)
-// 		return (p);
-// 	p = fork();
-// 	if (p == -1)
-// 	{
-// 		clean_mshell(obj);
-// 		return (p);
-// 	} // cleanup here
-// 	if (p == 0)
-// 	{
-// 		// choose cmd (built-ins or common ones)
-// 		// execute
-// 		if (is_builtin_cmd(obj->ast->args[0]))
-// 			run_builtins_execve(obj->ast->args, obj);
-// 		else
-// 		{
-// 			obj->cur_path = check_paths_access(obj->paths, obj->ast->args, obj);
-// 			execve(obj->cur_path, obj->ast->args, obj->paths);
-// 			exit_child(obj, obj->ast->args[0], 127);
-// 		}
-// 	}
-// 	return (p);
-// }
-
 void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
 	// count number of commands
@@ -172,7 +138,10 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		// choose cmd (built-ins or common ones)
 		// execute
 		if (is_builtin_cmd(left->args[0]))
+		{
 			run_builtins_execve(left->args, obj);
+			exit_child(obj, left->args[0], 127);
+		}
 		else
 		{
 			obj->cur_path = check_paths_access(obj->paths, left->args, obj);
@@ -210,13 +179,21 @@ void	choose_actions(t_mshell *obj)
 			execute_cmd(obj, temp, NULL);
 		else if (temp->type == TOKEN_PIPE && temp->left &&
 			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
-			execute_cmd(obj, temp->left->left, temp);
+		{
+			if (temp->left->type == TOKEN_HEREDOC)
+				handle_here_doc(obj, temp->left);
+			execute_cmd(obj, temp->left->left, NULL);
+		}
 		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
-			execute_cmd(obj, temp->left, temp);
+		{
+			if (temp->type == TOKEN_HEREDOC)
+				handle_here_doc(obj, temp);
+			execute_cmd(obj, temp->left, NULL);
+		}
 		else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
 			execute_cmd(obj, temp->left, temp);
 		else
-			execute_cmd(obj, temp->left, temp->right);
+			execute_cmd(obj, temp->left, NULL);
 		temp = temp->right;
 		obj->cur_pid++;
 	}
