@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 16:25:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:42:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,8 +85,6 @@ int	main(int argc, char **argv, char **envp)
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
 		choose_actions(&obj);
-		printf("cur_pid main: %d\n", obj.cur_pid);
-		printf("exec_cmds main: %d\n", obj.exec_cmds);
 		close_fds(&obj);
 		while (obj.exec_cmds > 0)
 		{

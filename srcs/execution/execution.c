@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 15:25:31 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:59:19 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,7 +78,7 @@ void	alloc_pipes(t_mshell *obj)
 	i = 0;
 	while (i < obj->pipes_count)
 	{
-		obj->pipfd[i] = (int *)malloc(sizeof(int) * 2);
+		obj->pipfd[i] = ft_calloc(2, sizeof(int));
 		if (!obj->pipfd[i])
 		{
 			clean_mshell(obj);
@@ -96,11 +96,6 @@ void	alloc_pipes(t_mshell *obj)
 
 void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
-	// count number of commands
-	// allocate memory for pids
-	// count pipes and allocate memory for them
-
-	//choose_actions(obj);
 	if (!left)
 		return ;
 	if (run_bultins(left->args) == 1)
@@ -115,16 +110,6 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	if (obj->pids[obj->cur_pid] == 0)
 	{
 		// redirection
-		if (left)
-		{
-			printf("left type = %d\n", left->type);
-			printf("left args = %s\n", left->args[0]);
-		}
-		if (right)
-		{
-			printf("right type = %d\n", right->type);
-			printf("right args = %s\n", right->args[0]);
-		}
 		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
 			redirection_input(obj, left);
 		if (obj->allocated_pipes >= 1)
@@ -184,16 +169,8 @@ void	choose_actions(t_mshell *obj)
 		error_ret(5, NULL);
 	}
 	temp = obj->ast;
-	// while i < cmds
-		// redirect in/out from/to file
-		// redirect prev pipe to next pipe
-			// if !execve command
-				// exec command 
-			// else fork
-				// exec command
 	while (temp)
 	{
-		//printf("node-type: %s\n", temp->left->args[0]);
 		if (temp->type == TOKEN_WORD)
 			execute_cmd(obj, temp, NULL);
 		else if (temp->type == TOKEN_PIPE && temp->left &&
