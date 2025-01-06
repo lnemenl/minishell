@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 14:59:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:25:31 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -151,6 +151,25 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	}
 }
 
+static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
+{
+	char	**new_args;
+
+	if (ft_strcmp(node->args[0], "cat") != 0)
+		return ;
+	new_args = ft_calloc(3, sizeof(char *));
+	if (!new_args)
+		return ; //cleanup
+	new_args[0] = ft_strdup(node->args[0]);
+	if (type == TOKEN_HEREDOC)
+		new_args[1] = ft_strdup(".heredoc_temp");
+	else
+		new_args[1] = ft_strdup(redir_file);
+	new_args[2] = NULL;
+	ft_free_strs(node->args, 1);
+	node->args = new_args;
+}
+
 void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
@@ -180,12 +199,14 @@ void	choose_actions(t_mshell *obj)
 		else if (temp->type == TOKEN_PIPE && temp->left &&
 			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
 		{
+			handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
 			if (temp->left->type == TOKEN_HEREDOC)
 				handle_here_doc(obj, temp->left);
 			execute_cmd(obj, temp->left->left, NULL);
 		}
 		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
 		{
+			handle_cat_redir(temp->left, temp->args[0], temp->type);
 			if (temp->type == TOKEN_HEREDOC)
 				handle_here_doc(obj, temp);
 			execute_cmd(obj, temp->left, NULL);
