@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/30 11:57:53 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:42:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,9 +22,15 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cmds = NULL;
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
-	obj.total_cmds = 0;
+	obj.exec_cmds = 0;
 	obj.paths = fetch_paths(envp);
 	obj.envp = envp;
+	obj.pipes_count = 0;
+	obj.token = NULL;
+	obj.pids = NULL;
+	obj.cur_pid = 0;
+	obj.fd_in = -1;
+	obj.fd_out = -1;
 	(void) argv;
 	return (obj);
 }
@@ -78,8 +84,15 @@ int	main(int argc, char **argv, char **envp)
 		add_history(obj.cmd_line);
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
-		pid_t p = execute_cmd(&obj);
-		waitpid(p, &status, 0);
+		choose_actions(&obj);
+		close_fds(&obj);
+		while (obj.exec_cmds > 0)
+		{
+			wait(&status);
+			obj.exec_cmds--;
+		}
+		clean_mshell(&obj);
+		obj.paths = fetch_paths(envp);
 	}
 	clean_mshell(&obj);
 	return (0);

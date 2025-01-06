@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   token_core.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 14:56:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 11:33:37 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:41:42 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-t_token *new_token(t_token_type type, const char *content, size_t len)
+t_token *new_token(t_token_type type, const char *content, size_t len, t_mshell *mshell)
 {
     t_token *token;
 
@@ -28,6 +28,8 @@ t_token *new_token(t_token_type type, const char *content, size_t len)
     }
     token->quote_state = QUOTE_NONE;
     token->next = NULL;
+    token->mshell = mshell;
+    //token->mshell->total_cmds++;
     return (token);
 }
 
@@ -46,11 +48,14 @@ void    clean_tokens(t_token *head)
 {
     t_token *temp;
 
+    if (!head)
+        return ;
     while (head)
     {
         temp = head;
         head = head->next;
-        free(temp->content);
+        if (temp->content)
+            free(temp->content);
         free(temp);
     }
 }
