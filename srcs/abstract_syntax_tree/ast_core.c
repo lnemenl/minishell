@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/07 20:44:00 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/07 22:08:59 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,7 +46,8 @@ t_ast_node *parse_pipeline(t_token **tokens)
         return (NULL);
     while (*tokens && (*tokens)->type == TOKEN_PIPE)
     {
-        if (!(*tokens)->next)
+        // Checking for empty command after pipe
+        if (!(*tokens)->next || (*tokens)->next->type == TOKEN_PIPE)
         {
             ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
             return (free_ast_return_null(left));
@@ -54,7 +55,7 @@ t_ast_node *parse_pipeline(t_token **tokens)
         pipe_node = create_ast_node(TOKEN_PIPE);
         if (!pipe_node)
             return (free_ast_return_null(left));
-        *tokens = (*tokens)->next;   
+        *tokens = (*tokens)->next;
         pipe_node->left = left;
         pipe_node->right = parse_command(tokens);
         if (!pipe_node->right)
@@ -103,23 +104,31 @@ static t_ast_node *handle_initial_redirection(t_token **tokens) //Handles redire
 static t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd_node) //Handles redirections after a command
 {
     t_ast_node *redir;
+    t_ast_node *current;
+    int last_redir_type;
 
+    current = cmd_node;
+    last_redir_type = 0;
     while (*tokens && is_redirect_token((*tokens)->type))
     {
-        if ((*tokens)->next && is_redirect_token((*tokens)->next->type))
+        // Check for consecutive redirections of the same type
+        if (last_redir_type == (*tokens)->type)
         {
-            ft_putstr_fd("syntax error near unexpected token `", 2);
-            ft_putstr_fd((*tokens)->next->content, 2);
-            ft_putstr_fd("'\n", 2);
-            return (free_ast_return_null(cmd_node));
+            ft_putstr_fd("syntax error: multiple redirections of same type\n", 2);
+            free_ast(current);
+            return (NULL);
         }
+        last_redir_type = (*tokens)->type;
         redir = handle_redirection_node(tokens);
         if (!redir)
-            return (free_ast_return_null(cmd_node));
-        redir->left = cmd_node;
-        cmd_node = redir;
+        {
+            free_ast(current);
+            return (NULL);
+        }
+        redir->left = current;
+        current = redir;
     }
-    return (cmd_node);
+    return (current);
 }
 
 t_ast_node *parse_command(t_token **tokens)

@@ -6,23 +6,11 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 18:34:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/07 21:52:15 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-// static int	find_closing_quote(const char *input, int *i, char quote)
-// {
-//     int	start;
-
-//     start = *i;
-//     while (input[*i] && input[*i] != quote)
-//         (*i)++;
-//     if (!input[*i])
-//         return (1);
-//     return (0);
-// }
 
 t_token *handle_single_quotes(const char *input, int *i)
 {
