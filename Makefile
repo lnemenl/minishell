@@ -6,7 +6,7 @@
 #    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/03 14:15:22 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/01/07 20:05:48 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,7 +41,6 @@ SRCS = \
     \
     ${SRC_DIR}/abstract_syntax_tree/ast_core.c \
     ${SRC_DIR}/abstract_syntax_tree/ast_command.c \
-    ${SRC_DIR}/abstract_syntax_tree/ast_redirect.c \
     ${SRC_DIR}/abstract_syntax_tree/ast_debug.c \
 	\
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
