@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/07 22:08:59 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/08 12:25:20 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -105,7 +105,7 @@ static t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd
 {
     t_ast_node *redir;
     t_ast_node *current;
-    int last_redir_type;
+    t_token_type last_redir_type;
 
     current = cmd_node;
     last_redir_type = 0;

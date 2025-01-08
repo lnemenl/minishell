@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 19:17:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/08 12:24:52 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
     if (!token)
         return (NULL);
     (*i)++;
+    token->mshell = (*current)->mshell;
     link_token(head, current, token);
     while (input[*i] && ft_isspace(input[*i]))
         (*i)++;
