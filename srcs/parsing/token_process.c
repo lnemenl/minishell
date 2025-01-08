@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/04 13:08:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 12:24:52 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,12 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
     if (!token)
         return (NULL);
     (*i)++;
+    token->mshell = (*current)->mshell;
     link_token(head, current, token);
+    while (input[*i] && ft_isspace(input[*i]))
+        (*i)++;
+    if (input[*i] && !is_operator(input[*i]) && !is_quote(input[*i]))
+        return (handle_word(head, current, input, i));
     return (token);
 }
 
@@ -59,7 +64,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
     char *expanded;
     int start;
     char *temp;
-
+    
     if (!*current)
         return (NULL);
     start = *i;
@@ -69,6 +74,19 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
     temp = ft_substr(input, start, *i - start);
     if (!temp)
         return (NULL);
+    
+    // Check if previous token exists and has quote state
+    if (*current && (*current)->quote_state != QUOTE_NONE)
+    {
+        char *joined = ft_strjoin((*current)->content, temp);
+        free(temp);
+        if (!joined)
+            return (NULL);
+        free((*current)->content);
+        (*current)->content = joined;
+        return (*current);
+    }
+    
     expanded = expand_env_vars(temp, (*current)->mshell);
     free(temp);
     if (!expanded)
@@ -84,6 +102,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 
 t_token *process_token(t_token **head, t_token **current, const char *input, int *i)
 {
+
     if (ft_isspace(input[*i]))
     {
         (*i)++;

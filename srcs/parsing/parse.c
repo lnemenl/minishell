@@ -23,6 +23,16 @@ char	**fetch_paths(char **envp)
 	return (NULL);
 }
 
+void print_tokens(t_token *tokens)
+{
+    while (tokens)
+    {
+        printf("Token: type=%d, content='%s'\n", 
+               tokens->type, tokens->content);
+        tokens = tokens->next;
+    }
+}
+
 void    parse(t_mshell *obj)
 {
 	t_token *tokens;
@@ -32,16 +42,16 @@ void    parse(t_mshell *obj)
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
         return;
+    print_tokens(tokens);
     obj->token = tokens;
     obj->ast = parse_pipeline(&tokens);
     if (!obj->ast)
     {
-        clean_tokens(tokens);  // Updated to use new function name
+        clean_tokens(tokens);
         return;
     }
 	print_ast(obj->ast, 0);
 	print_parse_debug(obj);
-	//clean_tokens(tokens);
 }
 
 void    print_parse_debug(t_mshell *obj)
@@ -82,7 +92,6 @@ t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_
             return (NULL);
         }
     }
-    // Removing the initial empty token
     *head = (*head)->next;
     free(first_token->content);
     free(first_token);
