@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 15:01:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:05:39 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,25 +76,45 @@ void	pwd(void)
 	free(buf);
 }
 
-int	env(void)
+void	set_env_args(t_mshell *obj, t_ast_node *node)
 {
-	int		fd;
-	char	*str;
+	int	i;
 
-	fd = open(".env_temp.txt", O_RDONLY);
-	if (fd == -1)
+	i = 0;
+	while (node->args[i])
+		i++;
+	ft_free_strs(node->args, i);
+	node->args = ft_calloc(3, sizeof(char *));
+	if (!node->args)
 	{
-		//cleanup
-		error_ret(6, NULL);
+		clean_mshell(obj);
+		return ;
 	}
-	str = get_next_line(fd);
-	while (str)
-	{
-		printf("%s", str);
-		free(str);
-		str = get_next_line(fd);
-	}
-	close(fd);
+	node->args[0] = ft_strdup("cat");
+	node->args[1] = ft_strdup(".env_temp.txt");
+	node->args[2] = NULL;
+}
+
+int	env(t_mshell *obj, t_ast_node *node)
+{
+	// int		fd;
+	// char	*str;
+
+	// fd = open(".env_temp.txt", O_RDONLY);
+	// if (fd == -1)
+	// {
+	// 	//cleanup
+	// 	error_ret(6, NULL);
+	// }
+	// str = get_next_line(fd);
+	// while (str)
+	// {
+	// 	printf("%s", str);
+	// 	free(str);
+	// 	str = get_next_line(fd);
+	// }
+	// close(fd);
+	execve(obj->cur_path, node->args, NULL);
 	return (1);
 }
 

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 14:54:29 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:45:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,6 @@
 static int	is_builtin_cmd(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0 
-		|| ft_strcmp(cmd, "pwd") == 0
 		|| ft_strcmp(cmd, "env") == 0)
 		return (1);
 	return (0);
@@ -34,30 +33,31 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code)
 	exit(exit_code);
 }
 
-static void	run_builtins_execve(char **args, t_mshell *obj)
+static void	run_builtins_execve(char **args, t_mshell *obj, t_ast_node *node)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		echo(args);
-	else if (ft_strcmp(args[0], "pwd") == 0)
-		pwd();
 	else if (ft_strcmp(args[0], "env") == 0)
 	{
-	 	env();
+	 	env(obj, node);
 		exit_child(obj, args[0], 0);
 	}
 	exit_child(obj, args[0], 127);
 }
 
-static int	run_bultins(char **args)
+static int	run_bultins(char **args, t_mshell *obj)
 {
 	if (ft_strcmp(args[0], "cd") == 0)
 		return (open_dir(args[1]));
 	else if (ft_strcmp(args[0], "export") == 0)
 		return (export(args));
 	else if (ft_strcmp(args[0], "unset") == 0)
-		return (unset(args));
-	// else if (ft_strcmp(args[0], "env") == 0)
-	// 	return (env());
+		return (unset(args, obj));
+	else if (ft_strcmp(args[0], "pwd") == 0)
+	{
+		pwd();
+		return (1);
+	}
 	return (0);
 }
 
@@ -104,8 +104,10 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
 	if (!left)
 		return ;
-	if (run_bultins(left->args) == 1)
+	if (run_bultins(left->args, obj) == 1)
 		return ;
+	if (ft_strcmp(left->args[0], "env") == 0)
+		set_env_args(obj, left);
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
 	if (obj->pids[obj->cur_pid] == -1)
@@ -130,12 +132,13 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		// execute
 		if (is_builtin_cmd(left->args[0]))
 		{
-			run_builtins_execve(left->args, obj);
+			obj->cur_path = check_paths_access(obj->paths, left, obj);
+			run_builtins_execve(left->args, obj, left);
 			exit_child(obj, left->args[0], 127);
 		}
 		else
 		{
-			obj->cur_path = check_paths_access(obj->paths, left->args, obj);
+			obj->cur_path = check_paths_access(obj->paths, left, obj);
 			execve(obj->cur_path, left->args, obj->paths);
 			exit_child(obj, left->args[0], 127);
 		}

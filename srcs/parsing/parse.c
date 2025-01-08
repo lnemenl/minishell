@@ -6,20 +6,36 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/04 13:24:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:40:43 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-char	**fetch_paths(char **envp)
+char	**fetch_paths(char **envp, int first)
 {
-	while (*envp)
-	{
-		if (ft_strncmp(*envp, "PATH=", 5) == 0)
-			return ft_split(*envp + 5, ':');
-		envp++;
-	}
+    int		fd;
+	char	**strs;
+    size_t  i;
+
+    if (first == 0)
+    {
+        fd = open(".env_temp.txt", O_RDONLY);
+        i = 0;
+        strs = read_alloc(fd, &i);
+        if (!strs)
+            // cleanup
+        return (strs);
+    }
+    else
+    {
+        while (*envp)
+        {
+            if (ft_strncmp(*envp, "PATH=", 5) == 0)
+                return (ft_split(*envp + 5, ':'));
+            envp++;
+        }
+    }
 	return (NULL);
 }
 
@@ -48,7 +64,7 @@ void    parse(t_mshell *obj)
     if (!obj->ast)
     {
         clean_tokens(tokens);
-        return;
+        return ;
     }
 	print_ast(obj->ast, 0);
 	print_parse_debug(obj);
@@ -57,7 +73,7 @@ void    parse(t_mshell *obj)
 void    print_parse_debug(t_mshell *obj)
 {
 	if (!obj || !obj->cmd_line)
-		return;
+		return ;
 	ft_printf("\nAST Structure for: %s\n", obj->cmd_line);
 	ft_printf("------------------------\n");
 	print_ast(obj->ast, 0);
