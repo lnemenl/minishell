@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/08 12:25:20 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/08 15:19:09 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,8 +95,9 @@ static t_ast_node *handle_initial_redirection(t_token **tokens) //Handles redire
     redir = handle_redirection_node(tokens);
     if (!redir)
         return (NULL);
-    redir->right = parse_command(tokens);
-    if (!redir->right)
+    redir->right = NULL;
+    redir->left = parse_command(tokens);
+    if (!redir->left)
         return (free_ast_return_null(redir));
     return (redir);
 }

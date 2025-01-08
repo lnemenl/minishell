@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 15:42:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 15:35:29 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,6 +94,7 @@ int	main(int argc, char **argv, char **envp)
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(envp);
 	}
+	unlink(".heredoc_temp");
 	clean_mshell(&obj);
 	return (0);
 }

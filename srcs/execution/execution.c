@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 15:59:19 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 14:54:29 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,8 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code)
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
-	perror(arg);
+	if (exit_code != 0)
+		perror(arg);
 	if (errno == EACCES && exit_code != 1)
 		exit_code = 126;
 	exit(exit_code);
@@ -39,6 +40,11 @@ static void	run_builtins_execve(char **args, t_mshell *obj)
 		echo(args);
 	else if (ft_strcmp(args[0], "pwd") == 0)
 		pwd();
+	else if (ft_strcmp(args[0], "env") == 0)
+	{
+	 	env();
+		exit_child(obj, args[0], 0);
+	}
 	exit_child(obj, args[0], 127);
 }
 
@@ -50,8 +56,8 @@ static int	run_bultins(char **args)
 		return (export(args));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args));
-	else if (ft_strcmp(args[0], "env") == 0)
-		return (env());
+	// else if (ft_strcmp(args[0], "env") == 0)
+	// 	return (env());
 	return (0);
 }
 
