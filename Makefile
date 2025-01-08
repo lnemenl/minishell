@@ -3,7 +3,7 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
 #    Updated: 2025/01/07 20:05:48 by rkhakimu         ###   ########.fr        #
@@ -26,6 +26,7 @@ NAME = minishell
 
 SRC_DIR = ./srcs
 BUILTINS = ./builtins
+EXEC = ./execution
 
 SRCS = \
 	${SRC_DIR}/main.c \
@@ -47,7 +48,8 @@ SRCS = \
 	${SRC_DIR}/${BUILTINS}/export.c \
 	${SRC_DIR}/${BUILTINS}/unset.c \
 	\
-	${SRC_DIR}/execution.c \
+	${SRC_DIR}/${EXEC}/execution.c \
+	${SRC_DIR}/${EXEC}/redirection.c \
 	${SRC_DIR}/validation.c \
 	${SRC_DIR}/utils.c
 

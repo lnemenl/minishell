@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   token_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
 /*   Updated: 2025/01/08 12:24:52 by rkhakimu         ###   ########.fr       */
@@ -45,7 +45,7 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
 
     start = *i;
     type = get_operator_type(input, i);
-    token = new_token(type, input + start, *i - start + 1);
+    token = new_token(type, input + start, *i - start + 1, (*head)->mshell);
     if (!token)
         return (NULL);
     (*i)++;
@@ -91,7 +91,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
     free(temp);
     if (!expanded)
         return (NULL);
-    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded));
+    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), (*head)->mshell);
     free(expanded);
     if (!token)
         return (NULL);

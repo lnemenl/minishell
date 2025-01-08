@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
 /*   Updated: 2025/01/07 21:52:15 by rkhakimu         ###   ########.fr       */
@@ -12,7 +12,7 @@
 
 #include "../../include/minishell.h"
 
-t_token *handle_single_quotes(const char *input, int *i)
+t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
     int     start;
     t_token *token;
@@ -27,7 +27,7 @@ t_token *handle_single_quotes(const char *input, int *i)
     word = ft_substr(input, start, *i - start);
     if (!word)
         return (NULL);
-    token = new_token(TOKEN_WORD, word, ft_strlen(word));
+    token = new_token(TOKEN_WORD, input + start, *i - start, mshell);
     free(word);
     if (!token)
         return (NULL);
@@ -58,8 +58,7 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
     free(content);
     if (!expanded)
         return (NULL);
-    
-    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded));
+    token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), mshell);
     free(expanded);
     if (!token)
         return (NULL);
@@ -84,7 +83,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
     if (quote == '"')
         token = handle_double_quotes(input, i, (*current)->mshell);
     else
-        token = handle_single_quotes(input, i);
+        token = handle_single_quotes(input, i, (*current)->mshell);
     if (!token)
     {
         (*current)->mshell->exit_code = 1;

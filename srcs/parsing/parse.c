@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/03 19:00:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/04 13:24:32 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void    parse(t_mshell *obj)
     if (!tokens)
         return;
     print_tokens(tokens);
+    obj->token = tokens;
     obj->ast = parse_pipeline(&tokens);
     if (!obj->ast)
     {
@@ -51,7 +52,6 @@ void    parse(t_mshell *obj)
     }
 	print_ast(obj->ast, 0);
 	print_parse_debug(obj);
-	clean_tokens(tokens);
 }
 
 void    print_parse_debug(t_mshell *obj)
@@ -76,10 +76,11 @@ t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_
     t_token *first_token;
 
     i = 0;
-    first_token = new_token(TOKEN_WORD, "", 0);
+    // Creating initial empty token to store mshell
+    first_token = new_token(TOKEN_WORD, "", 0, mshell);
     if (!first_token)
         return (NULL);
-    first_token->mshell = mshell;
+    //first_token->mshell = mshell;
     *head = first_token;
     *current = first_token;
 
