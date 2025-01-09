@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:40:43 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 15:33:57 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,7 @@ char	**fetch_paths(char **envp, int first)
 {
     int		fd;
 	char	**strs;
+    char    **paths;
     size_t  i;
 
     if (first == 0)
@@ -24,8 +25,21 @@ char	**fetch_paths(char **envp, int first)
         i = 0;
         strs = read_alloc(fd, &i);
         if (!strs)
+        {}
             // cleanup
-        return (strs);
+        i = 0;
+        while (strs[i])
+        {
+            if (ft_strncmp(strs[i], "PATH=", 5) == 0)
+            {
+                paths = ft_split(strs[i], ':');
+                if (!paths)
+                {}/*cleanup */
+                clean_strs(strs);
+                return (paths);
+            }
+            i++;
+        }
     }
     else
     {

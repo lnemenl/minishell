@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 12:34:35 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/09 16:19:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,14 +33,13 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code)
 	exit(exit_code);
 }
 
-static void	run_builtins_exec(char **args, t_mshell *obj) //, t_ast_node *node)
+static void	run_builtins_exec(char **args, t_mshell *obj)
 {
 	if (ft_strcmp(args[0], "echo") == 0)
 		echo(args);
 	else if (ft_strcmp(args[0], "env") == 0)
-	 	env(); //, node);
+	 	env();
 	exit_child(obj, args[0], 0);
-	//exit_child(obj, args[0], 127);
 }
 
 static int	run_bultins(char **args, t_mshell *obj)
@@ -106,8 +105,6 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
 	if (run_bultins(left->args, obj) == 1)
 		return ;
-	// if (ft_strcmp(left->args[0], "env") == 0)
-	// 	set_env_args(obj, left);
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
 	if (obj->pids[obj->cur_pid] == -1)
@@ -132,7 +129,7 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		// execute
 		if (is_builtin_cmd(left->args[0]) == 1)
 		{
-			run_builtins_exec(left->args, obj); //, left);
+			run_builtins_exec(left->args, obj);
 			exit_child(obj, left->args[0], 127);
 		}
 		else
