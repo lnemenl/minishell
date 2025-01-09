@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:05:39 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:09:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,12 @@ int	open_dir(const char *dir)
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
-	ft_printf("buf: %s\n", buf);
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, dir);
 	free(path);
-	ft_printf("path: %s\n", full_path);
 	chdir(full_path);
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
-	ft_printf("buf: %s\n", buf);
 	free(buf);
 	free(full_path);
 	return (1);
@@ -95,30 +92,46 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 	node->args[2] = NULL;
 }
 
-int	env(t_mshell *obj, t_ast_node *node)
+int	env(void) //(t_mshell *obj) //, t_ast_node *node)
 {
-	// int		fd;
-	// char	*str;
+	int		fd;
+	char	*str;
 
-	// fd = open(".env_temp.txt", O_RDONLY);
-	// if (fd == -1)
-	// {
-	// 	//cleanup
-	// 	error_ret(6, NULL);
-	// }
-	// str = get_next_line(fd);
-	// while (str)
-	// {
-	// 	printf("%s", str);
-	// 	free(str);
-	// 	str = get_next_line(fd);
-	// }
-	// close(fd);
-	execve(obj->cur_path, node->args, NULL);
+	printf("env runs\n");
+	fd = open(".env_temp.txt", O_RDONLY);
+	if (fd == -1)
+	{
+		//cleanup
+		error_ret(6, NULL);
+	}
+	str = get_next_line(fd);
+	while (str)
+	{
+		printf("%s", str);
+		free(str);
+		str = get_next_line(fd);
+	}
+	close(fd);
+	//execve(obj->cur_path, node->args, NULL);
 	return (1);
 }
 
 void	echo(char **args)
 {
-	execve("/usr/bin/echo", args, NULL);
+	int	i;
+
+	if (!args || !*args)
+	{
+		printf("\n");
+		return ;
+	}
+	i = 1;
+	while (args[i])
+	{
+		printf("%s", args[i]);
+		if (args[i + 1])
+			printf(" ");
+		i++;
+	}
+	printf("\n");
 }

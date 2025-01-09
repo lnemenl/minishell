@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:26:01 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:03:28 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static char	*check_paths(char **paths, char **args)
 	size_t	path_len;
 
 	if (!paths || !*paths)
-		return (NULL);
+		return (ft_strdup(args[0]));
 	i = 0;
 	while (paths[i])
 	{
@@ -101,11 +101,7 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 	check_is_dir(node->args[0], obj);
 	if (node->args[0][0] == '/' || node->args[0][0] == '.')
 		return (ft_strdup(node->args[0]));
-	// if (ft_strcmp(node->args[0], "env") == 0)
-	// 	set_env_args(obj, node);
-	printf("args = %s\t%s\n", node->args[0], node->args[1]);
 	path = check_paths(paths, node->args);
-	printf("path = %s\n", path);
 	if (!path || node->args[0][0] == '\0')
 	{
 		clean_mshell(obj);

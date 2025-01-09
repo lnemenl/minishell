@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:32:51 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 11:52:57 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,11 +64,8 @@ int	unset(char **args, t_mshell *obj)
 	{
 		clean_strs(obj->paths);
 		obj->paths = NULL;
-		printf("It happens!");
 	}
 	delete_env(args[1], strs, fd, i);
 	ft_free_strs(strs, i);
 	return (1);
-	// append the variable to the proper place
-	// append the rest of data
 }

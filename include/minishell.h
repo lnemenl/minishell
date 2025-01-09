@@ -121,7 +121,7 @@ t_token			*handle_quotes(t_token **head, t_token **current, const char *input, i
 int			open_dir(const char *dir);
 void		pwd(void);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(t_mshell *obj, t_ast_node *node);
+int			env(void); //(t_mshell *obj); //, t_ast_node *node);
 void		echo(char **args);
 int			export(char **args);
 int			unset(char **args, t_mshell *obj);
