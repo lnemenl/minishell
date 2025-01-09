@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/08 15:19:09 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:26:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,35 +36,6 @@ t_ast_node	*create_ast_node(t_token_type type)
 	return (node);
 }
 
-t_ast_node *parse_pipeline(t_token **tokens)
-{
-    t_ast_node *left;
-    t_ast_node *pipe_node;
-
-    left = parse_command(tokens);
-    if (!left)
-        return (NULL);
-    while (*tokens && (*tokens)->type == TOKEN_PIPE)
-    {
-        // Checking for empty command after pipe
-        if (!(*tokens)->next || (*tokens)->next->type == TOKEN_PIPE)
-        {
-            ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
-            return (free_ast_return_null(left));
-        }
-        pipe_node = create_ast_node(TOKEN_PIPE);
-        if (!pipe_node)
-            return (free_ast_return_null(left));
-        *tokens = (*tokens)->next;
-        pipe_node->left = left;
-        pipe_node->right = parse_command(tokens);
-        if (!pipe_node->right)
-            return (free_ast_return_null(pipe_node));
-        left = pipe_node;
-    }
-    return (left);
-}
-
 static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets up a single redirection node
 {
     t_ast_node *redir;
@@ -85,6 +56,8 @@ static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets 
     if (!redir->args[0])
         return (free_ast_return_null(redir));
     *tokens = (*tokens)->next;
+    if (redir->type == TOKEN_HEREDOC)
+        redir->left = NULL;
     return (redir);
 }
 
@@ -152,6 +125,47 @@ t_ast_node *parse_command(t_token **tokens)
 
     return (handle_command_redirections(tokens, cmd_node));
 }
+
+t_ast_node *parse_pipeline(t_token **tokens)
+{
+    t_ast_node *left;
+    t_ast_node *pipe_node;
+    t_ast_node *redir;
+
+    left = parse_command(tokens);
+    if (!left)
+        return (NULL);
+    while (*tokens && (*tokens)->type == TOKEN_PIPE)
+    {
+        // Check for empty commands between pipes
+        if (!(*tokens)->next || (*tokens)->next->type == TOKEN_PIPE)
+        {
+            ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
+            return (free_ast_return_null(left));
+        }
+        pipe_node = create_ast_node(TOKEN_PIPE);
+        if (!pipe_node)
+            return (free_ast_return_null(left));
+        *tokens = (*tokens)->next;
+        pipe_node->left = left;
+
+        if (*tokens && is_redirect_token((*tokens)->type))
+        {
+            redir = handle_redirection_node(tokens);
+            if (!redir)
+                return (free_ast_return_null(pipe_node));
+            pipe_node->right = redir;
+        }
+        else
+            pipe_node->right = parse_command(tokens);
+        
+        if (!pipe_node->right)
+            return (free_ast_return_null(pipe_node));
+        left = pipe_node;
+    }
+    return (left);
+}
+
 
 void	free_ast(t_ast_node *node)
 {
