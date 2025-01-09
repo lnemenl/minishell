@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 14:54:29 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:34:35 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,8 @@ static void	run_builtins_execve(char **args, t_mshell *obj)
 
 static int	run_bultins(char **args)
 {
+	if (!args || !*args)
+		return (0);
 	if (ft_strcmp(args[0], "cd") == 0)
 		return (open_dir(args[1]));
 	else if (ft_strcmp(args[0], "export") == 0)
