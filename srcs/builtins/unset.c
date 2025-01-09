@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 14:30:35 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 11:52:57 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -44,7 +44,7 @@ static void	delete_env(char *arg, char **strs, int fd, size_t i)
 	close(fd);
 }
 
-int	unset(char **args)
+int	unset(char **args, t_mshell *obj)
 {
 	char	**strs;
 	size_t	i;
@@ -60,9 +60,12 @@ int	unset(char **args)
 	}
 	i = 0;
 	strs = read_alloc(fd, &i);
+	if (ft_strcmp(args[1], "PATH") == 0)
+	{
+		clean_strs(obj->paths);
+		obj->paths = NULL;
+	}
 	delete_env(args[1], strs, fd, i);
 	ft_free_strs(strs, i);
 	return (1);
-	// append the variable to the proper place
-	// append the rest of data
 }

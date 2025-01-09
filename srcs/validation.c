@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/27 14:27:05 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:03:28 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,7 +62,7 @@ static char	*check_paths(char **paths, char **args)
 	size_t	path_len;
 
 	if (!paths || !*paths)
-		return (NULL);
+		return (ft_strdup(args[0]));
 	i = 0;
 	while (paths[i])
 	{
@@ -93,52 +93,23 @@ static char	**check_args(char **args)
 	return (args);
 }
 
-char	*check_paths_access(char **paths, char **args, t_mshell *obj)
+char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 {
 	char	*path;
 
-	args = check_args(args);
-	check_is_dir(args[0], obj);
-	if (args[0][0] == '/' || args[0][0] == '.')
-		return (ft_strdup(args[0]));
-	else
+	node->args = check_args(node->args);
+	check_is_dir(node->args[0], obj);
+	if (node->args[0][0] == '/' || node->args[0][0] == '.')
+		return (ft_strdup(node->args[0]));
+	path = check_paths(paths, node->args);
+	if (!path || node->args[0][0] == '\0')
 	{
-		path = check_paths(paths, args);
-		if (!path || args[0][0] == '\0')
-		{
-			clean_mshell(obj);
-			if (path)
-				free(path);
-			obj->exit_code = 127;
-			print_exit("command not found\n", args[0], obj->exit_code);
-		}
-		check_is_dir(path, obj);
-		return (path);
+		clean_mshell(obj);
+		if (path)
+			free(path);
+		obj->exit_code = 127;
+		print_exit("command not found\n", node->args[0], obj->exit_code);
 	}
+	check_is_dir(path, obj);
+	return (path);
 }
-
-/*int	check_permission(t_mshell *obj, char **argv, int first)
-{
-	if (first)
-	{
-		if (access(argv[1], F_OK) != 0)
-			exit_child(obj, argv[1], 1);
-		obj->fd_in = open(argv[1], O_RDONLY);
-		if (obj->fd_in == -1)
-			exit_child(obj, argv[1], 1);
-	}
-	else
-	{
-		if (!argv[2 + obj->mid_args])
-			exit_child(obj, argv[2 + obj->mid_args], 1);
-		if (obj->is_heredoc == 1)
-			obj->fd_out = open(argv[2 + obj->mid_args],
-					O_WRONLY | O_CREAT | O_APPEND, 0644);
-		else
-			obj->fd_out = open(argv[2 + obj->mid_args],
-					O_WRONLY | O_CREAT | O_TRUNC, 0644);
-		if (obj->fd_out == -1)
-			exit_child(obj, argv[2 + obj->mid_args], 1);
-	}
-	return (0);
-}*/

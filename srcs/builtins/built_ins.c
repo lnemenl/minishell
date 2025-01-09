@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 15:01:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:09:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,15 +43,12 @@ int	open_dir(const char *dir)
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
-	ft_printf("buf: %s\n", buf);
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, dir);
 	free(path);
-	ft_printf("path: %s\n", full_path);
 	chdir(full_path);
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
-	ft_printf("buf: %s\n", buf);
 	free(buf);
 	free(full_path);
 	return (1);
@@ -76,11 +73,31 @@ void	pwd(void)
 	free(buf);
 }
 
-int	env(void)
+void	set_env_args(t_mshell *obj, t_ast_node *node)
+{
+	int	i;
+
+	i = 0;
+	while (node->args[i])
+		i++;
+	ft_free_strs(node->args, i);
+	node->args = ft_calloc(3, sizeof(char *));
+	if (!node->args)
+	{
+		clean_mshell(obj);
+		return ;
+	}
+	node->args[0] = ft_strdup("cat");
+	node->args[1] = ft_strdup(".env_temp.txt");
+	node->args[2] = NULL;
+}
+
+int	env(void) //(t_mshell *obj) //, t_ast_node *node)
 {
 	int		fd;
 	char	*str;
 
+	printf("env runs\n");
 	fd = open(".env_temp.txt", O_RDONLY);
 	if (fd == -1)
 	{
@@ -95,10 +112,26 @@ int	env(void)
 		str = get_next_line(fd);
 	}
 	close(fd);
+	//execve(obj->cur_path, node->args, NULL);
 	return (1);
 }
 
 void	echo(char **args)
 {
-	execve("/usr/bin/echo", args, NULL);
+	int	i;
+
+	if (!args || !*args)
+	{
+		printf("\n");
+		return ;
+	}
+	i = 1;
+	while (args[i])
+	{
+		printf("%s", args[i]);
+		if (args[i + 1])
+			printf(" ");
+		i++;
+	}
+	printf("\n");
 }

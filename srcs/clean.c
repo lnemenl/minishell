@@ -6,11 +6,24 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 15:52:17 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:26:31 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+void	clean_strs(char **strs)
+{
+	int	i;
+
+	if (!strs || !*strs)
+		return ;
+	i = 0;
+	while (strs[i])
+		free(strs[i++]);
+	free(strs);
+	strs = NULL;
+}
 
 static void	clean_pipes(t_mshell *obj)
 {

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 15:35:29 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/08 17:39:57 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
-	obj.paths = fetch_paths(envp);
+	obj.paths = fetch_paths(envp, 1);
 	obj.envp = envp;
 	obj.pipes_count = 0;
 	obj.token = NULL;
@@ -92,7 +92,7 @@ int	main(int argc, char **argv, char **envp)
 			obj.exec_cmds--;
 		}
 		clean_mshell(&obj);
-		obj.paths = fetch_paths(envp);
+		obj.paths = fetch_paths(envp, 0);
 	}
 	unlink(".heredoc_temp");
 	clean_mshell(&obj);
