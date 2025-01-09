@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/09 16:16:35 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/09 17:16:04 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,8 +162,8 @@ t_ast_node *parse_pipeline(t_token **tokens)
         if (!pipe_node->right)
             return (free_ast_return_null(pipe_node));
 
+        current = pipe_node;
         root = pipe_node;
-        current = pipe_node->right;
     }
     return (root);
 }
