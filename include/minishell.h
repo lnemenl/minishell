@@ -129,7 +129,7 @@ int			unset(char **args, t_mshell *obj);
 /* ===== AST CORE (ast_core.c) ===== */
 int				is_redirect_token(t_token_type type);
 t_ast_node		*create_ast_node(t_token_type type);
-t_ast_node		*parse_pipeline(t_token **tokens);
+t_ast_node		*parse_pipeline(t_token **tokens, int i, t_mshell *obj);
 t_ast_node		*parse_command(t_token **tokens);
 void			free_ast(t_ast_node *node);
 t_ast_node		*free_ast_return_null(t_ast_node *node);

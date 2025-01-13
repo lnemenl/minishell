@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 15:33:57 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/13 12:01:25 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ void print_tokens(t_token *tokens)
 void    parse(t_mshell *obj)
 {
 	t_token *tokens;
+    t_token *temp;
+    int     i;
 
     if (!obj || !obj->cmd_line)
         return;
@@ -74,7 +76,15 @@ void    parse(t_mshell *obj)
         return;
     print_tokens(tokens);
     obj->token = tokens;
-    obj->ast = parse_pipeline(&tokens);
+    temp = tokens;
+    while (temp)
+	{
+		if (temp->type == TOKEN_PIPE)
+			obj->pipes_count++;
+		temp = temp->next;
+	}
+    i = 0;
+    obj->ast = parse_pipeline(&tokens, i, obj);
     if (!obj->ast)
     {
         clean_tokens(tokens);

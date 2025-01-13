@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/09 17:16:04 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/13 12:59:14 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,25 +39,37 @@ t_ast_node	*create_ast_node(t_token_type type)
 static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets up a single redirection node
 {
     t_ast_node *redir;
+    t_token     *temp;
 
     redir = create_ast_node((*tokens)->type);
     if (!redir)
         return (NULL);
+    temp = *tokens;
     *tokens = (*tokens)->next;
-    if (!*tokens || (*tokens)->type != TOKEN_WORD)
+    redir->args = ft_calloc(2, sizeof(char *));
+    if (!redir->args)
+        return (free_ast_return_null(redir));
+    if (!*tokens)
     {
         ft_putstr_fd("syntax error near unexpected token `newline'\n", 2);
         return (free_ast_return_null(redir));
     }
-    redir->args = ft_calloc(2, sizeof(char *));
-    if (!redir->args)
-        return (free_ast_return_null(redir));
     redir->args[0] = ft_strdup((*tokens)->content);
     if (!redir->args[0])
         return (free_ast_return_null(redir));
+    if ((temp->type == TOKEN_REDIRECT_IN || temp->type == TOKEN_HEREDOC)
+        && ((!(*tokens)->next) || (*tokens)->next->type != TOKEN_WORD))
+    {
+        redir->left = create_ast_node(TOKEN_WORD);
+        if (!redir->left)
+            return (NULL); //cleanup
+        redir->left->args = ft_calloc(2, sizeof(char *));
+        if (!redir->left->args)
+            return (free_ast_return_null(redir));
+        redir->left->args[0] = ft_strdup("cat");
+        redir->left->args[1] = NULL;
+    }
     *tokens = (*tokens)->next;
-    if (redir->type == TOKEN_HEREDOC)
-        redir->left = NULL;
     return (redir);
 }
 
@@ -69,7 +81,8 @@ static t_ast_node *handle_initial_redirection(t_token **tokens) //Handles redire
     if (!redir)
         return (NULL);
     redir->right = NULL;
-    redir->left = parse_command(tokens);
+    if (!redir->left)
+        redir->left = parse_command(tokens);
     if (!redir->left)
         return (free_ast_return_null(redir));
     return (redir);
@@ -126,7 +139,7 @@ t_ast_node *parse_command(t_token **tokens)
     return (handle_command_redirections(tokens, cmd_node));
 }
 
-t_ast_node *parse_pipeline(t_token **tokens)
+t_ast_node *parse_pipeline(t_token **tokens, int i, t_mshell *obj)
 {
     t_ast_node *root;
     t_ast_node *current;
@@ -147,27 +160,15 @@ t_ast_node *parse_pipeline(t_token **tokens)
         if (!pipe_node)
             return (free_ast_return_null(root));
         *tokens = (*tokens)->next;
-        pipe_node->left = current;
-
-        if (*tokens && is_redirect_token((*tokens)->type))
-        {
-            t_ast_node *redir = handle_redirection_node(tokens);
-            if (!redir)
-                return (free_ast_return_null(pipe_node));
-            pipe_node->right = redir;
-        }
-        else
-            pipe_node->right = parse_command(tokens);
-
+        pipe_node->left = root; // Current command goes left
+        i++;
+        pipe_node->right = parse_pipeline(&(*tokens), i, obj); //Recursive call for the remaining pipeline
         if (!pipe_node->right)
             return (free_ast_return_null(pipe_node));
-
-        current = pipe_node;
-        root = pipe_node;
+        root = pipe_node; // Update root
     }
     return (root);
 }
-
 
 void	free_ast(t_ast_node *node)
 {
