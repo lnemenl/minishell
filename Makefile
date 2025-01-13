@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/07 20:05:48 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/01/13 13:15:28 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -21,6 +21,7 @@ BLUE = \033[0;94m
 MAGENTA = \033[0;95m
 CYAN = \033[0;96m
 WHITE = \033[0;97m
+BROWN = \033[0;33m
 
 NAME = minishell
 
@@ -73,7 +74,7 @@ ${LIBFT_NAME}:
 ${NAME}: ${OBJS}
 	@echo "$(MAGENTA)🗂  Copying libft 🗂$(DEF_COLOR)"
 	@cp ${LIBFT_DIR}/libft.a .
-	@echo "$(BLUE)🛠  Compiling minishell... 🛠$(DEF_COLOR)"
+	@echo "$(BROWN)💩 Compiling shit-shell... 💩$(DEF_COLOR)"
 	@cc ${CFLAGS} ${OBJS} libft.a $(HEADERS) -o ${NAME}
 	@echo "$(GREEN)🥳 Success!🥳$(DEF_COLOR)"
 

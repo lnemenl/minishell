@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/13 12:01:25 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/13 14:37:03 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ void    parse(t_mshell *obj)
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
         return;
-    print_tokens(tokens);
+    //print_tokens(tokens);
     obj->token = tokens;
     temp = tokens;
     while (temp)
@@ -90,8 +90,8 @@ void    parse(t_mshell *obj)
         clean_tokens(tokens);
         return ;
     }
-	print_ast(obj->ast, 0);
-	print_parse_debug(obj);
+	// print_ast(obj->ast, 0);
+	// print_parse_debug(obj);
 }
 
 void    print_parse_debug(t_mshell *obj)
