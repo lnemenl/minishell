@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 16:19:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/13 12:59:27 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,18 +62,10 @@ static int	run_bultins(char **args, t_mshell *obj)
 
 void	alloc_pipes(t_mshell *obj)
 {
-	t_token *temp;
 	int		i;
 
 	if (!obj)
 		return ;
-	temp = obj->token;
-	while (temp)
-	{
-		if (temp->type == TOKEN_PIPE)
-			obj->pipes_count++;
-		temp = temp->next;
-	}
 	obj->pipfd = ft_calloc(obj->pipes_count, sizeof(int *));
 	if (!obj->pipfd)
 	{
