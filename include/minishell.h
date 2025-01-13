@@ -10,7 +10,7 @@
 # include <errno.h>
 # include <sys/wait.h>
 
-# define PROMPT "💩-shell: "
+# define PROMPT "shit-shell: " //"💩-shell: "
 
 typedef enum e_token_type
 {
