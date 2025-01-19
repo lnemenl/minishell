@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:39:57 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/20 00:52:49 by r                ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,19 @@ int	main(int argc, char **argv, char **envp)
 		return (error_ret(1, NULL));
 	create_env_file(envp);
 	obj = init_shell(argv, envp);
+	
+	//initializing shell's signal handling mode
+	init_shell_mode(&obj); // This sets up interactive mode signals
+	
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
+		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
+		{
+			// Printing newline for clean exit (CTRL+D should not exit on the same line as prompt)
+			write(STDERR_FILENO, "\n", 1);
+			break;			// Exit shell cleanly
+		}
 		if (ft_strcmp(obj.cmd_line, "exit") == 0)
 		{
 			free(obj.cmd_line);

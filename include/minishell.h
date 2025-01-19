@@ -14,7 +14,6 @@
 # define PROMPT "shit-shell: " //"💩-shell: "
 
 //Global variable for signal handling
-
 volatile sig_atomic_t	g_signo;
 /*
 
@@ -23,7 +22,6 @@ Tells the compiler not to optimize access to this variable
 Prevents the compiler from caching the variable's value in registers
 Important for variables that can be modified by external events (like signal handlers)
 Without volatile, the compiler might assume the value never changes and optimize incorrectly
-
 
 WITHOUT volatile:
 while (signal_flag)
@@ -50,7 +48,6 @@ Together volatile sig_atomic_t:
 
 volatile: Ensures the value is always read from memory
 sig_atomic_t: Ensures the read/write is atomic
-
 
 */
 
@@ -201,6 +198,18 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 /* ===== CLEANUP ===== */
 void	clean_strs(char **strs);
+
+
+/* ===== SIGNALS ===== */
+void	setup_shell_signals(t_mshell *mshell);
+int		init_shell_mode(t_mshell *mshell);
+void	reset_signals_to_default(void);
+void	setup_execution_signals(void);
+void	handle_sigint(int sigint);
+void	handle_sigquit(int sig);
+void	rl_replace_line(const char *text, int clear_undo);
+void	re_on_new_line(void);
+void	rl_redisplay(void);
 
 
 #endif

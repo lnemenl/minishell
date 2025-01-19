@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: r <r@student.42.fr>                        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/13 13:15:28 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/01/20 01:16:29 by r                ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -28,6 +28,7 @@ NAME = minishell
 SRC_DIR = ./srcs
 BUILTINS = ./builtins
 EXEC = ./execution
+
 
 SRCS = \
 	${SRC_DIR}/main.c \
@@ -52,12 +53,15 @@ SRCS = \
 	${SRC_DIR}/${EXEC}/execution.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
 	${SRC_DIR}/validation.c \
-	${SRC_DIR}/utils.c
+	${SRC_DIR}/utils.c \
+	\
+	${SRC_DIR}/signals/handling_signals.c
 
 OBJS = ${SRCS:.c=.o}
 
 CFLAGS = -g -Wall -Werror -Wextra
-HEADERS = -L/usr/local/lib -I/usr/local/include -lreadline
+INCLUDES = -I/usr/local/include
+LDFLAGS = -L/usr/local/lib -lreadline
 
 LIBFT_NAME = ./libft_updated/libft.a
 LIBFT_DIR = ./libft_updated
@@ -75,11 +79,11 @@ ${NAME}: ${OBJS}
 	@echo "$(MAGENTA)🗂  Copying libft 🗂$(DEF_COLOR)"
 	@cp ${LIBFT_DIR}/libft.a .
 	@echo "$(BROWN)💩 Compiling shit-shell... 💩$(DEF_COLOR)"
-	@cc ${CFLAGS} ${OBJS} libft.a $(HEADERS) -o ${NAME}
+	@cc ${CFLAGS} ${OBJS} libft.a $(LDFLAGS) -o ${NAME}
 	@echo "$(GREEN)🥳 Success!🥳$(DEF_COLOR)"
 
 %.o: %.c
-	@cc $(CFLAGS) -c $< -o $@
+	@cc $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
 	@echo "$(YELLOW)🚽 Deleting object files... 🚽$(DEF_COLOR)"

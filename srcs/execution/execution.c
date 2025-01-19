@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/13 12:59:27 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/20 00:35:50 by r                ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,6 +97,10 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
 	if (run_bultins(left->args, obj) == 1)
 		return ;
+
+	//Setting up execution signals for parent
+	setup_execution_signals();
+	
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
 	if (obj->pids[obj->cur_pid] == -1)
@@ -107,6 +111,9 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	if (obj->pids[obj->cur_pid] == 0)
 	{
 		// redirection
+		// We need to reset signals before executin command
+		reset_signals_to_default();
+		
 		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
 			redirection_input(obj, left);
 		if (obj->allocated_pipes >= 1)
@@ -131,6 +138,8 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 			exit_child(obj, left->args[0], 127);
 		}
 	}
+	//After child process finishes, we need to restore interactive mode signals
+	setup_shell_signals(obj);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
