@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/13 14:37:03 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/20 19:31:58 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,17 +63,19 @@ void print_tokens(t_token *tokens)
     }
 }
 
-void    parse(t_mshell *obj)
+
+
+int    parse(t_mshell *obj)
 {
 	t_token *tokens;
     t_token *temp;
     int     i;
 
     if (!obj || !obj->cmd_line)
-        return;
+        return (1);
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
-        return;
+        return (1);
     //print_tokens(tokens);
     obj->token = tokens;
     temp = tokens;
@@ -87,11 +89,13 @@ void    parse(t_mshell *obj)
     obj->ast = parse_pipeline(&tokens, i, obj);
     if (!obj->ast)
     {
-        clean_tokens(tokens);
-        return ;
+        clean_tokens(obj->token);
+        return (1);
     }
-	// print_ast(obj->ast, 0);
-	// print_parse_debug(obj);
+    return (0);
+	//print_ast(obj->ast, 0);
+    //ft_putstr_fd("after parsing pipeline\n", 1);
+	//print_parse_debug(obj);
 }
 
 void    print_parse_debug(t_mshell *obj)
@@ -145,7 +149,7 @@ t_token	*tokenize(const char *input, t_mshell *mshell)
     t_token	*result;
     char	*trimmed_input;
 
-    if (!input)
+    if (!input || !mshell)
         return (NULL);
     init_tokenize(&head, &current);
     trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
@@ -155,8 +159,9 @@ t_token	*tokenize(const char *input, t_mshell *mshell)
         return (NULL);
     }
     result = process_trimmed_input(&head, &current, trimmed_input, mshell);
-    if (result)
-        result->mshell = mshell;
     free(trimmed_input);
+    if (!result)
+        return (NULL);
+    result->mshell = mshell;
     return (result);
 }

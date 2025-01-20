@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:26:31 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/20 19:29:50 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,6 +79,21 @@ void	clean_mshell(t_mshell *obj)
 {
 	if (!obj)
 		return ;
+	if (obj->cmd_line)
+	{
+		free(obj->cmd_line);
+		obj->cmd_line = NULL;
+	}
+	if (obj->token)
+	{
+		clean_tokens(obj->token);
+		obj->token = NULL;
+	}
+	if (obj->ast)
+	{
+		free(obj->ast);
+		obj->ast = NULL;
+	}
 	ft_clean_strs(obj->paths);
 	clean_tokens(obj->token);
 	obj->token = NULL;

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:52:49 by r                ###   ########.fr       */
+/*   Updated: 2025/01/20 19:27:25 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -37,16 +37,18 @@ static t_mshell	init_shell(char **argv, char **envp)
 
 static void	create_env_file(char **envp)
 {
-	int	fd;
-	int	i;
+	int			fd;
+	int			i;
+	t_mshell	*obj;
 
+	obj = NULL;
 	if (!envp)
 		exit (1);
 	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
 	{
 		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL));
+		exit(error_ret(6, NULL, obj));
 	}
 	i = 0;
 	while (envp[i])
@@ -56,7 +58,7 @@ static void	create_env_file(char **envp)
 		{
 			close(fd);
 			unlink(".env_temp.txt");
-			exit(error_ret(6, NULL));
+			exit(error_ret(6, NULL, obj));
 		}
 		i++;
 	}
@@ -69,7 +71,7 @@ int	main(int argc, char **argv, char **envp)
 	int 		status;
 
 	if (argc != 1)
-		return (error_ret(1, NULL));
+		return (error_ret(1, NULL, NULL));
 	create_env_file(envp);
 	obj = init_shell(argv, envp);
 	
@@ -90,7 +92,12 @@ int	main(int argc, char **argv, char **envp)
 			free(obj.cmd_line);
 			break;
 		}
-		parse(&obj);
+		if (parse(&obj))
+		{
+			free(obj.cmd_line);
+			obj.cmd_line = NULL;
+			continue;
+		}
 		add_history(obj.cmd_line);
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;

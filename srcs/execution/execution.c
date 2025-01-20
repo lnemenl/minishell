@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:35:50 by r                ###   ########.fr       */
+/*   Updated: 2025/01/20 16:41:04 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,7 +70,7 @@ void	alloc_pipes(t_mshell *obj)
 	if (!obj->pipfd)
 	{
 		clean_mshell(obj);
-		error_ret(5, NULL);
+		error_ret(5, NULL, obj);
 	}
 	i = 0;
 	while (i < obj->pipes_count)
@@ -79,12 +79,12 @@ void	alloc_pipes(t_mshell *obj)
 		if (!obj->pipfd[i])
 		{
 			clean_mshell(obj);
-			error_ret(5, NULL);
+			error_ret(5, NULL, obj);
 		}
 		if (pipe(obj->pipfd[i]) == -1)
 		{
 			clean_mshell(obj);
-			error_ret(3, NULL);
+			error_ret(3, NULL, obj);
 		}
 		obj->allocated_pipes++;
 		i++;
@@ -142,7 +142,7 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	setup_shell_signals(obj);
 }
 
-static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
+static void	handle_cat_redir(t_mshell *obj, t_ast_node *node, char *redir_file, t_token_type type)
 {
 	char	**new_args;
 
@@ -150,7 +150,11 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 		return ;
 	new_args = ft_calloc(3, sizeof(char *));
 	if (!new_args)
+	{
+		clean_mshell(obj);
+		error_ret(5, NULL, obj);
 		return ; //cleanup
+	}
 	new_args[0] = ft_strdup(node->args[0]);
 	if (type == TOKEN_HEREDOC)
 		new_args[1] = ft_strdup(".heredoc_temp");
@@ -172,7 +176,7 @@ void	choose_actions(t_mshell *obj)
 	if (!obj->pids)
 	{
 		clean_mshell(obj);
-		error_ret(5, NULL);
+		error_ret(5, NULL, obj);
 	}
 	temp = obj->ast;
 	while (temp)
@@ -182,14 +186,14 @@ void	choose_actions(t_mshell *obj)
 		else if (temp->type == TOKEN_PIPE && temp->left &&
 			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
 		{
-			handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
+			handle_cat_redir(obj, temp->left->left, temp->left->args[0], temp->left->type);
 			if (temp->left->type == TOKEN_HEREDOC)
 				handle_here_doc(obj, temp->left);
 			execute_cmd(obj, temp->left->left, NULL);
 		}
 		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
 		{
-			handle_cat_redir(temp->left, temp->args[0], temp->type);
+			handle_cat_redir(obj, temp->left, temp->args[0], temp->type);
 			if (temp->type == TOKEN_HEREDOC)
 				handle_here_doc(obj, temp);
 			execute_cmd(obj, temp->left, NULL);
