@@ -3,15 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   handling_signals.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/20 01:19:39 by r                ###   ########.fr       */
+/*   Updated: 2025/01/20 12:48:40 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
+volatile sig_atomic_t	g_signo;
 void	handle_sigint(int sigint)
 {
 	g_signo = sigint;

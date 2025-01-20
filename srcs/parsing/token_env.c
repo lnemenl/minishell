@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/03 14:26:17 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/20 13:16:02 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,6 +18,8 @@ static char *get_var_name(const char *str, int *i)
     int len;
 
     start = *i;
+    if (!str[*i])
+        return (NULL);
     if (str[*i] == '?')
     {
         (*i)++;
@@ -88,6 +90,8 @@ char *expand_env_vars(const char *str, t_mshell *mshell)
                 result = join_and_free(result, var_value);
                 free(var_name);
             }
+            else
+                result = join_and_free(result, ft_strdup("$"));
         }
     }
     if (!result)

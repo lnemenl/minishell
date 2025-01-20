@@ -14,7 +14,7 @@
 # define PROMPT "shit-shell: " //"💩-shell: "
 
 //Global variable for signal handling
-volatile sig_atomic_t	g_signo;
+
 /*
 
 volatile:
