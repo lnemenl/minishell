@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   export.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 16:32:16 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:16:18 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,12 +59,10 @@ static char	*check_env_arg(char *arg)
 
 static void	put_env_var(char **strs, char *new_arg, size_t i)
 {
-	int			pos;
-	size_t		arg_len;
-	char		*last_str;
-	t_mshell	*obj;
+	int		pos;
+	size_t	arg_len;
+	char	*last_str;
 
-	obj = NULL;
 	arg_len = ft_strlen(new_arg);
 	pos = is_env_created(new_arg, strs);
 	if (pos == -1)
@@ -74,7 +72,7 @@ static void	put_env_var(char **strs, char *new_arg, size_t i)
 		if (!strs[i])
 		{
 			//ft_free_strs(strs, i);
-			exit(error_ret(6, NULL, obj));
+			exit(error_ret(6, NULL));
 		}
 		strs[i] = ft_memcpy(strs[i], new_arg, arg_len);
 		strs[i][arg_len] = '\n';
@@ -87,7 +85,7 @@ static void	put_env_var(char **strs, char *new_arg, size_t i)
 	if (!strs[pos])
 	{
 		//ft_free_strs(strs, strs_len);
-		exit(error_ret(6, NULL, obj));
+		exit(error_ret(6, NULL));
 	}
 	strs[pos] = ft_memcpy(strs[pos], new_arg, arg_len);
 	strs[pos][arg_len] = '\n';
@@ -95,12 +93,10 @@ static void	put_env_var(char **strs, char *new_arg, size_t i)
 
 static void	append_env(char *arg, char **strs, size_t i)
 {
-	int			fd;
-	int			j;
-	char		*new_arg;
-	t_mshell	*obj;
+	int		fd;
+	int		j;
+	char	*new_arg;
 
-	obj = NULL;
 	unlink(".env_temp.txt");
 	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (fd == -1)
@@ -108,7 +104,7 @@ static void	append_env(char *arg, char **strs, size_t i)
 		//cleanup struct
 		ft_free_strs(strs, i);
 		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL, obj));
+		exit(error_ret(6, NULL));
 	}
 	new_arg = check_env_arg(arg);
 	put_env_var(strs, new_arg, i);
@@ -120,7 +116,7 @@ static void	append_env(char *arg, char **strs, size_t i)
 		{
 			close(fd);
 			unlink(".env_temp.txt");
-			exit(error_ret(6, NULL, obj));
+			exit(error_ret(6, NULL));
 		}
 		j++;
 	}
@@ -129,19 +125,17 @@ static void	append_env(char *arg, char **strs, size_t i)
 
 int	export(char **args)
 {
-	char		**strs;
-	size_t		i;
-	int			fd;
-	t_mshell	*obj;
+	char	**strs;
+	size_t	i;
+	int		fd;
 
-	obj = NULL;
 	if (!args || !args[1] || !*args[1])
 		return (1);
 	fd = open(".env_temp.txt", O_RDONLY);
 	if (fd == -1)
 	{
 		//cleanup
-		error_ret(6, NULL, obj);
+		error_ret(6, NULL);
 	}
 	i = 0;
 	strs = read_alloc(fd, &i);

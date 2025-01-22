@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 16:41:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/06 15:38:09 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 	if (obj->fd_in < 0)
 	{
 		clean_mshell(obj);
-		error_ret(6, NULL, obj);
+		error_ret(6, NULL);
 	}
 	str = get_next_line(STDIN_FILENO);
 	while (str && ft_strncmp(str, node->args[0], ft_strlen(str) - 1) != 0)

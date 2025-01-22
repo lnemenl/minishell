@@ -12,8 +12,6 @@
 # include <signal.h>
 
 # define PROMPT "shit-shell: " //"💩-shell: "
-# define SYNTAX_ERROR 2
-# define GENERAL_ERROR 1
 
 //Global variable for signal handling
 
@@ -120,7 +118,7 @@ typedef struct	s_mshell
 	int			interactive_mode;  // Flag for interactive mode
 }	t_mshell;
 
-int				error_ret(int type, char *arg, t_mshell *obj);
+int				error_ret(int type, char *arg);
 void			clean_mshell(t_mshell *obj);
 void			close_fds(t_mshell *obj);
 
@@ -132,7 +130,7 @@ int				is_quote(char c);
 t_quote_state	get_quote_state(char quote);
 
 /* ===== PARSING ===== */
-int				parse(t_mshell *obj);
+void			parse(t_mshell *obj);
 void			print_parse_debug(t_mshell *obj);
 t_token			*tokenize(const char *input, t_mshell *mshell);
 void			init_tokenize(t_token **head, t_token **current);

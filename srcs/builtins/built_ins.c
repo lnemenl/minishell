@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 16:58:46 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/09 12:09:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,13 @@
 
 void	realloc_buffer(char **buf, size_t *buffer_size)
 {
-	t_mshell *obj;
-	obj = NULL;
 	*buffer_size *= 2;
 	free(*buf);
 	*buf = ft_calloc(*buffer_size, sizeof(char));
 	if (!*buf)
 	{
-		error_ret(5, NULL, obj);
-		return ;
+		ft_fprintf(2, "Malloc error!\n");
+		exit(1);
 	}
 }
 
@@ -32,9 +30,7 @@ int	open_dir(const char *dir)
 	char	*path;
 	char	*full_path;
 	size_t	buffer_size;
-	t_mshell *obj;
 
-	obj = NULL;
 	buffer_size = 50;
 	if (!dir || !*dir)
 		chdir(getenv("HOME"));
@@ -42,7 +38,8 @@ int	open_dir(const char *dir)
 	if (!buf)
 	{
 		//cleanup struct
-		return (error_ret(5, NULL, obj));
+		ft_fprintf(2, "Malloc error!\n");
+		exit(1);
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
@@ -59,17 +56,16 @@ int	open_dir(const char *dir)
 
 void	pwd(void)
 {
-	size_t		buffer_size;
-	char		*buf;
-	t_mshell	*obj;
+	size_t	buffer_size;
+	char	*buf;
 
-	obj = NULL;
 	buffer_size = 50;
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
 		//cleanup struct
-		error_ret(5, NULL, obj);
+		ft_fprintf(2, "Malloc error!\n");
+		exit(1);
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
@@ -98,17 +94,15 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 
 int	env(void) //(t_mshell *obj) //, t_ast_node *node)
 {
-	int			fd;
-	char		*str;
-	t_mshell	*obj;
+	int		fd;
+	char	*str;
 
-	obj = NULL;
 	printf("env runs\n");
 	fd = open(".env_temp.txt", O_RDONLY);
 	if (fd == -1)
 	{
 		//cleanup
-		return (error_ret(6, NULL, obj));
+		error_ret(6, NULL);
 	}
 	str = get_next_line(fd);
 	while (str)

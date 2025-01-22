@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:59:06 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 17:00:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/02 14:08:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,15 +14,13 @@
 
 char	**read_alloc(int fd, size_t *i)
 {
-	size_t		buffer;
-	char		**strs;
-	t_mshell	*obj;
+	size_t	buffer;
+	char	**strs;
 
-	obj = NULL;
 	buffer = 50;
 	strs = ft_calloc(buffer, sizeof(char *));
 	if (!strs)
-		error_ret(5, NULL, obj);
+		error_ret(5, NULL);
 	strs[*i] = get_next_line(fd);
 	while (strs[*i])
 	{
