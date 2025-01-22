@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/22 16:47:38 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 22:38:00 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,20 +16,18 @@ volatile sig_atomic_t	g_signo;
 void	handle_sigint(int sigint)
 {
 	g_signo = sigint;
-	// Only show new prompt in interactive mode (when not executing commands)
-	if (isatty(STDIN_FILENO))
-		write(STDERR_FILENO, "\n", 1);
-	else
-	{
-		rl_on_new_line();				// Tell readline "cursor is at the start of new line now"
-		rl_replace_line("", 0);			// Clear any partial command user was typing
-		rl_redisplay();					// Show prompt again
-	}
+	if (!isatty(STDIN_FILENO))
+		return ;
+	write(STDERR_FILENO, "\n", 1);
+	rl_replace_line("", 0);
+	rl_on_new_line();
+	rl_redisplay();
 }
 
 void	handle_sigquit(int sig)
 {
-	g_signo = sig;
+	(void)sig;
+	rl_redisplay();
 	//Do nothing for SIGQUIT in interactive mode
 }
 
@@ -47,13 +45,15 @@ void    setup_shell_signals(t_mshell *mshell)
     term.c_lflag &= ~ECHOCTL;
     tcsetattr(STDIN_FILENO, TCSANOW, &term);
 
+	ft_memset(&sa_int, 0, sizeof(sa_int));
+	ft_memset(&sa_quit, 0, sizeof(sa_quit));
     sigemptyset(&sa_int.sa_mask);
     sigemptyset(&sa_quit.sa_mask);
-    sa_int.sa_flags = 0;
-    sa_quit.sa_flags = 0;
+    sa_int.sa_flags = SA_RESTART;
+    sa_quit.sa_flags = SA_RESTART;
     
     sa_int.sa_handler = handle_sigint;
-    sa_quit.sa_handler = handle_sigquit;
+    sa_quit.sa_handler = SIG_IGN;
     
     sigaction(SIGINT, &sa_int, NULL);
     sigaction(SIGQUIT, &sa_quit, NULL);
@@ -98,8 +98,9 @@ void    reset_signals_to_default(void)
 {
     struct sigaction    sa;
     
+	ft_memset(&sa, 0, sizeof(sa));
     sigemptyset(&sa.sa_mask);
-    sa.sa_flags = 0;
+    sa.sa_flags = SA_RESTART;
     sa.sa_handler = SIG_DFL;
     
     sigaction(SIGINT, &sa, NULL);
@@ -119,10 +120,12 @@ void	setup_execution_signals(void)
 	struct sigaction	sa_int;
 	struct sigaction	sa_quit;
 	
+	ft_memset(&sa_int, 0, sizeof(sa_int));
+	ft_memset(&sa_quit, 0, sizeof(sa_quit));
 	sigemptyset(&sa_int.sa_mask);
 	sigemptyset(&sa_quit.sa_mask);
-	sa_int.sa_flags = 0;
-	sa_quit.sa_flags = 0;
+	sa_int.sa_flags = SA_RESTART;
+	sa_quit.sa_flags = SA_RESTART;
 	
 	// During execution we want to ignore signals in parent. This allows signals to be handled by child process group
 	sa_int.sa_handler = SIG_IGN; // Ignore SIGINT
@@ -132,3 +135,17 @@ void	setup_execution_signals(void)
 	sigaction(SIGINT, &sa_int, NULL);
 	sigaction(SIGQUIT, &sa_quit, NULL);
 }
+
+/*void    handle_heredoc(t_mshell *obj, t_ast_node *node)
+{
+    // ... existing code ...
+    
+    // Before starting heredoc input
+    signal(SIGINT, handle_sigint);  // Temporary switch for heredoc
+    signal(SIGQUIT, SIG_IGN);
+    
+    // ... heredoc processing ...
+    
+    // After heredoc completes or is interrupted
+    setup_shell_signals(obj);  // Restore normal shell signals
+}*/

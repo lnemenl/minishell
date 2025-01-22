@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 16:53:09 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 21:49:33 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,9 +160,7 @@ void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
 	int			status;
-	int			printed_quit;
 
-	printed_quit = 0;
 	if (!obj)
 		return ;
 	alloc_pipes(obj);
@@ -207,14 +205,10 @@ void	choose_actions(t_mshell *obj)
 		wait(&status);
 		if (WIFSIGNALED(status))
 		{
-			if (WTERMSIG(status) == SIGQUIT && !printed_quit)
+			if (WTERMSIG(status) == SIGQUIT)
 			{
-				// Print "Quit" only during command execution, not in interactive mode
-				if (obj->exec_cmds > 0)  // If we're still executing commands
-				{
-					write(STDERR_FILENO, "Quit (core dumped)\n", 19);
-					printed_quit = 1;
-				}
+				// Only print "Quit" during command execution
+				write(STDERR_FILENO, "Quit (core dumped)\n", 19);
 			}
 			else if (WTERMSIG(status) == SIGINT)
 				write(STDERR_FILENO, "\n", 1);
