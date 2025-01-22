@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 13:22:41 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 16:52:10 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
+	obj.executing_command = 0;
 	(void) argv;
 	return (obj);
 }
@@ -73,17 +74,13 @@ int	main(int argc, char **argv, char **envp)
 	obj = init_shell(argv, envp);
 	
 	//initializing shell's signal handling mode
-	setup_shell_signals(&obj); // This sets up interactive mode signals
+	init_shell_mode(&obj);
 	
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
-		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
-		{
-			// Printing newline for clean exit (CTRL+D should not exit on the same line as prompt)
-			write(STDERR_FILENO, "\n", 1);
-			break;			// Exit shell cleanly
-		}
+		if (!obj.cmd_line && obj.interactive_mode)
+			break;
 		if (ft_strcmp(obj.cmd_line, "exit") == 0)
 		{
 			free(obj.cmd_line);

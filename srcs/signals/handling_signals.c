@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/22 13:19:05 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 16:47:38 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,10 +16,15 @@ volatile sig_atomic_t	g_signo;
 void	handle_sigint(int sigint)
 {
 	g_signo = sigint;
-	write(STDERR_FILENO, "\n", 1);	// Print newline (using write because it's async-safe)
-	rl_on_new_line();				// Tell readline "cursor is at the start of new line now"
-	rl_replace_line("", 0);			// Clear any partial command user was typing
-	rl_redisplay();					// Show prompt again
+	// Only show new prompt in interactive mode (when not executing commands)
+	if (isatty(STDIN_FILENO))
+		write(STDERR_FILENO, "\n", 1);
+	else
+	{
+		rl_on_new_line();				// Tell readline "cursor is at the start of new line now"
+		rl_replace_line("", 0);			// Clear any partial command user was typing
+		rl_redisplay();					// Show prompt again
+	}
 }
 
 void	handle_sigquit(int sig)
@@ -33,8 +38,10 @@ void    setup_shell_signals(t_mshell *mshell)
     struct sigaction    sa_int;
     struct sigaction    sa_quit;
     struct termios      term;
+	
 
-    // Get current terminal attributes
+	(void)mshell;
+	// Get current terminal attributes
     tcgetattr(STDIN_FILENO, &term);
     // Disable CTRL character display (^C, ^\)
     term.c_lflag &= ~ECHOCTL;

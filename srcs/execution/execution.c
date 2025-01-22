@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 13:22:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 16:53:09 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,7 +160,9 @@ void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
 	int			status;
+	int			printed_quit;
 
+	printed_quit = 0;
 	if (!obj)
 		return ;
 	alloc_pipes(obj);
@@ -170,7 +172,7 @@ void	choose_actions(t_mshell *obj)
 		clean_mshell(obj);
 		error_ret(5, NULL);
 	}
-	
+	obj->executing_command = 1;
 	setup_execution_signals(); // Set up execution mode signals before running commands
 	
 	temp = obj->ast;
@@ -203,7 +205,22 @@ void	choose_actions(t_mshell *obj)
 	while (obj->exec_cmds > 0)
 	{
 		wait(&status);
+		if (WIFSIGNALED(status))
+		{
+			if (WTERMSIG(status) == SIGQUIT && !printed_quit)
+			{
+				// Print "Quit" only during command execution, not in interactive mode
+				if (obj->exec_cmds > 0)  // If we're still executing commands
+				{
+					write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+					printed_quit = 1;
+				}
+			}
+			else if (WTERMSIG(status) == SIGINT)
+				write(STDERR_FILENO, "\n", 1);
+		}
 		obj->exec_cmds--;
 	}
-	setup_shell_signals(obj);
+	obj->executing_command = 0;
+    setup_shell_signals(obj);  // Restore interactive mode signals
 }

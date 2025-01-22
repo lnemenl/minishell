@@ -10,6 +10,7 @@
 # include <errno.h>
 # include <sys/wait.h>
 # include <signal.h>
+# include <termios.h> // For terminal control functions
 
 # define PROMPT "shit-shell: " //"💩-shell: "
 
@@ -116,6 +117,7 @@ typedef struct	s_mshell
 	int			fd_in;
 	int			fd_out;
 	int			interactive_mode;  // Flag for interactive mode
+	int			executing_command;
 }	t_mshell;
 
 int				error_ret(int type, char *arg);
@@ -201,15 +203,20 @@ void	clean_strs(char **strs);
 
 
 /* ===== SIGNALS ===== */
+void	handle_sigint(int sigint);
+void	handle_sigquit(int sig);
 void	setup_shell_signals(t_mshell *mshell);
 int		init_shell_mode(t_mshell *mshell);
 void	reset_signals_to_default(void);
 void	setup_execution_signals(void);
-void	handle_sigint(int sigint);
-void	handle_sigquit(int sig);
+
+/* ===== readline function declarations ===== */
+
 void	rl_replace_line(const char *text, int clear_undo);
 void	re_on_new_line(void);
 void	rl_redisplay(void);
+void	add_history(const char *line);
+void	rl_clear_history(void);
 
 
 #endif
