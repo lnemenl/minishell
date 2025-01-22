@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/22 13:11:50 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 13:19:05 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,27 +27,6 @@ void	handle_sigquit(int sig)
 	g_signo = sig;
 	//Do nothing for SIGQUIT in interactive mode
 }
-
-// void	setup_shell_signals(t_mshell *mshell)
-// {
-// 	(void)mshell;
-// 	struct sigaction	sa_int;
-// 	struct sigaction	sa_quit;
-	
-// 	//Initializing sigaction structs
-// 	sigemptyset(&sa_int.sa_mask); // Initialize empty signal mask for SIGINT
-// 	sigemptyset(&sa_quit.sa_mask); // Initialize empty signal mask for SIGQUIT
-// 	sa_int.sa_flags = 0; // No special flags needed
-// 	sa_quit.sa_flags = 0; // No special flags needed
-
-// 	//Setting handlers
-// 	sa_int.sa_handler = handle_sigint;
-// 	sa_quit.sa_handler = handle_sigquit;
-
-// 	//Applying signal handlers
-// 	sigaction(SIGINT, &sa_int, NULL);
-// 	sigaction(SIGQUIT, &sa_quit, NULL);
-// }
 
 void    setup_shell_signals(t_mshell *mshell)
 {

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 13:08:44 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 13:22:41 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,6 @@ static void	create_env_file(char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-	int 		status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
@@ -96,11 +95,6 @@ int	main(int argc, char **argv, char **envp)
 		obj.cmd_line = NULL;
 		choose_actions(&obj);
 		close_fds(&obj);
-		while (obj.exec_cmds > 0)
-		{
-			wait(&status);
-			obj.exec_cmds--;
-		}
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(envp, 0);
 	}

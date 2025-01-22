@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 13:12:54 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 13:22:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,15 +97,11 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
 	if (run_bultins(left->args, obj) == 1)
 		return ;
-
-	//Setting up execution signals for parent
-	setup_parent_signals(); // Parent ignores signals during execution
 	
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
 	if (obj->pids[obj->cur_pid] == -1)
 	{
-		reset_signals_to_default();
 		clean_mshell(obj);
 		return ;
 	}
@@ -139,29 +135,7 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 			exit_child(obj, left->args[0], 127);
 		}
 	}
-	//After child process finishes, we need to restore interactive mode signals
-	setup_shell_signals(obj);
 }
-
-/*
-
-void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
-{
-    if (!left)
-        return;
-    if (run_bultins(left->args, obj) == 1)
-        return;
-
-    obj->exec_cmds++;
-    obj->pids[obj->cur_pid] = fork();
-    if (obj->pids[obj->cur_pid] == 0)
-    {
-        reset_signals_to_default();  // Reset signals in child process
-        // ... rest of your child process code ...
-    }
-    // Parent continues here
-}
-*/
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
 {
@@ -185,6 +159,7 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
+	int			status;
 
 	if (!obj)
 		return ;
@@ -195,6 +170,9 @@ void	choose_actions(t_mshell *obj)
 		clean_mshell(obj);
 		error_ret(5, NULL);
 	}
+	
+	setup_execution_signals(); // Set up execution mode signals before running commands
+	
 	temp = obj->ast;
 	while (temp)
 	{
@@ -222,44 +200,10 @@ void	choose_actions(t_mshell *obj)
 		temp = temp->right;
 		obj->cur_pid++;
 	}
+	while (obj->exec_cmds > 0)
+	{
+		wait(&status);
+		obj->exec_cmds--;
+	}
+	setup_shell_signals(obj);
 }
-
-/*void    choose_actions(t_mshell *obj)
-{
-    t_ast_node    *temp;
-    int           status;
-
-    if (!obj)
-        return ;
-    alloc_pipes(obj);
-    obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
-    if (!obj->pids)
-    {
-        clean_mshell(obj);
-        error_ret(5, NULL);
-    }
-    
-    // Set up execution mode signals before running commands
-    setup_execution_signals();
-    
-    temp = obj->ast;
-    while (temp)
-    {
-        // Your existing command execution logic
-        if (temp->type == TOKEN_WORD)
-            execute_cmd(obj, temp, NULL);
-        // ... rest conditions ...
-        temp = temp->right;
-        obj->cur_pid++;
-    }
-    
-    // Wait for all child processes
-    while (obj->exec_cmds > 0)
-    {
-        wait(&status);
-        obj->exec_cmds--;
-    }
-    
-    // Restore interactive mode signals after all commands finish
-    setup_shell_signals(obj);
-}*/
