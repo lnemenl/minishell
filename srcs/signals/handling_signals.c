@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/20 12:48:40 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/22 13:11:50 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,27 +28,50 @@ void	handle_sigquit(int sig)
 	//Do nothing for SIGQUIT in interactive mode
 }
 
-void	setup_shell_signals(t_mshell *mshell)
-{
-	(void)mshell;
-	struct sigaction	sa_int;
-	struct sigaction	sa_quit;
+// void	setup_shell_signals(t_mshell *mshell)
+// {
+// 	(void)mshell;
+// 	struct sigaction	sa_int;
+// 	struct sigaction	sa_quit;
 	
-	//Initializing sigaction structs
-	sigemptyset(&sa_int.sa_mask); // Initialize empty signal mask for SIGINT
-	sigemptyset(&sa_quit.sa_mask); // Initialize empty signal mask for SIGQUIT
-	sa_int.sa_flags = 0; // No special flags needed
-	sa_quit.sa_flags = 0; // No special flags needed
+// 	//Initializing sigaction structs
+// 	sigemptyset(&sa_int.sa_mask); // Initialize empty signal mask for SIGINT
+// 	sigemptyset(&sa_quit.sa_mask); // Initialize empty signal mask for SIGQUIT
+// 	sa_int.sa_flags = 0; // No special flags needed
+// 	sa_quit.sa_flags = 0; // No special flags needed
 
-	//Setting handlers
-	sa_int.sa_handler = handle_sigint;
-	sa_quit.sa_handler = handle_sigquit;
+// 	//Setting handlers
+// 	sa_int.sa_handler = handle_sigint;
+// 	sa_quit.sa_handler = handle_sigquit;
 
-	//Applying signal handlers
-	sigaction(SIGINT, &sa_int, NULL);
-	sigaction(SIGQUIT, &sa_quit, NULL);
+// 	//Applying signal handlers
+// 	sigaction(SIGINT, &sa_int, NULL);
+// 	sigaction(SIGQUIT, &sa_quit, NULL);
+// }
+
+void    setup_shell_signals(t_mshell *mshell)
+{
+    struct sigaction    sa_int;
+    struct sigaction    sa_quit;
+    struct termios      term;
+
+    // Get current terminal attributes
+    tcgetattr(STDIN_FILENO, &term);
+    // Disable CTRL character display (^C, ^\)
+    term.c_lflag &= ~ECHOCTL;
+    tcsetattr(STDIN_FILENO, TCSANOW, &term);
+
+    sigemptyset(&sa_int.sa_mask);
+    sigemptyset(&sa_quit.sa_mask);
+    sa_int.sa_flags = 0;
+    sa_quit.sa_flags = 0;
+    
+    sa_int.sa_handler = handle_sigint;
+    sa_quit.sa_handler = handle_sigquit;
+    
+    sigaction(SIGINT, &sa_int, NULL);
+    sigaction(SIGQUIT, &sa_quit, NULL);
 }
-
 
 int	init_shell_mode(t_mshell *mshell)
 {
@@ -85,18 +108,16 @@ $ sleep 100     # Start a sleep command
 # With shell handlers: sleep might continue or behave unexpectedly
 */
 
-void	reset_signals_to_default(void)
+void    reset_signals_to_default(void)
 {
-	struct sigaction	sa_default;
-	
-	// Initialize sigaction struct for default handling
-	sigemptyset(&sa_default.sa_mask);
-	sa_default.sa_flags = 0;
-	sa_default.sa_handler = SIG_DFL;	// SIG_DFL means "default handling"
-	
-	// Resetting both SIGINT and SIGQUIT to default behavior
-	sigaction(SIGINT, &sa_default, NULL);
-	sigaction(SIGQUIT, &sa_default, NULL);
+    struct sigaction    sa;
+    
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = SIG_DFL;
+    
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
 }
 
 /* During command execution, the parent process (shell) needs different signal handling than during interactive mode because:

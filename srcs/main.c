@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:52:49 by r                ###   ########.fr       */
+/*   Updated: 2025/01/22 13:08:44 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ int	main(int argc, char **argv, char **envp)
 	obj = init_shell(argv, envp);
 	
 	//initializing shell's signal handling mode
-	init_shell_mode(&obj); // This sets up interactive mode signals
+	setup_shell_signals(&obj); // This sets up interactive mode signals
 	
 	while (1)
 	{
