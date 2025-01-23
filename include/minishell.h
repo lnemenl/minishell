@@ -14,7 +14,13 @@
 
 # define PROMPT "shit-shell: " //"💩-shell: "
 
-//Global variable for signal handling
+extern volatile sig_atomic_t g_signo;
+//About extern:
+
+// It tells the compiler "this variable is defined somewhere else"
+// Used when you need to share a global variable across multiple files
+
+// Global variable for signal handling
 
 /*
 

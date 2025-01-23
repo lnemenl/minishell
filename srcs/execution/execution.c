@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/22 21:49:33 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/23 10:45:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -201,20 +201,19 @@ void	choose_actions(t_mshell *obj)
 		obj->cur_pid++;
 	}
 	while (obj->exec_cmds > 0)
-	{
-		wait(&status);
-		if (WIFSIGNALED(status))
-		{
-			if (WTERMSIG(status) == SIGQUIT)
-			{
-				// Only print "Quit" during command execution
-				write(STDERR_FILENO, "Quit (core dumped)\n", 19);
-			}
-			else if (WTERMSIG(status) == SIGINT)
-				write(STDERR_FILENO, "\n", 1);
-		}
-		obj->exec_cmds--;
-	}
-	obj->executing_command = 0;
-    setup_shell_signals(obj);  // Restore interactive mode signals
+    {
+        if (waitpid(-1, &status, 0) > 0)
+        {
+            if (WIFSIGNALED(status))
+            {
+                if (WTERMSIG(status) == SIGQUIT)
+                    write(STDERR_FILENO, "Quit (core dumped)\n", 19);
+                else if (WTERMSIG(status) == SIGINT)
+                    write(STDERR_FILENO, "\n", 1);
+            }
+            obj->exec_cmds--;
+        }
+    }
+    obj->executing_command = 0;
+    setup_shell_signals(obj);  /* Restore interactive mode signals */
 }
