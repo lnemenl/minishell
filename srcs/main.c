@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:39:57 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/27 07:58:37 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
+	obj.executing_command = 0;
 	(void) argv;
 	return (obj);
 }
@@ -66,15 +67,21 @@ static void	create_env_file(char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-	int 		status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
 	create_env_file(envp);
 	obj = init_shell(argv, envp);
+	
+	//initializing shell's signal handling mode
+	if (isatty(STDIN_FILENO))
+		setup_shell_signals(&obj);
+	
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
+		if (!obj.cmd_line && obj.interactive_mode)
+			break;
 		if (ft_strcmp(obj.cmd_line, "exit") == 0)
 		{
 			free(obj.cmd_line);
@@ -86,11 +93,6 @@ int	main(int argc, char **argv, char **envp)
 		obj.cmd_line = NULL;
 		choose_actions(&obj);
 		close_fds(&obj);
-		while (obj.exec_cmds > 0)
-		{
-			wait(&status);
-			obj.exec_cmds--;
-		}
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(envp, 0);
 	}

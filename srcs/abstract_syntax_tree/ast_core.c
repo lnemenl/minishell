@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/13 12:59:14 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/20 01:04:55 by r                ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -142,13 +142,13 @@ t_ast_node *parse_command(t_token **tokens)
 t_ast_node *parse_pipeline(t_token **tokens, int i, t_mshell *obj)
 {
     t_ast_node *root;
-    t_ast_node *current;
+    //t_ast_node *current;
     t_ast_node *pipe_node;
 
     root = parse_command(tokens);
     if (!root)
         return (NULL);
-    current = root;
+    //current = root;
     while (*tokens && (*tokens)->type == TOKEN_PIPE)
     {
         if (!(*tokens)->next || (*tokens)->next->type == TOKEN_PIPE)

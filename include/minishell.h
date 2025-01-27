@@ -9,8 +9,54 @@
 # include <sys/types.h>
 # include <errno.h>
 # include <sys/wait.h>
+# include <signal.h>
+# include <termios.h> // For terminal control functions
 
 # define PROMPT "shit-shell: " //"💩-shell: "
+
+extern volatile sig_atomic_t g_signo;
+//About extern:
+
+// It tells the compiler "this variable is defined somewhere else"
+// Used when you need to share a global variable across multiple files
+
+// Global variable for signal handling
+
+/*
+
+volatile:
+Tells the compiler not to optimize access to this variable
+Prevents the compiler from caching the variable's value in registers
+Important for variables that can be modified by external events (like signal handlers)
+Without volatile, the compiler might assume the value never changes and optimize incorrectly
+
+WITHOUT volatile:
+while (signal_flag)
+{
+    Compiler might optimize this to an infinite loop
+    because it assumes signal_flag never changes
+}
+
+WITH volatile:
+while (volatile_signal_flag)
+{
+    Compiler will check the value each time
+    because it knows it might change externally
+}
+
+sig_atomic_t:
+Special integer type guaranteed to be read/written atomically
+"Atomic" means the operation can't be interrupted halfway
+Prevents race conditions in signal handlers
+Usually a small integer type that can be accessed in one CPU instruction
+Perfect for flags and signal numbers
+
+Together volatile sig_atomic_t:
+
+volatile: Ensures the value is always read from memory
+sig_atomic_t: Ensures the read/write is atomic
+
+*/
 
 typedef enum e_token_type
 {
@@ -76,6 +122,8 @@ typedef struct	s_mshell
 	char 		**envp;
 	int			fd_in;
 	int			fd_out;
+	int			interactive_mode;  // Flag for interactive mode
+	int			executing_command;
 }	t_mshell;
 
 int				error_ret(int type, char *arg);
@@ -158,6 +206,23 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 /* ===== CLEANUP ===== */
 void	clean_strs(char **strs);
+
+
+/* ===== SIGNALS ===== */
+void	handle_sigint(int sigint);
+void	handle_sigquit(int sig);
+void	setup_shell_signals(t_mshell *mshell);
+//int		init_shell_mode(t_mshell *mshell);
+void	reset_signals_to_default(void);
+void	setup_execution_signals(void);
+
+/* ===== readline function declarations ===== */
+
+void	rl_replace_line(const char *text, int clear_undo);
+void	re_on_new_line(void);
+void	rl_redisplay(void);
+void	add_history(const char *line);
+void	rl_clear_history(void);
 
 
 #endif
