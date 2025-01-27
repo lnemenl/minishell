@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/23 10:37:11 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/27 07:58:37 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,8 @@ int	main(int argc, char **argv, char **envp)
 	obj = init_shell(argv, envp);
 	
 	//initializing shell's signal handling mode
-	init_shell_mode(&obj);
+	if (isatty(STDIN_FILENO))
+		setup_shell_signals(&obj);
 	
 	while (1)
 	{

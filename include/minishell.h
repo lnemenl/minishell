@@ -212,7 +212,7 @@ void	clean_strs(char **strs);
 void	handle_sigint(int sigint);
 void	handle_sigquit(int sig);
 void	setup_shell_signals(t_mshell *mshell);
-int		init_shell_mode(t_mshell *mshell);
+//int		init_shell_mode(t_mshell *mshell);
 void	reset_signals_to_default(void);
 void	setup_execution_signals(void);
 

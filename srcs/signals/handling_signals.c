@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/23 11:28:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/27 07:57:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,19 +55,6 @@ void    setup_shell_signals(t_mshell *mshell)
     sa_quit.sa_flags = SA_RESTART;
     sigaction(SIGQUIT, &sa_quit, NULL);    
 }
-
-int	init_shell_mode(t_mshell *mshell)
-{
-	if (!mshell)
-		return (0);
-	
-	mshell->interactive_mode = isatty(STDIN_FILENO);	// Check if input is from terminal
-	if (mshell->interactive_mode)						// If terminal input
-		//setting up handling for interactive mode
-		setup_shell_signals(mshell);
-	return (1);
-}
-
 
 // Resetting signals to default in child processes
 /* As 

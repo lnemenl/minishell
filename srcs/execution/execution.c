@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/23 10:45:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/27 10:02:12 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -160,6 +160,7 @@ void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
 	int			status;
+	pid_t		pid;
 
 	if (!obj)
 		return ;
@@ -201,19 +202,27 @@ void	choose_actions(t_mshell *obj)
 		obj->cur_pid++;
 	}
 	while (obj->exec_cmds > 0)
-    {
-        if (waitpid(-1, &status, 0) > 0)
-        {
-            if (WIFSIGNALED(status))
-            {
-                if (WTERMSIG(status) == SIGQUIT)
-                    write(STDERR_FILENO, "Quit (core dumped)\n", 19);
-                else if (WTERMSIG(status) == SIGINT)
-                    write(STDERR_FILENO, "\n", 1);
-            }
-            obj->exec_cmds--;
-        }
-    }
+	{
+		pid = waitpid(-1, &status, 0);
+		if (pid > 0)
+		{
+			if (WIFSIGNALED(status))
+			{
+				// Only print message is it wasn't during heredoc
+				if (!obj->is_heredoc)
+				{
+					if (WTERMSIG(status) == SIGQUIT)
+					{
+						write(STDERR_FILENO, "^\\", 2);
+						write(STDERR_FILENO, "Quit (core dumped)\n", 20);
+					}
+					else if (WTERMSIG(status) == SIGINT)
+						write(STDERR_FILENO, "^C\n", 3); 	
+				}
+			}
+			obj->exec_cmds--;
+		}
+	}
     obj->executing_command = 0;
     setup_shell_signals(obj);  /* Restore interactive mode signals */
 }
