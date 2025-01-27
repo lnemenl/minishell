@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 12:09:12 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:34:40 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -92,12 +92,11 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 	node->args[2] = NULL;
 }
 
-int	env(void) //(t_mshell *obj) //, t_ast_node *node)
+int	env(void)
 {
 	int		fd;
 	char	*str;
 
-	printf("env runs\n");
 	fd = open(".env_temp.txt", O_RDONLY);
 	if (fd == -1)
 	{
@@ -112,7 +111,6 @@ int	env(void) //(t_mshell *obj) //, t_ast_node *node)
 		str = get_next_line(fd);
 	}
 	close(fd);
-	//execve(obj->cur_path, node->args, NULL);
 	return (1);
 }
 

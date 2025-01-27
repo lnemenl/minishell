@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 14:16:18 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/27 16:37:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,28 +32,19 @@ static int	is_env_created(char *arg, char **strs)
 
 static char	*check_env_arg(char *arg)
 {
-	char	*new_arg;
-	size_t	len;
-	int		equal;
+	char 	*equal;
 
-	len = ft_strlen(arg);
-	equal = 1;
-	if (ft_strchr(arg, '=') && !ft_strchr(arg, '=') + 1)
-		equal = 0;
-	if (!ft_strchr(arg, '='))
-	{
-		new_arg = ft_calloc(len + 2, 1);
-		if (!new_arg)
-		{
-			//cleanup
-		}
-		new_arg = ft_memcpy(new_arg, arg, len);
-		if (equal == 1)
-			ft_strlcat(new_arg, "=", len + 2);
-		else
-			ft_strlcat(new_arg, "", len + 1);
-		return (new_arg);
-	}
+	if (!arg)
+		return (NULL);
+	else if (ft_isdigit(arg[0]))
+		return (NULL);
+	equal = ft_strchr(arg, '=');
+	if (!equal)
+		return (NULL);
+	else if (equal[1] == '=' || equal[1] == '\0'
+		|| (equal - 1 && *(equal - 1) == '-'))
+		return (NULL);
+	
 	return (ft_strdup(arg));
 }
 
@@ -81,7 +72,7 @@ static void	put_env_var(char **strs, char *new_arg, size_t i)
 		strs[++i] = NULL;
 		return ;
 	}
-	strs[pos] = ft_calloc(arg_len + 2, 1);
+	strs[pos] = ft_realloc(strs[pos], arg_len, arg_len + 2);
 	if (!strs[pos])
 	{
 		//ft_free_strs(strs, strs_len);
@@ -107,6 +98,13 @@ static void	append_env(char *arg, char **strs, size_t i)
 		exit(error_ret(6, NULL));
 	}
 	new_arg = check_env_arg(arg);
+	if (!new_arg)
+	{
+		printf("export: `%s`: not a valid identifier\n", arg);
+		unlink(".env_temp.txt");
+		close(fd);
+		return ;
+	}
 	put_env_var(strs, new_arg, i);
 	free(new_arg);
 	j = 0;
