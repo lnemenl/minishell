@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 12:09:12 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/27 11:30:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -97,7 +97,6 @@ int	env(void) //(t_mshell *obj) //, t_ast_node *node)
 	int		fd;
 	char	*str;
 
-	printf("env runs\n");
 	fd = open(".env_temp.txt", O_RDONLY);
 	if (fd == -1)
 	{

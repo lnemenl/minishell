@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:52:49 by r                ###   ########.fr       */
+/*   Updated: 2025/01/27 15:03:15 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,6 +31,8 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
+	init_signal_state(&obj.sig_state);
+	setup_signals(SHELL_INTERACTIVE);
 	(void) argv;
 	return (obj);
 }
@@ -72,10 +74,7 @@ int	main(int argc, char **argv, char **envp)
 		return (error_ret(1, NULL));
 	create_env_file(envp);
 	obj = init_shell(argv, envp);
-	
-	//initializing shell's signal handling mode
-	init_shell_mode(&obj); // This sets up interactive mode signals
-	
+		
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
@@ -104,6 +103,7 @@ int	main(int argc, char **argv, char **envp)
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(envp, 0);
 	}
+	cleanup_signal_state(&obj.sig_state);
 	unlink(".heredoc_temp");
 	clean_mshell(&obj);
 	return (0);

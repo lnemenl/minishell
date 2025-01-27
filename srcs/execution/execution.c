@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:35:50 by r                ###   ########.fr       */
+/*   Updated: 2025/01/27 14:50:09 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -99,7 +99,8 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
 
 	//Setting up execution signals for parent
-	setup_execution_signals();
+	setup_parent_signals();
+	change_shell_state(&obj->sig_state, SHELL_EXECUTING);
 	
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
@@ -112,7 +113,7 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	{
 		// redirection
 		// We need to reset signals before executin command
-		reset_signals_to_default();
+		reset_signals_default();
 		
 		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
 			redirection_input(obj, left);
@@ -138,8 +139,7 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 			exit_child(obj, left->args[0], 127);
 		}
 	}
-	//After child process finishes, we need to restore interactive mode signals
-	setup_shell_signals(obj);
+	change_shell_state(&obj->sig_state, SHELL_INTERACTIVE);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)

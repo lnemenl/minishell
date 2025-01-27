@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/08 17:26:31 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/27 14:54:40 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,4 +91,7 @@ void	clean_mshell(t_mshell *obj)
 	obj->exec_cmds = 0;
 	obj->cur_pid = 0;
 	obj->pipes_count = 0;
+	if (obj->sig_state.current_state != SHELL_INTERACTIVE)
+		change_shell_state(&obj->sig_state, SHELL_INTERACTIVE);
+	g_signo = 0;
 }
