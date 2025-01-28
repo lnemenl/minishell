@@ -12,43 +12,15 @@
 
 #include "../../include/minishell.h"
 
-char	**fetch_paths(char **envp, int first)
+char	**fetch_paths(char **envp)
 {
-    int		fd;
-	char	**strs;
-    char    **paths;
-    size_t  i;
-
-    if (first == 0)
+    if (!envp)
+        return (NULL);
+    while (*envp)
     {
-        fd = open(".env_temp.txt", O_RDONLY);
-        i = 0;
-        strs = read_alloc(fd, &i);
-        if (!strs)
-        {}
-            // cleanup
-        i = 0;
-        while (strs[i])
-        {
-            if (ft_strncmp(strs[i], "PATH=", 5) == 0)
-            {
-                paths = ft_split(strs[i], ':');
-                if (!paths)
-                {}/*cleanup */
-                clean_strs(strs);
-                return (paths);
-            }
-            i++;
-        }
-    }
-    else
-    {
-        while (*envp)
-        {
-            if (ft_strncmp(*envp, "PATH=", 5) == 0)
-                return (ft_split(*envp + 5, ':'));
-            envp++;
-        }
+        if (ft_strncmp(*envp, "PATH=", 5) == 0)
+            return (ft_split(*envp + 5, ':'));
+        envp++;
     }
 	return (NULL);
 }
@@ -74,7 +46,6 @@ void    parse(t_mshell *obj)
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
         return;
-    //print_tokens(tokens);
     obj->token = tokens;
     temp = tokens;
     while (temp)
@@ -90,8 +61,6 @@ void    parse(t_mshell *obj)
         clean_tokens(tokens);
         return ;
     }
-	// print_ast(obj->ast, 0);
-	// print_parse_debug(obj);
 }
 
 void    print_parse_debug(t_mshell *obj)

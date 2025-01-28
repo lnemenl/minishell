@@ -135,7 +135,7 @@ void			print_parse_debug(t_mshell *obj);
 t_token			*tokenize(const char *input, t_mshell *mshell);
 void			init_tokenize(t_token **head, t_token **current);
 t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
-char			**fetch_paths(char **envp, int first);
+char			**fetch_paths(char **envp);
 
 /* ===== TOKEN CORE (token_core.c) ===== */
 t_token 		*new_token(t_token_type type, const char *content, size_t len, t_mshell *mshell);
@@ -161,9 +161,9 @@ t_token			*handle_quotes(t_token **head, t_token **current, const char *input, i
 int			open_dir(const char *dir);
 void		pwd(void);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(void);
+int			env(t_mshell *obj);
 void		echo(char **args);
-int			export(char **args);
+int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */

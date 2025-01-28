@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/20 00:35:50 by r                ###   ########.fr       */
+/*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
+/*   Updated: 2025/01/28 12:04:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,7 @@ static void	run_builtins_exec(char **args, t_mshell *obj)
 	if (ft_strcmp(args[0], "echo") == 0)
 		echo(args);
 	else if (ft_strcmp(args[0], "env") == 0)
-	 	env();
+	 	env(obj);
 	exit_child(obj, args[0], 0);
 }
 
@@ -49,7 +49,7 @@ static int	run_bultins(char **args, t_mshell *obj)
 	if (ft_strcmp(args[0], "cd") == 0)
 		return (open_dir(args[1]));
 	else if (ft_strcmp(args[0], "export") == 0)
-		return (export(args));
+		return (export(args, obj));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args, obj));
 	else if (ft_strcmp(args[0], "pwd") == 0)

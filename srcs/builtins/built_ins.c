@@ -92,25 +92,18 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 	node->args[2] = NULL;
 }
 
-int	env(void)
+int	env(t_mshell *obj)
 {
-	int		fd;
-	char	*str;
+	size_t	i;
 
-	fd = open(".env_temp.txt", O_RDONLY);
-	if (fd == -1)
+	if (!obj || !obj->envp)
+		return (0);
+	i = 0;
+	while (obj->envp[i])
 	{
-		//cleanup
-		error_ret(6, NULL);
+		printf("%s\n", obj->envp[i]);
+		i++;
 	}
-	str = get_next_line(fd);
-	while (str)
-	{
-		printf("%s", str);
-		free(str);
-		str = get_next_line(fd);
-	}
-	close(fd);
 	return (1);
 }
 
