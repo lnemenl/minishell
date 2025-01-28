@@ -60,6 +60,38 @@ static t_mshell	init_shell(char **argv, char **envp)
 	return (obj);
 }
 
+static int	check_and_handle_exit(char *command, t_mshell *obj)
+{
+	int	i;
+
+	if (ft_strcmp(command, "exit") == 0)
+	{
+		printf("exit\n");
+		free(command);
+		obj->exit_code = 0;
+		return (0);
+	}
+	else if (ft_strncmp(command, "exit", 4) == 0)
+	{
+		printf("exit\n");
+		i = 5;
+		while (command[i])
+		{
+			if (ft_isdigit(command[i]) == 0)
+			{
+				obj->exit_code = 2;
+				break ;
+			}
+			i++;
+		}
+		if (obj->exit_code == 0)
+			obj->exit_code = ft_atoi(command + 5);
+		free(command);
+		return (obj->exit_code);
+	}
+	return (-1);
+}
+
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
@@ -81,11 +113,8 @@ int	main(int argc, char **argv, char **envp)
 			write(STDERR_FILENO, "\n", 1);
 			break;			// Exit shell cleanly
 		}
-		if (ft_strcmp(obj.cmd_line, "exit") == 0)
-		{
-			free(obj.cmd_line);
-			break;
-		}
+		if (check_and_handle_exit(obj.cmd_line, &obj) != -1)
+			break ;
 		parse(&obj);
 		add_history(obj.cmd_line);
 		free(obj.cmd_line);
@@ -104,5 +133,5 @@ int	main(int argc, char **argv, char **envp)
 	clean_mshell(&obj);
 	if (obj.envp)
 		free(obj.envp);
-	return (0);
+	return (obj.exit_code);
 }
