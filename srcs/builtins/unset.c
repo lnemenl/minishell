@@ -12,60 +12,47 @@
 
 #include "../../include/minishell.h"
 
-static void	delete_env(char *arg, char **strs, int fd, size_t i)
+static char	**delete_env(char *arg, t_mshell *obj)
 {
-	size_t	j;
+	size_t	i;
+	size_t	envp_len;
+	char	**new_envp;
+	int		skip;
 
-	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
+	if (!arg)
+		return (obj->envp);
+	if (is_env_created(arg, obj->envp) == -1)
+		return (obj->envp);
+	envp_len = get_envp_length(obj->envp);
+	new_envp = ft_calloc(envp_len, sizeof(char *));
+	i = 0;
+	skip = 0;
+	while (obj->envp[i])
 	{
-		//cleanup struct
-		ft_free_strs(strs, i);
-		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL));
-	}
-	j = 0;
-	if (!strs || !*strs || !arg)
-		return ;
-	while (strs[j])
-	{
-		if (ft_strncmp(strs[j], arg, ft_strlen(arg)) != 0)
+		if (ft_strncmp(obj->envp[i], arg, ft_strlen(arg)) == 0)
+			skip = 1;
+		if (obj->envp[i + skip])
 		{
-			if (write(fd, strs[j], ft_strlen(strs[j])) == -1)
-			{
-				// cleanup
-				close(fd);
-				unlink(".env_temp.txt");
-				exit(error_ret(6, NULL));
-			}
+			new_envp[i] = ft_strdup(obj->envp[i + skip]);
+			i++;
 		}
-		j++;
+		else
+			break ;
 	}
-	close(fd);
+	new_envp[i] = NULL;
+	ft_clean_strs(obj->envp);
+	return (new_envp);
 }
 
 int	unset(char **args, t_mshell *obj)
 {
-	char	**strs;
-	size_t	i;
-	int		fd;
-
 	if (!args || !args[1] || !*args[1])
 		return (1);
-	fd = open(".env_temp.txt", O_RDONLY);
-	if (fd == -1)
-	{
-		//cleanup
-		error_ret(6, NULL);
-	}
-	i = 0;
-	strs = read_alloc(fd, &i);
 	if (ft_strcmp(args[1], "PATH") == 0)
 	{
 		clean_strs(obj->paths);
 		obj->paths = NULL;
 	}
-	delete_env(args[1], strs, fd, i);
-	ft_free_strs(strs, i);
+	obj->envp = delete_env(args[1], obj);
 	return (1);
 }

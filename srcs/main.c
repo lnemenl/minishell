@@ -19,9 +19,7 @@ static char	**copy_envp(char **envp)
 
 	if (!envp)
 		return (NULL);
-	envp_len = 0;
-	while (envp[envp_len])
-		envp_len++;
+	envp_len = get_envp_length(envp);
 	new_envp = ft_calloc(envp_len, sizeof(char *));
 	if (!new_envp)
 		return (NULL);

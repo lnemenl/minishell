@@ -12,13 +12,13 @@
 
 #include "../../include/minishell.h"
 
-static int	is_env_created(char *arg, char **strs)
+int	is_env_created(char *arg, char **strs)
 {
 	int		i;
 	size_t	len;
 
 	len = 0;
-	while (arg[len] != '=')
+	while (arg[len] && arg[len] != '=')
 		len++;
 	i = 0;
 	while (strs[i])
@@ -45,36 +45,6 @@ static char	*check_env_arg(char *arg)
 		|| (equal - 1 && *(equal - 1) == '-'))
 		return (NULL);
 	return (ft_strdup(arg));
-}
-
-size_t	get_envp_memory_size(char **envp)
-{
-	size_t	len;
-	size_t	total_memory;
-
-	if (!envp)
-		return (0);
-	len = 0;
-	total_memory = 0;
-	while (envp[len])
-	{
-		total_memory += ft_strlen(envp[len]) + 1;
-		len++;
-	}
-	total_memory += (len + 1) * sizeof(char *);
-	return (total_memory);
-}
-
-size_t	get_envp_length(char **envp)
-{
-	size_t	len;
-
-	if (!envp)
-		return (0);
-	len = 0;
-	while (envp[len])
-		len++;
-	return (len);
 }
 
 static void	put_env_var(t_mshell *obj, char *new_arg)

@@ -189,6 +189,9 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code);
+size_t	get_envp_memory_size(char **envp);
+size_t	get_envp_length(char **envp);
+int		is_env_created(char *arg, char **strs);
 
 /* ===== REDIRECTION ===== */
 void	redirection_input(t_mshell *obj, t_ast_node *node);
