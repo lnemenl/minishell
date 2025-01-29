@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/29 14:02:06 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/29 17:39:31 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,35 +63,56 @@ static void	create_env_file(char **envp)
 	close(fd);
 }
 
-int	main(int argc, char **argv, char **envp)
+int main(int argc, char **argv, char** envp)
 {
-	t_mshell	obj;
+    t_mshell obj;
+    int status;
 
-	obj = init_shell(argv, envp);
-	obj.exit_code = 0;
-	if (argc != 1)
-		return (error_ret(1, NULL));
-	create_env_file(envp);
-	obj = init_shell(argv, envp);
-	setup_signal_handlers();
-	while (1)
-	{
-		obj.cmd_line = readline(PROMPT);
-		if (!obj.cmd_line)
-			handle_eof();
-		if (obj.cmd_line && *obj.cmd_line)
+    if (argc != 1)
+        return (error_ret(1, NULL));
+    create_env_file(envp);
+    init_signals();  // Add this line
+    obj = init_shell(argv, envp);
+
+    while (1)
+    {
+        g_signal_received = 0;  // Reset signal flag at start of each loop
+        obj.cmd_line = readline(PROMPT);
+        if (!obj.cmd_line)  // Handle ctrl-D
+        {
+            write(STDOUT_FILENO, "exit\n", 5);
+            break;
+        }
+        if (ft_strcmp(obj.cmd_line, "exit") == 0)
+        {
+            free(obj.cmd_line);
+            break;
+        }
+        parse(&obj);
+        add_history(obj.cmd_line);
+        free(obj.cmd_line);
+        obj.cmd_line = NULL;
+        choose_actions(&obj);
+        close_fds(&obj);
+        while (obj.exec_cmds > 0)
 		{
-			add_history(obj.cmd_line);
-			parse(&obj);
-			choose_actions(&obj);
-			close_fds(&obj);
-			clean_mshell(&obj);
-			obj.paths = fetch_paths(envp, 0);
+			wait(&status);
+			if (WIFSIGNALED(status))  // Check if process was terminated by a signal
+			{
+				if (WTERMSIG(status) == SIGINT)  // ctrl-C
+					write(STDERR_FILENO, "\n", 1);
+				else if (WTERMSIG(status) == SIGQUIT)  // ctrl-
+					write(STDERR_FILENO, "Quit: 3\n", 8);
+				obj.exit_code = 128 + WTERMSIG(status);  // Set appropriate exit code
+			}
+			else if (WIFEXITED(status))  // Normal exit
+				obj.exit_code = WEXITSTATUS(status);
+			obj.exec_cmds--;
 		}
-		free(obj.cmd_line);
-		obj.cmd_line = NULL;
-	}
-	unlink(".heredoc_temp");
-	clean_mshell(&obj);
-    return (g_exit_code); // Return the global exit code
+        clean_mshell(&obj);
+        obj.paths = fetch_paths(envp, 0);
+    }
+    unlink(".heredoc_temp");
+    clean_mshell(&obj);
+    return (0);
 }

@@ -145,3 +145,179 @@
 - **Leverage Past Experience**:
   - Use file descriptor management skills from **Pipex** for pipes and redirections.
   - Apply **Minitalk's** signal expertise to handle signals smoothly.
+
+____________________________________________________________________________________
+
+
+Signal Handling Reference Guide for Minishell
+Overview
+This document serves as a comprehensive reference for implementing signal handling in minishell, based on bash behavior. All behaviors have been tested and documented for exact replication.
+
+Table of Contents
+Interactive Mode
+Empty Prompt
+Command Execution
+Pipe Operations
+Redirections
+Heredoc
+Non-Interactive Mode
+Via Pipe
+Via Script
+Built-in Commands
+Special Cases
+Implementation Notes
+Interactive Mode
+Empty Prompt
+Signal	Behavior	Output	Exit Status
+ctrl-C	Shows new prompt	^C\n<prompt>	130
+ctrl-D	Exits shell	exit\n	Previous status
+ctrl-\	No effect	None	Unchanged
+Command Execution
+Simple Commands
+# Example with 'cat' (waiting for input)
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command, new prompt	^C\n<prompt>	130
+ctrl-D	Sends EOF to command	None	0
+ctrl-\	Terminates command	Quit (core dumped)	131
+# Example with 'sleep 5'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command, new prompt	^C\n<prompt>	130
+ctrl-D	No effect	None	N/A
+ctrl-\	Terminates command	Quit (core dumped)	131
+Pipe Operations
+Simple Pipe
+# Example with 'cat | grep test'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates both commands, new prompt	^C\n<prompt>	130
+ctrl-D	Closes input to first command	None	0
+ctrl-\	Terminates both commands	Quit (core dumped)	131
+Multiple Pipes
+# Example with 'cat | grep test | wc -l'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates entire pipeline, new prompt	^C\n<prompt>	130
+ctrl-D	Closes input to first command	None	0
+ctrl-\	Terminates entire pipeline	Quit (core dumped)	131
+Redirections
+Input Redirection (<)
+# Example with 'cat < existingfile'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command, new prompt	^C\n<prompt>	130
+ctrl-D	No effect (file is input)	None	N/A
+ctrl-\	Terminates command	Quit (core dumped)	131
+# Example with 'cat < nonexistentfile'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates error message, new prompt	^C\n<prompt>	130
+ctrl-D	No effect	None	N/A
+ctrl-\	No effect (error already occurred)	None	1
+Output Redirection (>)
+# Example with 'cat > outputfile'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command, creates empty file	^C\n<prompt>	130
+ctrl-D	Closes file, returns to prompt	None	0
+ctrl-\	Terminates command, creates empty file	Quit (core dumped)	131
+Append Redirection (>>)
+# Example with 'cat >> appendfile'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command, preserves existing file	^C\n<prompt>	130
+ctrl-D	Closes file, returns to prompt	None	0
+ctrl-\	Terminates command, preserves existing file	Quit (core dumped)	131
+Heredoc
+During Heredoc Input
+# Example with 'cat << EOF'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates heredoc, returns to prompt	^C\n<prompt>	130
+ctrl-D	Does nothing (must use delimiter)	None	N/A
+ctrl-\	No effect	None	N/A
+Special Cases in Heredoc
+Before entering any content:
+ctrl-C: Cancels heredoc, shows new prompt
+ctrl-D: No effect (must use delimiter)
+ctrl-: No effect
+While typing content:
+ctrl-C: Cancels heredoc, shows new prompt
+ctrl-D: No effect (must use delimiter)
+ctrl-: No effect
+At delimiter line:
+ctrl-C: Cancels heredoc
+ctrl-D: No effect (must use delimiter)
+ctrl-: No effect
+Non-Interactive Mode
+Via Pipe
+# Example with: echo "ls" | ./bash
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates execution	None	130
+ctrl-D	No effect (input already provided)	None	N/A
+ctrl-\	Terminates execution	Quit	131
+Via Script
+# Example with: bash < scriptfile.sh
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates script execution	None	130
+ctrl-D	No effect (input from file)	None	N/A
+ctrl-\	Terminates script execution	Quit	131
+Built-in Commands
+echo
+# Example with 'echo hello'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command	^C\n<prompt>	130
+ctrl-D	No effect	None	N/A
+ctrl-\	No effect	None	N/A
+cd
+# Example with 'cd directory'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command	^C\n<prompt>	130
+ctrl-D	No effect	None	N/A
+ctrl-\	No effect	None	N/A
+Special Cases
+Environment Variables and Quotes
+# Example with 'echo $HOME'
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Terminates command	^C\n<prompt>	130
+ctrl-D	No effect	None	N/A
+ctrl-\	No effect	None	N/A
+Empty Command with Spaces
+# Example with '   '
+
+Signal	Behavior	Output	Exit Status
+ctrl-C	Shows new prompt	^C\n<prompt>	130
+ctrl-D	Exits shell if line empty	exit\n	Previous status
+ctrl-\	No effect	None	N/A
+Implementation Notes
+Global Variable Usage
+Use only one global variable for signal handling
+Use volatile sig_atomic_t type
+Only store signal number information
+Key Exit Status Codes
+130: SIGINT (ctrl-C)
+131: SIGQUIT (ctrl-)
+0: Normal termination
+Important Considerations
+Interactive Mode Detection
+Always check isatty() for interactive mode
+Handle signals differently in parent and child processes
+Signal Handler Implementation
+Restore default signal handling in child processes
+Use write() instead of printf() in signal handlers
+Keep signal handlers as simple as possible
+Readline Management
+Use rl_replace_line("", 0) to clear line
+Use rl_on_new_line() for prompt positioning
+Use rl_redisplay() to show changes
+Clear history before exiting
+Process Management
+Handle signals in both parent and child processes
+Properly clean up child processes on termination
+Reset signal handlers in child processes

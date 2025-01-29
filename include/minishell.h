@@ -14,7 +14,7 @@
 
 # define PROMPT "shit-shell: " //"💩-shell: "
 
-extern volatile sig_atomic_t g_exit_code;
+extern volatile sig_atomic_t g_signal_received;
 
 typedef enum e_token_type
 {

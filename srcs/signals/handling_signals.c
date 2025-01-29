@@ -6,73 +6,55 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/29 14:27:23 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/29 17:30:05 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
+volatile sig_atomic_t g_signal_received = 0;
 
-volatile sig_atomic_t g_exit_code = 0;
-
-void	sigint_handler(int sig, siginfo_t *info, void *context)
+// Signal handler for interactive mode
+void    handle_signal(int signum)
 {
-	(void)sig;
-	(void)info;
-	(void)context;
-	
-	if (isatty(STDIN_FILENO))
-	{
-		write(1, "\n", 1);
-		rl_on_new_line();
-		rl_replace_line("", 0);
-		rl_redisplay();
-		g_exit_code = 130;
-	}
-	else
-	{
-		g_exit_code = 130;
-	}
+    g_signal_received = signum;
+    if (signum == SIGINT)
+    {
+        write(STDERR_FILENO, "\n", 1);
+        rl_on_new_line();
+        rl_replace_line("", 0);
+        rl_redisplay();
+    }
 }
 
-void	sigquit_handler(int sig, siginfo_t *info, void *context)
+// Initialize signal handlers
+void    init_signals(void)
 {
-	(void)sig;
-	(void)info;
-	(void)context;
-	if (!isatty(STDIN_FILENO)) // Only handle SIGQUIT in non-interactive mode
-	{
-		ft_putstr_fd("Quit: 3\n", 2); // Print "Quit: 3" and exit
-		g_exit_code = 131;
-		exit(g_exit_code); // Exit immediately in non-interactive mode
-	}
+    struct sigaction    sa;
+
+    sa.sa_handler = handle_signal;
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    
+    sigaction(SIGINT, &sa, NULL);   // ctrl-C
+    sigaction(SIGQUIT, &sa, NULL);  // ctrl-
 }
 
-
-void	handle_eof(void)
+// Reset signals for child processes
+void    reset_signals(void)
 {
-	if (isatty(STDIN_FILENO))
-	{
-		write(1, "exit\n", 5);	// Simulate "exit" command on Ctrl+D
-		rl_clear_history();
-		g_exit_code = 0;
-		exit(g_exit_code);		// Exit the shell gracefully
-	}
-	exit(g_exit_code);			// Exit in both interactive and non-interactive
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
 }
 
-void	setup_signal_handlers(void)
+void    handle_heredoc_signals(void)
 {
-	struct sigaction    sa_int;
-	struct sigaction    sa_quit;
+    struct sigaction    sa;
 
-	sa_int.sa_sigaction = sigint_handler;
-	sigemptyset(&sa_int.sa_mask);
-	sa_int.sa_flags = SA_SIGINFO;
-	sigaction(SIGINT, &sa_int, NULL);
-
-	sa_quit.sa_sigaction = sigquit_handler;
-	sigemptyset(&sa_quit.sa_mask);
-	sa_quit.sa_flags = SA_SIGINFO;
-	sigaction(SIGQUIT, &sa_quit, NULL);
+    sa.sa_handler = SIG_DFL;  // Use default handler
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
+    
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
 }
