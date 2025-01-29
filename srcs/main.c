@@ -34,6 +34,7 @@ static char	**copy_envp(char **envp)
 		}
 		envp_len++;
 	}
+	new_envp[envp_len] = NULL;
 	return (new_envp);
 }
 
@@ -68,8 +69,7 @@ static int	check_and_handle_exit(char *command, t_mshell *obj)
 	{
 		printf("exit\n");
 		free(command);
-		obj->exit_code = 0;
-		return (0);
+		return (obj->exit_code);
 	}
 	else if (ft_strncmp(command, "exit", 4) == 0)
 	{

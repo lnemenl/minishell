@@ -37,13 +37,12 @@ static char	*check_env_arg(char *arg)
 	if (!arg)
 		return (NULL);
 	else if (ft_isdigit(arg[0]))
-		return (NULL);
+		return (ft_strdup("fail"));
 	equal = ft_strchr(arg, '=');
-	if (!equal)
+	if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
 		return (NULL);
-	else if (equal[1] == '=' || equal[1] == '\0'
-		|| (equal - 1 && *(equal - 1) == '-'))
-		return (NULL);
+	else if (equal - 1 && *(equal - 1) == '-')
+		return (ft_strdup("fail"));
 	return (ft_strdup(arg));
 }
 
@@ -88,11 +87,15 @@ int	export(char **args, t_mshell *obj)
 	if (!args || !args[1] || !*args[1])
 		return (1);
 	new_arg = check_env_arg(args[1]);
-	if (!new_arg)
+	if (ft_strcmp(new_arg, "fail") == 0)
 	{
-		printf("export: `%s`: not a valid identifier\n", args[1]);
+		free(new_arg);
+		obj->exit_code = 1;
+		ft_fprintf(2, "export: `%s`: not a valid identifier\n", args[1]);
 		return (1);
 	}
+	else if (!new_arg)
+		return (1);
 	put_env_var(obj, new_arg);
 	free(new_arg);
 	return (1);
