@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/29 13:24:26 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/29 14:57:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -102,11 +102,14 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 	obj->pids[obj->cur_pid] = fork();
 	if (obj->pids[obj->cur_pid] == -1)
 	{
+		perror("fork");
 		clean_mshell(obj);
 		return ;
 	}
 	if (obj->pids[obj->cur_pid] == 0)
 	{
+		signal(SIGINT, SIG_DFL);
+		signal(SIGQUIT, SIG_DFL);
 		// redirection		
 		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
 			redirection_input(obj, left);
@@ -123,13 +126,17 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		if (is_builtin_cmd(left->args[0]) == 1)
 		{
 			run_builtins_exec(left->args, obj);
-			exit_child(obj, left->args[0], 127);
+			exit(0);
+			// exit_child(obj, left->args[0], 127);
 		}
 		else
 		{
 			obj->cur_path = check_paths_access(obj->paths, left, obj);
-			execve(obj->cur_path, left->args, obj->paths);
-			exit_child(obj, left->args[0], 127);
+			if (execve(obj->cur_path, left->args, obj->paths) == -1)
+			{
+				perror(left->args[0]); // Perror for execve errors
+				exit(127); // Indicating command not found or other execve error
+			}
 		}
 	}
 }
@@ -153,44 +160,74 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 	node->args = new_args;
 }
 
-void	choose_actions(t_mshell *obj)
-{
-	t_ast_node	*temp;
+#include "../../include/minishell.h"
 
-	if (!obj)
-		return ;
-	alloc_pipes(obj);
-	obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
-	if (!obj->pids)
-	{
-		clean_mshell(obj);
-		error_ret(5, NULL);
-	}
-	temp = obj->ast;
-	while (temp)
-	{
-		if (temp->type == TOKEN_WORD)
-			execute_cmd(obj, temp, NULL);
-		else if (temp->type == TOKEN_PIPE && temp->left &&
-			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
-		{
-			handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
-			if (temp->left->type == TOKEN_HEREDOC)
-				handle_here_doc(obj, temp->left);
-			execute_cmd(obj, temp->left->left, NULL);
-		}
-		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
-		{
-			handle_cat_redir(temp->left, temp->args[0], temp->type);
-			if (temp->type == TOKEN_HEREDOC)
-				handle_here_doc(obj, temp);
-			execute_cmd(obj, temp->left, NULL);
-		}
-		else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
-			execute_cmd(obj, temp->left, temp);
-		else
-			execute_cmd(obj, temp->left, NULL);
-		temp = temp->right;
-		obj->cur_pid++;
-	}
+void choose_actions(t_mshell *obj)
+{
+    t_ast_node	*temp;
+    int			status;
+	int			i;
+
+    if (!obj)
+        return;
+
+    alloc_pipes(obj);
+    obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
+    if (!obj->pids)
+    {
+        clean_mshell(obj);
+        error_ret(5, NULL);
+    }
+
+    temp = obj->ast;
+    while (temp)
+    {
+        if (temp->type == TOKEN_WORD)
+            execute_cmd(obj, temp, NULL);
+        else if (temp->type == TOKEN_PIPE && temp->left &&
+                 (temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
+        {
+            handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
+            if (temp->left->type == TOKEN_HEREDOC)
+                handle_here_doc(obj, temp->left);
+            execute_cmd(obj, temp->left->left, NULL);
+        }
+        else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
+        {
+            handle_cat_redir(temp->left, temp->args[0], temp->type);
+            if (temp->type == TOKEN_HEREDOC)
+                handle_here_doc(obj, temp);
+            execute_cmd(obj, temp->left, NULL);
+        }
+        else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
+            execute_cmd(obj, temp->left, temp);
+        else
+            execute_cmd(obj, temp->left, NULL);
+
+        temp = temp->right;
+        obj->cur_pid++;
+    }
+
+    i = 0;
+    while (i <= obj->allocated_pipes)
+    {
+        waitpid(obj->pids[i], &status, 0);
+        if (WIFEXITED(status))
+        {
+            g_exit_code = WEXITSTATUS(status);
+        }
+        else if (WIFSIGNALED(status))
+        {
+            g_exit_code = 128 + WTERMSIG(status);
+            if (WTERMSIG(status) == SIGINT)
+            {
+                printf("\n");
+            }
+            else if (WTERMSIG(status) == SIGQUIT)
+            {
+                fprintf(stderr, "Quit: 3\n");
+            }
+        }
+        i++;
+    }
 }
