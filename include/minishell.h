@@ -14,44 +14,7 @@
 
 # define PROMPT "shit-shell: " //"💩-shell: "
 
-extern volatile sig_atomic_t g_signo;
-//Global variable for signal handling
-
-/*
-
-volatile:
-Tells the compiler not to optimize access to this variable
-Prevents the compiler from caching the variable's value in registers
-Important for variables that can be modified by external events (like signal handlers)
-Without volatile, the compiler might assume the value never changes and optimize incorrectly
-
-WITHOUT volatile:
-while (signal_flag)
-{
-    Compiler might optimize this to an infinite loop
-    because it assumes signal_flag never changes
-}
-
-WITH volatile:
-while (volatile_signal_flag)
-{
-    Compiler will check the value each time
-    because it knows it might change externally
-}
-
-sig_atomic_t:
-Special integer type guaranteed to be read/written atomically
-"Atomic" means the operation can't be interrupted halfway
-Prevents race conditions in signal handlers
-Usually a small integer type that can be accessed in one CPU instruction
-Perfect for flags and signal numbers
-
-Together volatile sig_atomic_t:
-
-volatile: Ensures the value is always read from memory
-sig_atomic_t: Ensures the read/write is atomic
-
-*/
+extern volatile sig_atomic_t g_exit_code;
 
 typedef enum e_token_type
 {
@@ -70,21 +33,6 @@ typedef	enum e_quote_state
 	QUOTE_DOUBLE
 }	t_quote_state;
 
-
-typedef enum	e_shell_state
-{
-	SHELL_INTERACTIVE,	// At prompt, reading input
-	SHELL_EXECUTING,	// Running a command
-	SHELL_HEREDOC		// In heredoc mode
-}	t_shell_state;
-
-typedef struct	s_signal_state
-{
-	t_shell_state		current_state;	// Current shell state from enum above
-	struct termios		original_term;	// Original terminal settings to restore on exit
-	struct termios		shell_term;		// Modified terminal settings for shell operation
-	int					last_exit_code;	// Last command's exit status
-}	t_signal_state;
 
 typedef struct s_quote_context
 {
@@ -132,8 +80,6 @@ typedef struct	s_mshell
 	char 				**envp;
 	int					fd_in;
 	int					fd_out;
-	int					interactive_mode;  // Flag for interactive mode
-	t_signal_state		sig_state;
 }	t_mshell;
 
 int						error_ret(int type, char *arg);
@@ -219,20 +165,10 @@ void					clean_strs(char **strs);
 
 
 /* ===== SIGNALS ===== */
-void					handle_sigint(int sig);
-void					handle_sigquit(int sig);
-void					setup_signals(t_shell_state state);
-void					save_terminal_settings(t_signal_state *state);
-void					configure_terminal_settings(t_signal_state *state);
-void					restore_terminal_settings(t_signal_state *state);
-void					init_signal_state(t_signal_state *state);
-void					change_shell_state(t_signal_state *state, t_shell_state new_state);
-void					handle_heredoc_sigint(int sig);
-void					setup_heredoc_signals(void);
-void					reset_signals_default(void);
-void					setup_parent_signals(void);
-void					cleanup_signal_state(t_signal_state *state);
 
-
+void					sigint_handler(int sig, siginfo_t *info, void *context);
+void					sigquit_handler(int sig, siginfo_t *info, void *context);
+void					handle_eof(void);
+void					setup_signal_handlers(void);
 
 #endif

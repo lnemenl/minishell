@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 14:58:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/29 13:26:52 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,10 @@
 void    handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
     char    *str;
-    t_shell_state prev_state;
 
     if (node->type != TOKEN_HEREDOC)
         return;
-
-    // Save current state and set up heredoc signals
-    prev_state = obj->sig_state.current_state;
-    change_shell_state(&obj->sig_state, SHELL_HEREDOC);
-    setup_heredoc_signals();
-
+		
     obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (obj->fd_in < 0)
     {
@@ -35,16 +29,6 @@ void    handle_here_doc(t_mshell *obj, t_ast_node *node)
     str = get_next_line(STDIN_FILENO);
     while (str && ft_strncmp(str, node->args[0], ft_strlen(str) - 1) != 0)
     {
-        // Check if heredoc was interrupted by SIGINT
-        if (g_signo == SIGINT)
-        {
-            free(str);
-            close(obj->fd_in);
-            unlink(".heredoc_temp");  // Clean up the temporary file
-            change_shell_state(&obj->sig_state, prev_state);
-            obj->exit_code = 130;     // Standard interrupt exit code
-            return;
-        }
         ft_putstr_fd(str, obj->fd_in);
         free(str);
         str = get_next_line(STDIN_FILENO);
@@ -52,9 +36,6 @@ void    handle_here_doc(t_mshell *obj, t_ast_node *node)
     if (str)
         free(str);
     close(obj->fd_in);
-
-    // Restore previous signal state
-    change_shell_state(&obj->sig_state, prev_state);
 }
 
 void	redirection_input(t_mshell *obj, t_ast_node *node)

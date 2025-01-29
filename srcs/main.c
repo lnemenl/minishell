@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 15:03:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/29 14:02:06 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,8 +31,6 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
-	init_signal_state(&obj.sig_state);
-	setup_signals(SHELL_INTERACTIVE);
 	(void) argv;
 	return (obj);
 }
@@ -68,43 +66,32 @@ static void	create_env_file(char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-	int 		status;
 
+	obj = init_shell(argv, envp);
+	obj.exit_code = 0;
 	if (argc != 1)
 		return (error_ret(1, NULL));
 	create_env_file(envp);
 	obj = init_shell(argv, envp);
-		
+	setup_signal_handlers();
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
-		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
+		if (!obj.cmd_line)
+			handle_eof();
+		if (obj.cmd_line && *obj.cmd_line)
 		{
-			// Printing newline for clean exit (CTRL+D should not exit on the same line as prompt)
-			write(STDERR_FILENO, "\n", 1);
-			break;			// Exit shell cleanly
+			add_history(obj.cmd_line);
+			parse(&obj);
+			choose_actions(&obj);
+			close_fds(&obj);
+			clean_mshell(&obj);
+			obj.paths = fetch_paths(envp, 0);
 		}
-		if (ft_strcmp(obj.cmd_line, "exit") == 0)
-		{
-			free(obj.cmd_line);
-			break;
-		}
-		parse(&obj);
-		add_history(obj.cmd_line);
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
-		choose_actions(&obj);
-		close_fds(&obj);
-		while (obj.exec_cmds > 0)
-		{
-			wait(&status);
-			obj.exec_cmds--;
-		}
-		clean_mshell(&obj);
-		obj.paths = fetch_paths(envp, 0);
 	}
-	cleanup_signal_state(&obj.sig_state);
 	unlink(".heredoc_temp");
 	clean_mshell(&obj);
-	return (0);
+    return (g_exit_code); // Return the global exit code
 }
