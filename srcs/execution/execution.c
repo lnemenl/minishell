@@ -12,6 +12,49 @@
 
 #include "../../include/minishell.h"
 
+static void	check_and_handle_exit(char **args, t_mshell *obj)
+{
+	int	i;
+	int	args_len;
+
+	if (!args || !*args)
+		return ;
+	args_len = 0;
+	while (args[args_len])
+		args_len++;
+
+	if (args_len == 1)
+	{
+		printf("exit\n");
+		return ;
+	}
+	else if (args_len >= 2)
+	{
+		printf("exit\n");
+		i = 0;
+		while (args[1][i])
+		{
+			if (ft_isdigit(args[1][i]) == 0 && args[1][i] != '-' && args[1][i] != '+')
+			{
+				obj->exit_code = 2;
+				ft_fprintf(2, "minishell: exit: %s: numeric argument required\n", args[1]);
+				break ;
+			}
+			i++;
+		}
+		if (args_len > 2)
+		{
+			obj->exit_code = 1;
+			ft_fprintf(2, "minishell: exit: too many arguments\n");
+			return ;
+		}
+		if (obj->exit_code == 0)
+			obj->exit_code = ft_atoi(args[1]);
+		return ;
+	}
+
+}
+
 static int	is_builtin_cmd(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0 
@@ -55,6 +98,11 @@ static int	run_bultins(char **args, t_mshell *obj)
 	else if (ft_strcmp(args[0], "pwd") == 0)
 	{
 		pwd();
+		return (1);
+	}
+	else if (ft_strcmp(args[0], "exit") == 0)
+	{
+		check_and_handle_exit(args, obj);
 		return (1);
 	}
 	return (0);
