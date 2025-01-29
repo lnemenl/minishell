@@ -41,7 +41,7 @@ char *get_env_value(const char *var_name, t_mshell *mshell)
         return (NULL);
     if (ft_strcmp(var_name, "?") == 0)
         return (ft_itoa(mshell->exit_code));
-    value = getenv(var_name);
+    value = get_env_var(mshell->envp, var_name);
     if (!value)
         return (ft_strdup(""));
     return (ft_strdup(value));

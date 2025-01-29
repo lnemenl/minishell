@@ -24,7 +24,7 @@ void	realloc_buffer(char **buf, size_t *buffer_size)
 	}
 }
 
-int	open_dir(const char *dir)
+int	cd(char **cd_args, t_mshell *obj)
 {
 	char	*buf;
 	char	*path;
@@ -32,25 +32,37 @@ int	open_dir(const char *dir)
 	size_t	buffer_size;
 
 	buffer_size = 50;
-	if (!dir || !*dir)
-		chdir(getenv("HOME"));
+	if (!cd_args[1] || !*cd_args[1])
+	{
+		obj->exit_code = 0;
+		chdir(get_env_var(obj->envp, "HOME"));
+		return (1);
+	}
+	else if (cd_args[2] && *cd_args[2])
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: too many arguments\n");
+		return (1);
+	}
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
 		//cleanup struct
+		obj->exit_code = 1;
 		ft_fprintf(2, "Malloc error!\n");
 		exit(1);
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	path = ft_strjoin(buf, "/");
-	full_path = ft_strjoin(path, dir);
+	full_path = ft_strjoin(path, cd_args[1]);
 	free(path);
 	chdir(full_path);
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	free(buf);
 	free(full_path);
+	obj->exit_code = 0;
 	return (1);
 }
 

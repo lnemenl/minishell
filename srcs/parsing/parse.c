@@ -14,13 +14,17 @@
 
 char	**fetch_paths(char **envp)
 {
+    char    *path;
+    char    **paths;
+
     if (!envp)
         return (NULL);
-    while (*envp)
+    path = get_env_var(envp, "PATH");
+    if (path)
     {
-        if (ft_strncmp(*envp, "PATH=", 5) == 0)
-            return (ft_split(*envp + 5, ':'));
-        envp++;
+        paths = ft_split(path, ':');
+        free(path);
+        return (paths);
     }
 	return (NULL);
 }

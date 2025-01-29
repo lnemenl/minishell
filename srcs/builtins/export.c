@@ -59,14 +59,13 @@ static void	put_env_var(t_mshell *obj, char *new_arg)
 	pos = is_env_created(new_arg, obj->envp);
 	if (pos == -1)
 	{
-		obj->envp = ft_realloc(obj->envp, envp_mem_size, envp_mem_size + sizeof(char *));
-		obj->envp[envp_len] = ft_calloc(arg_len + 1, 1);
+		obj->envp = ft_realloc(obj->envp, envp_mem_size, envp_mem_size + 2 * sizeof(char *));
+		obj->envp[envp_len] = ft_strdup(new_arg);
 		if (!obj->envp[envp_len])
 		{
 			//ft_free_strs(strs, i);
 			exit(error_ret(6, NULL));
 		}
-		obj->envp[envp_len] = ft_memcpy(obj->envp[envp_len], new_arg, arg_len);
 		obj->envp[++envp_len] = NULL;
 		return ;
 	}
@@ -77,6 +76,7 @@ static void	put_env_var(t_mshell *obj, char *new_arg)
 		exit(error_ret(6, NULL));
 	}
 	obj->envp[pos] = ft_memmove(obj->envp[pos], new_arg, arg_len);
+	obj->envp[pos][arg_len] = '\0';
 	obj->envp[++pos] = NULL;
 }
 

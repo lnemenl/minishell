@@ -77,7 +77,7 @@ static int	check_and_handle_exit(char *command, t_mshell *obj)
 		i = 5;
 		while (command[i])
 		{
-			if (ft_isdigit(command[i]) == 0)
+			if (ft_isdigit(command[i]) == 0 && command[i] != '-' && command[i] != '+')
 			{
 				obj->exit_code = 2;
 				break ;

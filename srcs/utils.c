@@ -70,3 +70,25 @@ size_t	get_envp_length(char **envp)
 		len++;
 	return (len);
 }
+/* `var_name` should be provided with `=` character */
+char	*get_env_var(char **envp, const char *var_name)
+{
+	size_t	i;
+	size_t	var_name_len;
+	char	*trimmed_str;
+
+	if (!envp || !*envp || !var_name)
+		return (NULL);
+	i = 0;
+	var_name_len = ft_strlen(var_name);
+	while (envp[i])
+    {
+        if (ft_strncmp(envp[i], var_name, var_name_len) == 0)
+		{
+			trimmed_str = ft_strtrim(envp[i] + var_name_len, "=");
+			return (trimmed_str);
+		}
+		i++;
+    }
+	return (NULL);
+}

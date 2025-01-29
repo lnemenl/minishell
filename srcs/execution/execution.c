@@ -47,7 +47,7 @@ static int	run_bultins(char **args, t_mshell *obj)
 	if (!args || !*args)
 		return (0);
 	if (ft_strcmp(args[0], "cd") == 0)
-		return (open_dir(args[1]));
+		return (cd(args, obj));
 	else if (ft_strcmp(args[0], "export") == 0)
 		return (export(args, obj));
 	else if (ft_strcmp(args[0], "unset") == 0)

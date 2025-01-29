@@ -158,7 +158,7 @@ t_token			*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
 t_token			*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-int			open_dir(const char *dir);
+int			cd(char **cd_args, t_mshell *obj);
 void		pwd(void);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
 int			env(t_mshell *obj);
@@ -192,6 +192,7 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code);
 size_t	get_envp_memory_size(char **envp);
 size_t	get_envp_length(char **envp);
 int		is_env_created(char *arg, char **strs);
+char	*get_env_var(char **envp, const char *var_name);
 
 /* ===== REDIRECTION ===== */
 void	redirection_input(t_mshell *obj, t_ast_node *node);
