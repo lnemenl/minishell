@@ -155,9 +155,6 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
 	if (run_bultins(left->args, obj) == 1)
 		return ;
-
-	//Setting up execution signals for parent
-	setup_execution_signals();
 	
 	obj->exec_cmds++;
 	obj->pids[obj->cur_pid] = fork();
@@ -196,8 +193,6 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 			exit_child(obj, left->args[0], 127);
 		}
 	}
-	//After child process finishes, we need to restore interactive mode signals
-	setup_shell_signals(obj);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
@@ -222,6 +217,8 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 void	choose_actions(t_mshell *obj)
 {
 	t_ast_node	*temp;
+	int			status;
+	pid_t		pid;
 
 	if (!obj)
 		return ;
@@ -232,6 +229,9 @@ void	choose_actions(t_mshell *obj)
 		clean_mshell(obj);
 		error_ret(5, NULL);
 	}
+	obj->executing_command = 1;
+	setup_execution_signals(); // Set up execution mode signals before running commands
+	
 	temp = obj->ast;
 	while (temp)
 	{
@@ -259,4 +259,28 @@ void	choose_actions(t_mshell *obj)
 		temp = temp->right;
 		obj->cur_pid++;
 	}
+	while (obj->exec_cmds > 0)
+	{
+		pid = waitpid(-1, &status, 0);
+		if (pid > 0)
+		{
+			if (WIFSIGNALED(status))
+			{
+				// Only print message is it wasn't during heredoc
+				if (!obj->is_heredoc)
+				{
+					if (WTERMSIG(status) == SIGQUIT)
+					{
+						write(STDERR_FILENO, "^\\", 2);
+						write(STDERR_FILENO, "Quit (core dumped)\n", 20);
+					}
+					else if (WTERMSIG(status) == SIGINT)
+						write(STDERR_FILENO, "^C\n", 3); 	
+				}
+			}
+			obj->exec_cmds--;
+		}
+	}
+    obj->executing_command = 0;
+    setup_shell_signals(obj);  /* Restore interactive mode signals */
 }

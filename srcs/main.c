@@ -57,6 +57,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
+	obj.executing_command = 0;
 	(void) argv;
 	return (obj);
 }
@@ -64,14 +65,14 @@ static t_mshell	init_shell(char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-	int 		status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
 	obj = init_shell(argv, envp);
 	
 	//initializing shell's signal handling mode
-	init_shell_mode(&obj); // This sets up interactive mode signals
+	if (isatty(STDIN_FILENO))
+		setup_shell_signals(&obj);
 	
 	while (1)
 	{
