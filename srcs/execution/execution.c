@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 11:20:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 19:51:55 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,57 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
+// void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
+// {
+//     if (!left)
+//         return;
+//     if (run_bultins(left->args, obj) == 1)
+//         return;
+
+//     obj->exec_cmds++;
+//     obj->pids[obj->cur_pid] = fork();
+//     if (obj->pids[obj->cur_pid] == -1)
+//     {
+//         clean_mshell(obj);
+//         return;
+//     }
+//     if (obj->pids[obj->cur_pid] == 0)
+//     {
+//         reset_signals();  // Reset signals in child process
+
+//         // redirection handling remains the same
+//         if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
+//             redirection_input(obj, left);
+//         if (obj->allocated_pipes >= 1)
+//         {
+//             if (left && left->type == TOKEN_WORD)
+//                 pipe_redirection(obj);
+//         }
+//         if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
+//             redirection_output(obj, right);
+//         close_fds(obj);
+
+//         // command execution remains the same
+//         if (is_builtin_cmd(left->args[0]) == 1)
+//         {
+//             run_builtins_exec(left->args, obj);
+//             exit_child(obj, left->args[0], 127);
+//         }
+//         else
+//         {
+//             obj->cur_path = check_paths_access(obj->paths, left, obj);
+//             execve(obj->cur_path, left->args, obj->paths);
+//             exit_child(obj, left->args[0], 127);
+//         }
+//     }
+//     else
+//     {
+//         // Parent process
+//         signal(SIGINT, SIG_IGN);  // Ignore SIGINT while child is running
+//     }
+// }
+
+void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
     if (!left)
         return;
@@ -165,26 +215,30 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     }
     if (obj->pids[obj->cur_pid] == 0)
     {
-        reset_signals();  // Reset signals in child process
+        reset_signals();
 
-        // redirection handling remains the same
-        if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
-            redirection_input(obj, left);
-        if (obj->allocated_pipes >= 1)
+        // Handle all input redirections first
+        t_ast_node *temp = left;
+        while (temp)
         {
-            if (left && left->type == TOKEN_WORD)
-                pipe_redirection(obj);
+            if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
+                redirection_input(obj, temp);
+            temp = temp->left;
         }
+
+        // Handle pipe redirection
+        if (obj->allocated_pipes >= 1 && left->type == TOKEN_WORD)
+            pipe_redirection(obj);
+
+        // Handle output redirections
         if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
             redirection_output(obj, right);
+
         close_fds(obj);
 
-        // command execution remains the same
+        // Execute command
         if (is_builtin_cmd(left->args[0]) == 1)
-        {
             run_builtins_exec(left->args, obj);
-            exit_child(obj, left->args[0], 127);
-        }
         else
         {
             obj->cur_path = check_paths_access(obj->paths, left, obj);
@@ -193,10 +247,7 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
         }
     }
     else
-    {
-        // Parent process
-        signal(SIGINT, SIG_IGN);  // Ignore SIGINT while child is running
-    }
+        signal(SIGINT, SIG_IGN);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)

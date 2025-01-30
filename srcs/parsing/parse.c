@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/13 14:37:03 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/30 19:20:50 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,17 +83,43 @@ void    init_tokenize(t_token **head, t_token **current)
 	*current = NULL;
 }
 
+// t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_input, t_mshell *mshell)
+// {
+//     int i;
+//     t_token *first_token;
+
+//     i = 0;
+//     // Creating initial empty token to store mshell
+//     first_token = new_token(TOKEN_WORD, "", 0, mshell);
+//     if (!first_token)
+//         return (NULL);
+//     //first_token->mshell = mshell;
+//     *head = first_token;
+//     *current = first_token;
+
+//     while (trimmed_input[i])
+//     {
+//         if (!process_token(head, current, trimmed_input, &i))
+//         {
+//             clean_tokens(*head);
+//             return (NULL);
+//         }
+//     }
+//     *head = (*head)->next;
+//     free(first_token->content);
+//     free(first_token);
+//     return (*head);
+// }
+
 t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_input, t_mshell *mshell)
 {
     int i;
     t_token *first_token;
 
     i = 0;
-    // Creating initial empty token to store mshell
     first_token = new_token(TOKEN_WORD, "", 0, mshell);
     if (!first_token)
         return (NULL);
-    //first_token->mshell = mshell;
     *head = first_token;
     *current = first_token;
 
@@ -110,26 +136,23 @@ t_token *process_trimmed_input(t_token **head, t_token **current, char *trimmed_
     free(first_token);
     return (*head);
 }
-
-t_token	*tokenize(const char *input, t_mshell *mshell)
+t_token *tokenize(const char *input, t_mshell *mshell)
 {
-    t_token	*head;
-    t_token	*current;
-    t_token	*result;
-    char	*trimmed_input;
+    t_token *head;
+    t_token *current;
+    t_token *tokens;
+    char    *trimmed_input;
 
     if (!input)
         return (NULL);
-    init_tokenize(&head, &current);
     trimmed_input = ft_strtrim(input, " \t\n\r\f\v");
     if (!trimmed_input || !trimmed_input[0])
     {
         free(trimmed_input);
         return (NULL);
     }
-    result = process_trimmed_input(&head, &current, trimmed_input, mshell);
-    if (result)
-        result->mshell = mshell;
+    init_tokenize(&head, &current);
+    tokens = process_trimmed_input(&head, &current, trimmed_input, mshell);
     free(trimmed_input);
-    return (result);
+    return (tokens);
 }
