@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 14:34:40 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 12:00:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,12 +57,19 @@ int	cd(char **cd_args, t_mshell *obj)
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, cd_args[1]);
 	free(path);
-	chdir(full_path);
+	if (ft_strcmp(buf, cd_args[1]) == 0)
+		obj->exit_code = 0;
+	else if (chdir(full_path) == -1)
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n", cd_args[1]);
+	}
+	else
+		obj->exit_code = 0;
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	free(buf);
 	free(full_path);
-	obj->exit_code = 0;
 	return (1);
 }
 

@@ -6,15 +6,45 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/06 15:38:09 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:01:00 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
+static void	set_heredoc_strings(char **str, char **trimmed_str,
+	char **expanded_str, t_mshell *obj)
+{
+	*str = get_next_line(STDIN_FILENO);
+	*trimmed_str = ft_strtrim(*str, "\n");
+	*expanded_str = expand_env_vars(*str, obj);
+}
+
+static void	free_heredoc_strings(char **str, char **trimmed_str,
+	char **expanded_str)
+{
+	if (*str)
+	{
+		free(*str);
+		*str = NULL;
+	}
+	if (*trimmed_str)
+	{
+		free(*trimmed_str);
+		*trimmed_str = NULL;
+	}
+	if (*expanded_str)
+	{
+		free(*expanded_str);
+		*expanded_str = NULL;
+	}
+}
+
 void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
 	char	*str;
+	char	*trimmed_str;
+	char	*expanded_str;
 
 	if (node->type != TOKEN_HEREDOC)
 		return ;
@@ -24,15 +54,18 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 		clean_mshell(obj);
 		error_ret(6, NULL);
 	}
-	str = get_next_line(STDIN_FILENO);
-	while (str && ft_strncmp(str, node->args[0], ft_strlen(str) - 1) != 0)
+	set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj);
+	while ((trimmed_str && ft_strcmp(node->args[0], trimmed_str) != 0)
+		&& expanded_str && (ft_strcmp(node->args[0], expanded_str) != 0))
 	{
-		ft_putstr_fd(str, obj->fd_in);
-		free(str);
-		str = get_next_line(STDIN_FILENO);
+		if (str[0] == '$')
+			ft_putstr_fd(expanded_str, obj->fd_in);
+		else
+			ft_putstr_fd(str, obj->fd_in);
+		free_heredoc_strings(&str, &trimmed_str, &expanded_str);
+		set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj);
 	}
-	if (str)
-		free(str);
+	free_heredoc_strings(&str, &trimmed_str, &expanded_str);
 	close(obj->fd_in);
 }
 

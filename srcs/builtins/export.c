@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 16:37:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 13:02:34 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,13 +33,18 @@ int	is_env_created(char *arg, char **strs)
 static char	*check_env_arg(char *arg)
 {
 	char 	*equal;
+	size_t	arg_len;
 
 	if (!arg)
 		return (NULL);
-	else if (ft_isdigit(arg[0]))
+	else if (ft_isdigit(arg[0]) || arg[0] == '=')
 		return (ft_strdup("fail"));
 	equal = ft_strchr(arg, '=');
-	if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
+	arg_len = ft_strlen(arg);
+	
+	if (!equal && arg_len > 0 && arg[arg_len - 1] == '-')
+		return (ft_strdup("fail"));
+	else if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
 		return (NULL);
 	else if (equal - 1 && *(equal - 1) == '-')
 		return (ft_strdup("fail"));
