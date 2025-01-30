@@ -65,23 +65,20 @@ static t_mshell	init_shell(char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
+  int status;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
+  init_signals();
 	obj = init_shell(argv, envp);
-	
-	//initializing shell's signal handling mode
-	if (isatty(STDIN_FILENO))
-		setup_shell_signals(&obj);
-	
 	while (1)
 	{
+    g_signal_received = 0;
 		obj.cmd_line = readline(PROMPT);
 		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			// Printing newline for clean exit (CTRL+D should not exit on the same line as prompt)
-			write(STDERR_FILENO, "\n", 1);
-			break;			// Exit shell cleanly
+			ft_fprintf(2, "exit\n");
+			break;
 		}
 		parse(&obj);
 		add_history(obj.cmd_line);
@@ -93,6 +90,14 @@ int	main(int argc, char **argv, char **envp)
 		{
 			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
 				obj.exit_code = WEXITSTATUS(status);
+      else if (WIFSIGNALED(status))  // Check if process was terminated by a signal
+			{
+				if (WTERMSIG(status) == SIGINT)  // ctrl-C
+					write(STDERR_FILENO, "\n", 1);
+				else if (WTERMSIG(status) == SIGQUIT)  // ctrl-
+					write(STDERR_FILENO, "Quit: 3\n", 8);
+				obj.exit_code = 128 + WTERMSIG(status);  // Set appropriate exit code
+			}
 			obj.exec_cmds--;
 		}
 		clean_mshell(&obj);

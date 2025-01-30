@@ -3,108 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   handling_signals.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/27 07:57:08 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/30 12:33:47 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-volatile sig_atomic_t	g_signo = 0;
+volatile sig_atomic_t g_signal_received = 0;
 
-void	handle_sigint(int sigint)
+// Signal handler for interactive mode
+void    handle_signal(int signum)
 {
-	g_signo = sigint;
-	if (!isatty(STDIN_FILENO))
-		return ;
-	write(STDERR_FILENO, "\n", 1);
-	rl_replace_line("", 0);
-	rl_on_new_line();
-	rl_redisplay();
+    g_signal_received = signum;
+    if (signum == SIGINT)
+    {
+        write(STDERR_FILENO, "\n", 1);
+        rl_on_new_line();
+        rl_replace_line("", 0);
+        rl_redisplay();
+    }
 }
 
-void	handle_sigquit(int sig)
-{
-	(void)sig;
-	//Do nothing for SIGQUIT in interactive mode
-}
-
-void    setup_shell_signals(t_mshell *mshell)
-{
-    struct sigaction    sa_int;
-    struct sigaction    sa_quit;
-    struct termios      term;
-	
-
-	(void)mshell;
-	// Get current terminal attributes
-    tcgetattr(STDIN_FILENO, &term);
-    // Disable CTRL character display (^C, ^\)
-    term.c_lflag &= ~ECHOCTL;
-    tcsetattr(STDIN_FILENO, TCSANOW, &term);
-	//Setting up SIGINT handler
-    sigemptyset(&sa_int.sa_mask);
-    sa_int.sa_handler = handle_sigint;
-    sa_int.sa_flags = SA_RESTART;
-    sigaction(SIGINT, &sa_int, NULL);
-	//Setting up SIGQUIT handler
-    sigemptyset(&sa_quit.sa_mask);
-    sa_quit.sa_handler = handle_sigquit;
-    sa_quit.sa_flags = SA_RESTART;
-    sigaction(SIGQUIT, &sa_quit, NULL);    
-}
-
-// Resetting signals to default in child processes
-/* As 
-
-# In shell with default handlers:
-$ cat longfile.txt
-^C              # CTRL+C immediately stops cat
-$ 
-
-# With wrong handlers (if child inherited shell's):
-$ cat longfile.txt
-^C              # Would ignore or handle incorrectly
-# cat might continue running or handle signals wrongly
-
-
-$ sleep 100     # Start a sleep command
-^C              # Press CTRL+C
-# With default handlers: sleep terminates
-# With shell handlers: sleep might continue or behave unexpectedly
-*/
-
-void    reset_signals_to_default(void)
+// Initialize signal handlers
+void    init_signals(void)
 {
     struct sigaction    sa;
-    
+
+    sa.sa_handler = handle_signal;
+    sa.sa_flags = 0;
     sigemptyset(&sa.sa_mask);
-    sa.sa_handler = SIG_DFL;
-    sa.sa_flags = SA_RESTART;
+    
+    sigaction(SIGINT, &sa, NULL);   // ctrl-C
+    sigaction(SIGQUIT, &sa, NULL);  // ctrl-
+}
+
+// Reset signals for child processes
+void    reset_signals(void)
+{
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+}
+
+void    handle_heredoc_signals(void)
+{
+    struct sigaction    sa;
+
+    sa.sa_handler = SIG_DFL;  // Use default handler
+    sa.sa_flags = 0;
+    sigemptyset(&sa.sa_mask);
     
     sigaction(SIGINT, &sa, NULL);
     sigaction(SIGQUIT, &sa, NULL);
-}
-
-/* During command execution, the parent process (shell) needs different signal handling than during interactive mode because:
-
-It needs to wait for child processes
-It shouldn't show a new prompt if CTRL+C happens during command execution
-It should allow signals to reach the child process group
-
-*/
-
-void	setup_execution_signals(void)
-{
-	struct sigaction	sa;
-	
-	sigemptyset(&sa.sa_mask);
-	sa.sa_handler = SIG_IGN;
-	sa.sa_flags = SA_RESTART;
-	
-	// Applying execution signal handlers
-	sigaction(SIGINT, &sa, NULL);
-	sigaction(SIGQUIT, &sa, NULL);
 }

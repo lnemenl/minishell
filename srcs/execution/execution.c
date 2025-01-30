@@ -149,50 +149,54 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
+void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
-	if (!left)
-		return ;
-	if (run_bultins(left->args, obj) == 1)
-		return ;
-	
-	obj->exec_cmds++;
-	obj->pids[obj->cur_pid] = fork();
-	if (obj->pids[obj->cur_pid] == -1)
-	{
-		clean_mshell(obj);
-		return ;
-	}
-	if (obj->pids[obj->cur_pid] == 0)
-	{
-		// redirection
-		// We need to reset signals before executin command
-		reset_signals_to_default();
-		
-		if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
-			redirection_input(obj, left);
-		if (obj->allocated_pipes >= 1)
-		{
-			if (left && left->type == TOKEN_WORD)
-				pipe_redirection(obj);
-		}
-		if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
-			redirection_output(obj, right);
-		close_fds(obj);
-		// choose cmd (built-ins or common ones)
-		// execute
-		if (is_builtin_cmd(left->args[0]) == 1)
-		{
-			run_builtins_exec(left->args, obj);
-			exit_child(obj, left->args[0], 127);
-		}
-		else
-		{
-			obj->cur_path = check_paths_access(obj->paths, left, obj);
-			execve(obj->cur_path, left->args, obj->paths);
-			exit_child(obj, left->args[0], 127);
-		}
-	}
+    if (!left)
+        return;
+    if (run_bultins(left->args, obj) == 1)
+        return;
+
+    obj->exec_cmds++;
+    obj->pids[obj->cur_pid] = fork();
+    if (obj->pids[obj->cur_pid] == -1)
+    {
+        clean_mshell(obj);
+        return;
+    }
+    if (obj->pids[obj->cur_pid] == 0)
+    {
+        reset_signals();  // Reset signals in child process
+
+        // redirection handling remains the same
+        if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
+            redirection_input(obj, left);
+        if (obj->allocated_pipes >= 1)
+        {
+            if (left && left->type == TOKEN_WORD)
+                pipe_redirection(obj);
+        }
+        if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
+            redirection_output(obj, right);
+        close_fds(obj);
+
+        // command execution remains the same
+        if (is_builtin_cmd(left->args[0]) == 1)
+        {
+            run_builtins_exec(left->args, obj);
+            exit_child(obj, left->args[0], 127);
+        }
+        else
+        {
+            obj->cur_path = check_paths_access(obj->paths, left, obj);
+            execve(obj->cur_path, left->args, obj->paths);
+            exit_child(obj, left->args[0], 127);
+        }
+    }
+    else
+    {
+        // Parent process
+        signal(SIGINT, SIG_IGN);  // Ignore SIGINT while child is running
+    }
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
@@ -214,73 +218,58 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 	node->args = new_args;
 }
 
-void	choose_actions(t_mshell *obj)
+void    choose_actions(t_mshell *obj)
 {
-	t_ast_node	*temp;
-	int			status;
-	pid_t		pid;
+    t_ast_node    *temp;
 
-	if (!obj)
-		return ;
-	alloc_pipes(obj);
-	obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
-	if (!obj->pids)
-	{
-		clean_mshell(obj);
-		error_ret(5, NULL);
-	}
-	obj->executing_command = 1;
-	setup_execution_signals(); // Set up execution mode signals before running commands
-	
-	temp = obj->ast;
-	while (temp)
-	{
-		if (temp->type == TOKEN_WORD)
-			execute_cmd(obj, temp, NULL);
-		else if (temp->type == TOKEN_PIPE && temp->left &&
-			(temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
-		{
-			handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
-			if (temp->left->type == TOKEN_HEREDOC)
-				handle_here_doc(obj, temp->left);
-			execute_cmd(obj, temp->left->left, NULL);
-		}
-		else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
-		{
-			handle_cat_redir(temp->left, temp->args[0], temp->type);
-			if (temp->type == TOKEN_HEREDOC)
-				handle_here_doc(obj, temp);
-			execute_cmd(obj, temp->left, NULL);
-		}
-		else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
-			execute_cmd(obj, temp->left, temp);
-		else
-			execute_cmd(obj, temp->left, NULL);
-		temp = temp->right;
-		obj->cur_pid++;
-	}
-	while (obj->exec_cmds > 0)
-	{
-		pid = waitpid(-1, &status, 0);
-		if (pid > 0)
-		{
-			if (WIFSIGNALED(status))
-			{
-				// Only print message is it wasn't during heredoc
-				if (!obj->is_heredoc)
-				{
-					if (WTERMSIG(status) == SIGQUIT)
-					{
-						write(STDERR_FILENO, "^\\", 2);
-						write(STDERR_FILENO, "Quit (core dumped)\n", 20);
-					}
-					else if (WTERMSIG(status) == SIGINT)
-						write(STDERR_FILENO, "^C\n", 3); 	
-				}
-			}
-			obj->exec_cmds--;
-		}
-	}
-    obj->executing_command = 0;
-    setup_shell_signals(obj);  /* Restore interactive mode signals */
+    if (!obj)
+        return;
+    alloc_pipes(obj);
+    obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
+    if (!obj->pids)
+    {
+        clean_mshell(obj);
+        error_ret(5, NULL);
+    }
+
+    // Save original signal handlers
+    struct sigaction    old_int, old_quit;
+    sigaction(SIGINT, NULL, &old_int);
+    sigaction(SIGQUIT, NULL, &old_quit);
+
+    temp = obj->ast;
+    while (temp)
+    {
+        if (g_signal_received)
+            break;  // Break if signal received
+
+        if (temp->type == TOKEN_WORD)
+            execute_cmd(obj, temp, NULL);
+        else if (temp->type == TOKEN_PIPE && temp->left &&
+            (temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
+        {
+            handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
+            if (temp->left->type == TOKEN_HEREDOC)
+                handle_here_doc(obj, temp->left);
+            execute_cmd(obj, temp->left->left, NULL);
+        }
+        else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
+        {
+            handle_cat_redir(temp->left, temp->args[0], temp->type);
+            if (temp->type == TOKEN_HEREDOC)
+                handle_here_doc(obj, temp);
+            execute_cmd(obj, temp->left, NULL);
+        }
+        else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
+            execute_cmd(obj, temp->left, temp);
+        else
+            execute_cmd(obj, temp->left, NULL);
+
+        temp = temp->right;
+        obj->cur_pid++;
+    }
+
+    // Restore original signal handlers
+    sigaction(SIGINT, &old_int, NULL);
+    sigaction(SIGQUIT, &old_quit, NULL);
 }
