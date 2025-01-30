@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 13:02:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 17:50:06 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,21 +33,24 @@ int	is_env_created(char *arg, char **strs)
 static char	*check_env_arg(char *arg)
 {
 	char 	*equal;
-	size_t	arg_len;
+	int		name_len;
 
 	if (!arg)
 		return (NULL);
-	else if (ft_isdigit(arg[0]) || arg[0] == '=')
+	if (!ft_isalpha(arg[0]) && arg[0] != '_')
 		return (ft_strdup("fail"));
 	equal = ft_strchr(arg, '=');
-	arg_len = ft_strlen(arg);
-	
-	if (!equal && arg_len > 0 && arg[arg_len - 1] == '-')
+	name_len = equal - arg - 1;
+	while (name_len >= 0)
+	{
+		if (arg[name_len] == '-')
+			return (ft_strdup("fail"));
+		name_len--;
+	}
+	if (!equal && ft_strchr(arg, '-'))
 		return (ft_strdup("fail"));
 	else if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
 		return (NULL);
-	else if (equal - 1 && *(equal - 1) == '-')
-		return (ft_strdup("fail"));
 	return (ft_strdup(arg));
 }
 
