@@ -6,19 +6,19 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/02 14:16:18 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 13:02:34 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static int	is_env_created(char *arg, char **strs)
+int	is_env_created(char *arg, char **strs)
 {
 	int		i;
 	size_t	len;
 
 	len = 0;
-	while (arg[len] != '=')
+	while (arg[len] && arg[len] != '=')
 		len++;
 	i = 0;
 	while (strs[i])
@@ -32,114 +32,76 @@ static int	is_env_created(char *arg, char **strs)
 
 static char	*check_env_arg(char *arg)
 {
-	char	*new_arg;
-	size_t	len;
-	int		equal;
+	char 	*equal;
+	size_t	arg_len;
 
-	len = ft_strlen(arg);
-	equal = 1;
-	if (ft_strchr(arg, '=') && !ft_strchr(arg, '=') + 1)
-		equal = 0;
-	if (!ft_strchr(arg, '='))
-	{
-		new_arg = ft_calloc(len + 2, 1);
-		if (!new_arg)
-		{
-			//cleanup
-		}
-		new_arg = ft_memcpy(new_arg, arg, len);
-		if (equal == 1)
-			ft_strlcat(new_arg, "=", len + 2);
-		else
-			ft_strlcat(new_arg, "", len + 1);
-		return (new_arg);
-	}
+	if (!arg)
+		return (NULL);
+	else if (ft_isdigit(arg[0]) || arg[0] == '=')
+		return (ft_strdup("fail"));
+	equal = ft_strchr(arg, '=');
+	arg_len = ft_strlen(arg);
+	
+	if (!equal && arg_len > 0 && arg[arg_len - 1] == '-')
+		return (ft_strdup("fail"));
+	else if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
+		return (NULL);
+	else if (equal - 1 && *(equal - 1) == '-')
+		return (ft_strdup("fail"));
 	return (ft_strdup(arg));
 }
 
-static void	put_env_var(char **strs, char *new_arg, size_t i)
+static void	put_env_var(t_mshell *obj, char *new_arg)
 {
 	int		pos;
 	size_t	arg_len;
-	char	*last_str;
+	size_t	envp_len;
+	size_t	envp_mem_size;
 
 	arg_len = ft_strlen(new_arg);
-	pos = is_env_created(new_arg, strs);
+	envp_len = get_envp_length(obj->envp);
+	envp_mem_size = get_envp_memory_size(obj->envp);
+	pos = is_env_created(new_arg, obj->envp);
 	if (pos == -1)
 	{
-		last_str = strs[i];
-		strs[i] = ft_calloc(arg_len + 2, 1);
-		if (!strs[i])
+		obj->envp = ft_realloc(obj->envp, envp_mem_size, envp_mem_size + 2 * sizeof(char *));
+		obj->envp[envp_len] = ft_strdup(new_arg);
+		if (!obj->envp[envp_len])
 		{
 			//ft_free_strs(strs, i);
 			exit(error_ret(6, NULL));
 		}
-		strs[i] = ft_memcpy(strs[i], new_arg, arg_len);
-		strs[i][arg_len] = '\n';
-		
-		strs[++i] = last_str;
-		strs[++i] = NULL;
+		obj->envp[++envp_len] = NULL;
 		return ;
 	}
-	strs[pos] = ft_calloc(arg_len + 2, 1);
-	if (!strs[pos])
+	obj->envp[pos] = ft_realloc(obj->envp[pos], ft_strlen(obj->envp[pos]), arg_len + 1);
+	if (!obj->envp[pos])
 	{
 		//ft_free_strs(strs, strs_len);
 		exit(error_ret(6, NULL));
 	}
-	strs[pos] = ft_memcpy(strs[pos], new_arg, arg_len);
-	strs[pos][arg_len] = '\n';
+	obj->envp[pos] = ft_memmove(obj->envp[pos], new_arg, arg_len);
+	obj->envp[pos][arg_len] = '\0';
+	obj->envp[++pos] = NULL;
 }
 
-static void	append_env(char *arg, char **strs, size_t i)
+int	export(char **args, t_mshell *obj)
 {
-	int		fd;
-	int		j;
 	char	*new_arg;
-
-	unlink(".env_temp.txt");
-	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-	{
-		//cleanup struct
-		ft_free_strs(strs, i);
-		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL));
-	}
-	new_arg = check_env_arg(arg);
-	put_env_var(strs, new_arg, i);
-	free(new_arg);
-	j = 0;
-	while (strs[j])
-	{
-		if (write(fd, strs[j], ft_strlen(strs[j])) == -1)
-		{
-			close(fd);
-			unlink(".env_temp.txt");
-			exit(error_ret(6, NULL));
-		}
-		j++;
-	}
-	close(fd);
-}
-
-int	export(char **args)
-{
-	char	**strs;
-	size_t	i;
-	int		fd;
 
 	if (!args || !args[1] || !*args[1])
 		return (1);
-	fd = open(".env_temp.txt", O_RDONLY);
-	if (fd == -1)
+	new_arg = check_env_arg(args[1]);
+	if (ft_strcmp(new_arg, "fail") == 0)
 	{
-		//cleanup
-		error_ret(6, NULL);
+		free(new_arg);
+		obj->exit_code = 1;
+		ft_fprintf(2, "export: `%s`: not a valid identifier\n", args[1]);
+		return (1);
 	}
-	i = 0;
-	strs = read_alloc(fd, &i);
-	append_env(args[1], strs, --i);
-	ft_free_strs(strs, ++i);
+	else if (!new_arg)
+		return (1);
+	put_env_var(obj, new_arg);
+	free(new_arg);
 	return (1);
 }

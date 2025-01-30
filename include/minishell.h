@@ -115,7 +115,7 @@ typedef struct	s_mshell
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
 	t_token		*token;
-	int			exit_code;
+	uint8_t		exit_code;
 	int			pipes_count;
 	pid_t		*pids;
 	int			cur_pid;
@@ -143,7 +143,7 @@ void			print_parse_debug(t_mshell *obj);
 t_token			*tokenize(const char *input, t_mshell *mshell);
 void			init_tokenize(t_token **head, t_token **current);
 t_token			*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
-char			**fetch_paths(char **envp, int first);
+char			**fetch_paths(char **envp);
 
 /* ===== TOKEN CORE (token_core.c) ===== */
 t_token 		*new_token(t_token_type type, const char *content, size_t len, t_mshell *mshell);
@@ -166,12 +166,12 @@ t_token			*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
 t_token			*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 
 /* ===== BUILT-INS ===== */
-int			open_dir(const char *dir);
+int			cd(char **cd_args, t_mshell *obj);
 void		pwd(void);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(void);
+int			env(t_mshell *obj);
 void		echo(char **args);
-int			export(char **args);
+int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
@@ -197,6 +197,10 @@ void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code);
+size_t	get_envp_memory_size(char **envp);
+size_t	get_envp_length(char **envp);
+int		is_env_created(char *arg, char **strs);
+char	*get_env_var(char **envp, const char *var_name);
 
 /* ===== REDIRECTION ===== */
 void	redirection_input(t_mshell *obj, t_ast_node *node);

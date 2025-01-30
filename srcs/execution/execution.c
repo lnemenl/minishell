@@ -3,14 +3,67 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/27 12:29:21 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 10:02:12 by rkhakimu         ###   ########.fr       */
+/*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
+/*   Updated: 2025/01/30 11:20:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+static void	check_and_handle_exit(char **args, t_mshell *obj)
+{
+	int	i;
+	int	args_len;
+
+	if (!args || !*args)
+		return ;
+	args_len = 0;
+	while (args[args_len])
+		args_len++;
+	if (args_len == 1)
+	{
+		printf("exit\n");
+		clean_mshell(obj);
+		free(obj->envp);
+		exit(obj->exit_code);
+	}
+	else if (args_len >= 2)
+	{
+		printf("exit\n");
+		i = 0;
+		while (args[1][i])
+		{
+			if (ft_isdigit(args[1][i]) == 0 && args[1][i] != '-' && args[1][i] != '+')
+			{
+				obj->exit_code = 2;
+				ft_fprintf(2, "minishell: exit: %s: numeric argument required\n", args[1]);
+				clean_mshell(obj);
+				free(obj->envp);
+				exit(obj->exit_code);
+			}
+			i++;
+		}
+		if (args_len > 2)
+		{
+			obj->exit_code = 1;
+			ft_fprintf(2, "minishell: exit: too many arguments\n");
+			clean_mshell(obj);
+			free(obj->envp);
+			exit(obj->exit_code);
+		}
+		if (obj->exit_code == 0)
+		{
+			obj->exit_code = ft_atoi(args[1]);
+			if (obj->exit_code < 0)
+				obj->exit_code = 156;
+		}
+		clean_mshell(obj);
+		free(obj->envp);
+		exit(obj->exit_code);
+	}
+}
 
 static int	is_builtin_cmd(char *cmd)
 {
@@ -26,11 +79,11 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code)
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
-	if (exit_code != 0)
+	if (obj->exit_code != 0)
 		perror(arg);
-	if (errno == EACCES && exit_code != 1)
-		exit_code = 126;
-	exit(exit_code);
+	if (errno == EACCES && obj->exit_code != 1)
+		obj->exit_code = 126;
+	exit(obj->exit_code);
 }
 
 static void	run_builtins_exec(char **args, t_mshell *obj)
@@ -38,7 +91,7 @@ static void	run_builtins_exec(char **args, t_mshell *obj)
 	if (ft_strcmp(args[0], "echo") == 0)
 		echo(args);
 	else if (ft_strcmp(args[0], "env") == 0)
-	 	env();
+	 	env(obj);
 	exit_child(obj, args[0], 0);
 }
 
@@ -47,14 +100,19 @@ static int	run_bultins(char **args, t_mshell *obj)
 	if (!args || !*args)
 		return (0);
 	if (ft_strcmp(args[0], "cd") == 0)
-		return (open_dir(args[1]));
+		return (cd(args, obj));
 	else if (ft_strcmp(args[0], "export") == 0)
-		return (export(args));
+		return (export(args, obj));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args, obj));
 	else if (ft_strcmp(args[0], "pwd") == 0)
 	{
 		pwd();
+		return (1);
+	}
+	else if (ft_strcmp(args[0], "exit") == 0)
+	{
+		check_and_handle_exit(args, obj);
 		return (1);
 	}
 	return (0);

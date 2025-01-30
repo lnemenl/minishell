@@ -3,14 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 07:58:37 by rkhakimu         ###   ########.fr       */
+/*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
+/*   Updated: 2025/01/30 11:31:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+static char	**copy_envp(char **envp)
+{
+	char	**new_envp;
+	size_t	envp_len;
+
+	if (!envp)
+		return (NULL);
+	envp_len = get_envp_length(envp);
+	new_envp = ft_calloc(envp_len, sizeof(char *));
+	if (!new_envp)
+		return (NULL);
+	envp_len = 0;
+	while (envp[envp_len])
+	{
+		new_envp[envp_len] = ft_strdup(envp[envp_len]);
+		if (!new_envp[envp_len])
+		{
+			ft_free_strs(new_envp, envp_len);
+			return (NULL);
+		}
+		envp_len++;
+	}
+	new_envp[envp_len] = NULL;
+	return (new_envp);
+}
 
 static t_mshell	init_shell(char **argv, char **envp)
 {
@@ -23,8 +49,8 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
-	obj.paths = fetch_paths(envp, 1);
-	obj.envp = envp;
+	obj.envp = copy_envp(envp);
+	obj.paths = fetch_paths(obj.envp);
 	obj.pipes_count = 0;
 	obj.token = NULL;
 	obj.pids = NULL;
@@ -36,41 +62,12 @@ static t_mshell	init_shell(char **argv, char **envp)
 	return (obj);
 }
 
-static void	create_env_file(char **envp)
-{
-	int	fd;
-	int	i;
-
-	if (!envp)
-		exit (1);
-	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-	{
-		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL));
-	}
-	i = 0;
-	while (envp[i])
-	{
-		if (write(fd, envp[i], ft_strlen(envp[i])) < 0
-			|| write(fd, "\n", 1) < 0)
-		{
-			close(fd);
-			unlink(".env_temp.txt");
-			exit(error_ret(6, NULL));
-		}
-		i++;
-	}
-	close(fd);
-}
-
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-	create_env_file(envp);
 	obj = init_shell(argv, envp);
 	
 	//initializing shell's signal handling mode
@@ -80,12 +77,11 @@ int	main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		obj.cmd_line = readline(PROMPT);
-		if (!obj.cmd_line && obj.interactive_mode)
-			break;
-		if (ft_strcmp(obj.cmd_line, "exit") == 0)
+		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			free(obj.cmd_line);
-			break;
+			// Printing newline for clean exit (CTRL+D should not exit on the same line as prompt)
+			write(STDERR_FILENO, "\n", 1);
+			break;			// Exit shell cleanly
 		}
 		parse(&obj);
 		add_history(obj.cmd_line);
@@ -93,10 +89,18 @@ int	main(int argc, char **argv, char **envp)
 		obj.cmd_line = NULL;
 		choose_actions(&obj);
 		close_fds(&obj);
+		while (obj.exec_cmds > 0)
+		{
+			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
+				obj.exit_code = WEXITSTATUS(status);
+			obj.exec_cmds--;
+		}
 		clean_mshell(&obj);
-		obj.paths = fetch_paths(envp, 0);
+		obj.paths = fetch_paths(obj.envp);
 	}
 	unlink(".heredoc_temp");
 	clean_mshell(&obj);
-	return (0);
+	if (obj.envp)
+		free(obj.envp);
+	return (obj.exit_code);
 }
