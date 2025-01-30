@@ -3,14 +3,40 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/12/05 15:17:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/29 17:39:31 by rkhakimu         ###   ########.fr       */
+/*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
+/*   Updated: 2025/01/30 11:31:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+static char	**copy_envp(char **envp)
+{
+	char	**new_envp;
+	size_t	envp_len;
+
+	if (!envp)
+		return (NULL);
+	envp_len = get_envp_length(envp);
+	new_envp = ft_calloc(envp_len, sizeof(char *));
+	if (!new_envp)
+		return (NULL);
+	envp_len = 0;
+	while (envp[envp_len])
+	{
+		new_envp[envp_len] = ft_strdup(envp[envp_len]);
+		if (!new_envp[envp_len])
+		{
+			ft_free_strs(new_envp, envp_len);
+			return (NULL);
+		}
+		envp_len++;
+	}
+	new_envp[envp_len] = NULL;
+	return (new_envp);
+}
 
 static t_mshell	init_shell(char **argv, char **envp)
 {
@@ -23,81 +49,48 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
-	obj.paths = fetch_paths(envp, 1);
-	obj.envp = envp;
+	obj.envp = copy_envp(envp);
+	obj.paths = fetch_paths(obj.envp);
 	obj.pipes_count = 0;
 	obj.token = NULL;
 	obj.pids = NULL;
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
+	obj.executing_command = 0;
 	(void) argv;
 	return (obj);
 }
 
-static void	create_env_file(char **envp)
+int	main(int argc, char **argv, char **envp)
 {
-	int	fd;
-	int	i;
+	t_mshell	obj;
+  int status;
 
-	if (!envp)
-		exit (1);
-	fd = open(".env_temp.txt", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
+	if (argc != 1)
+		return (error_ret(1, NULL));
+  init_signals();
+	obj = init_shell(argv, envp);
+	while (1)
 	{
-		unlink(".env_temp.txt");
-		exit(error_ret(6, NULL));
-	}
-	i = 0;
-	while (envp[i])
-	{
-		if (write(fd, envp[i], ft_strlen(envp[i])) < 0
-			|| write(fd, "\n", 1) < 0)
+    g_signal_received = 0;
+		obj.cmd_line = readline(PROMPT);
+		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			close(fd);
-			unlink(".env_temp.txt");
-			exit(error_ret(6, NULL));
+			ft_fprintf(2, "exit\n");
+			break;
 		}
-		i++;
-	}
-	close(fd);
-}
-
-int main(int argc, char **argv, char** envp)
-{
-    t_mshell obj;
-    int status;
-
-    if (argc != 1)
-        return (error_ret(1, NULL));
-    create_env_file(envp);
-    init_signals();  // Add this line
-    obj = init_shell(argv, envp);
-
-    while (1)
-    {
-        g_signal_received = 0;  // Reset signal flag at start of each loop
-        obj.cmd_line = readline(PROMPT);
-        if (!obj.cmd_line)  // Handle ctrl-D
-        {
-            write(STDOUT_FILENO, "exit\n", 5);
-            break;
-        }
-        if (ft_strcmp(obj.cmd_line, "exit") == 0)
-        {
-            free(obj.cmd_line);
-            break;
-        }
-        parse(&obj);
-        add_history(obj.cmd_line);
-        free(obj.cmd_line);
-        obj.cmd_line = NULL;
-        choose_actions(&obj);
-        close_fds(&obj);
-        while (obj.exec_cmds > 0)
+		parse(&obj);
+		add_history(obj.cmd_line);
+		free(obj.cmd_line);
+		obj.cmd_line = NULL;
+		choose_actions(&obj);
+		close_fds(&obj);
+		while (obj.exec_cmds > 0)
 		{
-			wait(&status);
-			if (WIFSIGNALED(status))  // Check if process was terminated by a signal
+			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
+				obj.exit_code = WEXITSTATUS(status);
+      else if (WIFSIGNALED(status))  // Check if process was terminated by a signal
 			{
 				if (WTERMSIG(status) == SIGINT)  // ctrl-C
 					write(STDERR_FILENO, "\n", 1);
@@ -105,14 +98,14 @@ int main(int argc, char **argv, char** envp)
 					write(STDERR_FILENO, "Quit: 3\n", 8);
 				obj.exit_code = 128 + WTERMSIG(status);  // Set appropriate exit code
 			}
-			else if (WIFEXITED(status))  // Normal exit
-				obj.exit_code = WEXITSTATUS(status);
 			obj.exec_cmds--;
 		}
-        clean_mshell(&obj);
-        obj.paths = fetch_paths(envp, 0);
-    }
-    unlink(".heredoc_temp");
-    clean_mshell(&obj);
-    return (0);
+		clean_mshell(&obj);
+		obj.paths = fetch_paths(obj.envp);
+	}
+	unlink(".heredoc_temp");
+	clean_mshell(&obj);
+	if (obj.envp)
+		free(obj.envp);
+	return (obj.exit_code);
 }

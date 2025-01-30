@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/27 11:30:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/30 12:00:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ void	realloc_buffer(char **buf, size_t *buffer_size)
 	}
 }
 
-int	open_dir(const char *dir)
+int	cd(char **cd_args, t_mshell *obj)
 {
 	char	*buf;
 	char	*path;
@@ -32,21 +32,40 @@ int	open_dir(const char *dir)
 	size_t	buffer_size;
 
 	buffer_size = 50;
-	if (!dir || !*dir)
-		chdir(getenv("HOME"));
+	if (!cd_args[1] || !*cd_args[1])
+	{
+		obj->exit_code = 0;
+		chdir(get_env_var(obj->envp, "HOME"));
+		return (1);
+	}
+	else if (cd_args[2] && *cd_args[2])
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: too many arguments\n");
+		return (1);
+	}
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
 		//cleanup struct
+		obj->exit_code = 1;
 		ft_fprintf(2, "Malloc error!\n");
 		exit(1);
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	path = ft_strjoin(buf, "/");
-	full_path = ft_strjoin(path, dir);
+	full_path = ft_strjoin(path, cd_args[1]);
 	free(path);
-	chdir(full_path);
+	if (ft_strcmp(buf, cd_args[1]) == 0)
+		obj->exit_code = 0;
+	else if (chdir(full_path) == -1)
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n", cd_args[1]);
+	}
+	else
+		obj->exit_code = 0;
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	free(buf);
@@ -92,26 +111,18 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 	node->args[2] = NULL;
 }
 
-int	env(void) //(t_mshell *obj) //, t_ast_node *node)
+int	env(t_mshell *obj)
 {
-	int		fd;
-	char	*str;
+	size_t	i;
 
-	fd = open(".env_temp.txt", O_RDONLY);
-	if (fd == -1)
+	if (!obj || !obj->envp)
+		return (0);
+	i = 0;
+	while (obj->envp[i])
 	{
-		//cleanup
-		error_ret(6, NULL);
+		printf("%s\n", obj->envp[i]);
+		i++;
 	}
-	str = get_next_line(fd);
-	while (str)
-	{
-		printf("%s", str);
-		free(str);
-		str = get_next_line(fd);
-	}
-	close(fd);
-	//execve(obj->cur_path, node->args, NULL);
 	return (1);
 }
 

@@ -12,19 +12,6 @@
 
 #include "../include/minishell.h"
 
-void	clean_strs(char **strs)
-{
-	int	i;
-
-	if (!strs || !*strs)
-		return ;
-	i = 0;
-	while (strs[i])
-		free(strs[i++]);
-	free(strs);
-	strs = NULL;
-}
-
 static void	clean_pipes(t_mshell *obj)
 {
 	int	i;
