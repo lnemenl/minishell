@@ -108,7 +108,7 @@ typedef struct	s_mshell
 	int			**pipfd;        	// File descriptors for pipes
 	t_ast_node	*ast;
 	t_token		*token;
-	int			exit_code;
+	uint8_t		exit_code;
 	int			pipes_count;
 	pid_t		*pids;
 	int			cur_pid;

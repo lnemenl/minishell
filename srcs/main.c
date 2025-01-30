@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/28 12:03:23 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 11:31:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -90,7 +90,8 @@ int	main(int argc, char **argv, char **envp)
 		close_fds(&obj);
 		while (obj.exec_cmds > 0)
 		{
-			wait(&status);
+			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
+				obj.exit_code = WEXITSTATUS(status);
 			obj.exec_cmds--;
 		}
 		clean_mshell(&obj);

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/28 12:04:25 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 11:20:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,11 +22,12 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 	args_len = 0;
 	while (args[args_len])
 		args_len++;
-
 	if (args_len == 1)
 	{
 		printf("exit\n");
-		return ;
+		clean_mshell(obj);
+		free(obj->envp);
+		exit(obj->exit_code);
 	}
 	else if (args_len >= 2)
 	{
@@ -38,7 +39,9 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 			{
 				obj->exit_code = 2;
 				ft_fprintf(2, "minishell: exit: %s: numeric argument required\n", args[1]);
-				break ;
+				clean_mshell(obj);
+				free(obj->envp);
+				exit(obj->exit_code);
 			}
 			i++;
 		}
@@ -46,13 +49,20 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 		{
 			obj->exit_code = 1;
 			ft_fprintf(2, "minishell: exit: too many arguments\n");
-			return ;
+			clean_mshell(obj);
+			free(obj->envp);
+			exit(obj->exit_code);
 		}
 		if (obj->exit_code == 0)
+		{
 			obj->exit_code = ft_atoi(args[1]);
-		return ;
+			if (obj->exit_code < 0)
+				obj->exit_code = 156;
+		}
+		clean_mshell(obj);
+		free(obj->envp);
+		exit(obj->exit_code);
 	}
-
 }
 
 static int	is_builtin_cmd(char *cmd)
@@ -69,11 +79,11 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code)
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
-	if (exit_code != 0)
+	if (obj->exit_code != 0)
 		perror(arg);
-	if (errno == EACCES && exit_code != 1)
-		exit_code = 126;
-	exit(exit_code);
+	if (errno == EACCES && obj->exit_code != 1)
+		obj->exit_code = 126;
+	exit(obj->exit_code);
 }
 
 static void	run_builtins_exec(char **args, t_mshell *obj)
