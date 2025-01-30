@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: r <r@student.42.fr>                        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/20 01:04:55 by r                ###   ########.fr       */
+/*   Updated: 2025/01/30 14:45:27 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,39 +36,80 @@ t_ast_node	*create_ast_node(t_token_type type)
 	return (node);
 }
 
-static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets up a single redirection node
+// static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets up a single redirection node
+// {
+//     t_ast_node *redir;
+//     t_token     *temp;
+
+//     redir = create_ast_node((*tokens)->type);
+//     if (!redir)
+//         return (free_ast_return_null(redir));
+//     temp = *tokens;
+//     *tokens = (*tokens)->next;
+//     redir->args = ft_calloc(2, sizeof(char *));
+//     if (!redir->args)
+//         return (free_ast_return_null(redir));
+        
+//     if (!*tokens || (*tokens)->type != TOKEN_WORD)
+//     {
+//         ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
+//         return (free_ast_return_null(redir));
+//     }
+//     if (redir->type == TOKEN_REDIRECT_OUT || redir->type == TOKEN_REDIRECT_APPEND)
+//     {
+//         if (access((*tokens)->content, W_OK) == -1)
+//         {
+//             perror("minishell");
+//             return (free_ast_return_null(redir));
+//         }
+//     }
+//     redir->args[0] = ft_strdup((*tokens)->content);
+//     if (!redir->args[0])
+//         return (free_ast_return_null(redir));
+//     if ((temp->type == TOKEN_REDIRECT_IN || temp->type == TOKEN_HEREDOC)
+//         && ((!(*tokens)->next) || (*tokens)->next->type != TOKEN_WORD))
+//     {
+//         redir->left = create_ast_node(TOKEN_WORD);
+//         if (!redir->left)
+//             return (free_ast_return_null(redir));
+//         redir->left->args = ft_calloc(2, sizeof(char *));
+//         if (!redir->left->args)
+//             return (free_ast_return_null(redir));
+//         redir->left->args[0] = ft_strdup("cat");
+//         redir->left->args[1] = NULL;
+//     }
+//     *tokens = (*tokens)->next;
+//     return (redir);
+// }
+
+
+static t_ast_node *handle_redirection_node(t_token **tokens)
 {
     t_ast_node *redir;
-    t_token     *temp;
+    t_token *temp;
 
     redir = create_ast_node((*tokens)->type);
     if (!redir)
-        return (NULL);
+        return (free_ast_return_null(redir));
     temp = *tokens;
     *tokens = (*tokens)->next;
     redir->args = ft_calloc(2, sizeof(char *));
     if (!redir->args)
         return (free_ast_return_null(redir));
-    if (!*tokens)
-    {
-        ft_putstr_fd("syntax error near unexpected token `newline'\n", 2);
+
+    if (!*tokens || (*tokens)->type != TOKEN_WORD) {
+        ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
         return (free_ast_return_null(redir));
+    }
+    if (redir->type == TOKEN_REDIRECT_OUT || redir->type == TOKEN_REDIRECT_APPEND) {
+        if (access((*tokens)->content, W_OK) == -1) {
+            perror("minishell");
+            return (free_ast_return_null(redir));
+        }
     }
     redir->args[0] = ft_strdup((*tokens)->content);
     if (!redir->args[0])
         return (free_ast_return_null(redir));
-    if ((temp->type == TOKEN_REDIRECT_IN || temp->type == TOKEN_HEREDOC)
-        && ((!(*tokens)->next) || (*tokens)->next->type != TOKEN_WORD))
-    {
-        redir->left = create_ast_node(TOKEN_WORD);
-        if (!redir->left)
-            return (NULL); //cleanup
-        redir->left->args = ft_calloc(2, sizeof(char *));
-        if (!redir->left->args)
-            return (free_ast_return_null(redir));
-        redir->left->args[0] = ft_strdup("cat");
-        redir->left->args[1] = NULL;
-    }
     *tokens = (*tokens)->next;
     return (redir);
 }
@@ -92,28 +133,24 @@ static t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd
 {
     t_ast_node *redir;
     t_ast_node *current;
-    t_token_type last_redir_type;
 
     current = cmd_node;
-    last_redir_type = 0;
     while (*tokens && is_redirect_token((*tokens)->type))
     {
-        // Check for consecutive redirections of the same type
-        if (last_redir_type == (*tokens)->type)
+        if (!(*tokens)->next || (*tokens)->next->type != TOKEN_WORD)
         {
-            ft_putstr_fd("syntax error: multiple redirections of same type\n", 2);
+            ft_putstr_fd("No such file or directory\n", 2);
             free_ast(current);
             return (NULL);
-        }
-        last_redir_type = (*tokens)->type;
-        redir = handle_redirection_node(tokens);
-        if (!redir)
-        {
-            free_ast(current);
-            return (NULL);
-        }
-        redir->left = current;
-        current = redir;
+        }      
+    redir = handle_redirection_node(tokens);
+    if (!redir)
+    {
+        free_ast(current);
+        return (NULL);
+    }
+    redir->left = current;
+    current = redir;
     }
     return (current);
 }
@@ -142,13 +179,11 @@ t_ast_node *parse_command(t_token **tokens)
 t_ast_node *parse_pipeline(t_token **tokens, int i, t_mshell *obj)
 {
     t_ast_node *root;
-    //t_ast_node *current;
     t_ast_node *pipe_node;
 
     root = parse_command(tokens);
     if (!root)
         return (NULL);
-    //current = root;
     while (*tokens && (*tokens)->type == TOKEN_PIPE)
     {
         if (!(*tokens)->next || (*tokens)->next->type == TOKEN_PIPE)

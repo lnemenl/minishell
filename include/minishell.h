@@ -166,9 +166,8 @@ void					clean_strs(char **strs);
 
 /* ===== SIGNALS ===== */
 
-void					sigint_handler(int sig, siginfo_t *info, void *context);
-void					sigquit_handler(int sig, siginfo_t *info, void *context);
-void					handle_eof(void);
-void					setup_signal_handlers(void);
-
+void    				handle_signal(int signum);
+void    				init_signals(void);
+void    				reset_signals(void);
+void    				handle_heredoc_signals(void);
 #endif

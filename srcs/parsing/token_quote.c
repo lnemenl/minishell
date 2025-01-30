@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/07 21:52:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/30 14:42:05 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,11 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
     while (input[*i] && input[*i] != '\'')
         (*i)++;
     if (!input[*i])
+    {
+        ft_putstr_fd("minishell: syntax error: unclosed single quote\n", 2);
+        mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
         return (NULL);
+    }
     word = ft_substr(input, start, *i - start);
     if (!word)
         return (NULL);
@@ -52,7 +56,11 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
     
     content = ft_substr(input, start, *i - start);
     if (!content)
+    {
+        ft_putstr_fd("minishell: syntax error: unclosed double quote\n", 2);
+        mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
         return (NULL);
+    }
     
     expanded = expand_env_vars(content, mshell);
     free(content);
