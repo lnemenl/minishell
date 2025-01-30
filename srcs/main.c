@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 11:31:36 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:50:51 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,7 +57,6 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.cur_pid = 0;
 	obj.fd_in = -1;
 	obj.fd_out = -1;
-	obj.executing_command = 0;
 	(void) argv;
 	return (obj);
 }
@@ -69,7 +68,7 @@ int	main(int argc, char **argv, char **envp)
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-  init_signals();
+	init_signals();
 	obj = init_shell(argv, envp);
 	while (1)
 	{
@@ -77,7 +76,8 @@ int	main(int argc, char **argv, char **envp)
 		obj.cmd_line = readline(PROMPT);
 		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			ft_fprintf(2, "exit\n");
+			printf("\n");
+			//ft_fprintf(2, "exit\n");
 			break;
 		}
 		parse(&obj);
@@ -90,7 +90,7 @@ int	main(int argc, char **argv, char **envp)
 		{
 			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
 				obj.exit_code = WEXITSTATUS(status);
-      else if (WIFSIGNALED(status))  // Check if process was terminated by a signal
+			if (WIFSIGNALED(status))  // Check if process was terminated by a signal
 			{
 				if (WTERMSIG(status) == SIGINT)  // ctrl-C
 					write(STDERR_FILENO, "\n", 1);

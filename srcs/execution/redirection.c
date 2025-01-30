@@ -3,17 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 14:01:00 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 15:37:26 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
 static void	set_heredoc_strings(char **str, char **trimmed_str,
-	char **expanded_str, t_mshell *obj)
+	char **expanded_str, t_mshell *obj, struct sigaction *old_int, struct sigaction *old_quit)
 {
 	*str = get_next_line(STDIN_FILENO);
   if (!*str || g_signal_received == SIGINT)
@@ -24,8 +24,8 @@ static void	set_heredoc_strings(char **str, char **trimmed_str,
                 unlink(".heredoc_temp");  // Remove temporary file
                 obj->is_heredoc = 0;
                 // Restore signals before breaking
-                sigaction(SIGINT, &old_int, NULL);
-                sigaction(SIGQUIT, &old_quit, NULL);
+                sigaction(SIGINT, old_int, NULL);
+                sigaction(SIGQUIT, old_quit, NULL);
                 return;
             }
           // do break;
@@ -59,8 +59,8 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 	char	*str;
 	char	*trimmed_str;
 	char	*expanded_str;
-  struct sigaction    old_int, old_quit;
-  struct sigaction    sa;
+    struct sigaction    old_int, old_quit;
+    struct sigaction    sa;
 
 	if (node->type != TOKEN_HEREDOC)
 		return ;
@@ -85,7 +85,7 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 		error_ret(6, NULL);
 	}
   obj->is_heredoc = 1;  // Set heredoc flag
-	set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj);
+	set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj, &old_int, &old_quit);
 	while ((trimmed_str && ft_strcmp(node->args[0], trimmed_str) != 0)
 		&& expanded_str && (ft_strcmp(node->args[0], expanded_str) != 0))
 	{
@@ -94,7 +94,7 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 		else
 			ft_putstr_fd(str, obj->fd_in);
 		free_heredoc_strings(&str, &trimmed_str, &expanded_str);
-		set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj);
+		set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj, &old_int, &old_quit);
 	}
 	free_heredoc_strings(&str, &trimmed_str, &expanded_str);
 	close(obj->fd_in);
