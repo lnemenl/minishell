@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 19:17:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/31 18:35:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,11 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
         mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
         return (NULL);
     }
-    word = ft_substr(input, start, *i - start);
+    // Creating a substring for the content between single quotes
+    word = ft_substr(input, start, (*i) - start);
     if (!word)
         return (NULL);
-    token = new_token(TOKEN_WORD, input + start, *i - start, mshell);
+    token = new_token(TOKEN_WORD, word, ft_strlen(word), mshell);
     free(word);
     if (!token)
         return (NULL);
@@ -52,7 +53,11 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
     while (input[*i] && input[*i] != '"')
         (*i)++;
     if (!input[*i])
+    {
+        ft_putstr_fd("minishell: syntax error: unclosed double quote\n", 2);
+        mshell->exit_code = 2;  // Specific error code for unclosed quotes
         return (NULL);
+    }
     
     content = ft_substr(input, start, *i - start);
     if (!content)
@@ -83,9 +88,14 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
     t_token     *token;
     t_token     *prev_token;
 
+    in_word = 0;
     if (!input[*i])
         return (NULL);
-    in_word = (!ft_isspace(input[*i - 1]));
+    // If we are not at the start of the line and the preceding character isn't whitespace,
+    // set in_word to 1 so that we are still in the same word    
+    if (*i > 0 && !ft_isspace(input[*i - 1]))
+        in_word = 1;
+        
     prev_token = *current;
     quote = input[*i];
     if (quote == '"')

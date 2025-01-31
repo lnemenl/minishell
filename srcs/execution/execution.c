@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 19:51:55 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/31 18:36:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -188,7 +188,7 @@ void	alloc_pipes(t_mshell *obj)
 //         else
 //         {
 //             obj->cur_path = check_paths_access(obj->paths, left, obj);
-//             execve(obj->cur_path, left->args, obj->paths);
+//             execve(obj->cur_path, left->args, obj->envp);
 //             exit_child(obj, left->args[0], 127);
 //         }
 //     }
@@ -242,7 +242,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
         else
         {
             obj->cur_path = check_paths_access(obj->paths, left, obj);
-            execve(obj->cur_path, left->args, obj->paths);
+            execve(obj->cur_path, left->args, obj->envp);
             exit_child(obj, left->args[0], 127);
         }
     }
