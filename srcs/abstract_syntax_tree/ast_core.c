@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 19:51:48 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/31 16:16:09 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,8 @@ static int validate_redirection_chain(t_ast_node *node)
             return (0);
         current = current->left;
     }
+    (void)in_count;
+    (void)out_count;
     return (1);
 }
 
