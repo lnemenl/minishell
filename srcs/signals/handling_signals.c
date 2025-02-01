@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 12:33:47 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:48:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 volatile sig_atomic_t g_signal_received = 0;
 
 // Signal handler for interactive mode
-void    handle_signal(int signum)
+static void interactive_signal_handler(int signum)
 {
     g_signal_received = signum;
     if (signum == SIGINT)
@@ -27,34 +27,81 @@ void    handle_signal(int signum)
     }
 }
 
-// Initialize signal handlers
-void    init_signals(void)
+static void exec_signal_handler(int signum)
 {
-    struct sigaction    sa;
-
-    sa.sa_handler = handle_signal;
-    sa.sa_flags = 0;
-    sigemptyset(&sa.sa_mask);
-    
-    sigaction(SIGINT, &sa, NULL);   // ctrl-C
-    sigaction(SIGQUIT, &sa, NULL);  // ctrl-
+    g_signal_received = signum;
+    if (signum == SIGINT)
+        write(STDERR_FILENO, "\n", 1);
+    else if (signum == SIGQUIT)
+        write(STDERR_FILENO, "Quit: 3\n", 8);
 }
 
-// Reset signals for child processes
-void    reset_signals(void)
+void setup_interactive_signals(void)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = interactive_signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+
+    sigaction(SIGINT, &sa, NULL);
+    signal(SIGQUIT, SIG_IGN);
+}
+
+void setup_exec_signals(void)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = exec_signal_handler;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
+}
+
+void setup_heredoc_signals(void)
+{
+    struct sigaction sa;
+
+    sa.sa_handler = SIG_DFL;
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+
+    sigaction(SIGINT, &sa, NULL);
+    signal(SIGQUIT, SIG_IGN);
+}
+
+void reset_signals(void)
 {
     signal(SIGINT, SIG_DFL);
     signal(SIGQUIT, SIG_DFL);
 }
 
-void    handle_heredoc_signals(void)
+void    save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)
 {
-    struct sigaction    sa;
+    sigaction(SIGINT, NULL, old_int);
+    sigaction(SIGQUIT, NULL, old_quit);
+}
 
-    sa.sa_handler = SIG_DFL;  // Use default handler
-    sa.sa_flags = 0;
-    sigemptyset(&sa.sa_mask);
-    
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
+void    restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)
+{
+    sigaction(SIGINT, old_int, NULL);
+    sigaction(SIGQUIT, old_quit, NULL);
+}
+
+void    transition_signal_handlers(t_signal_state new_state)
+{
+    static struct sigaction    old_handlers[2];
+
+    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
+
+    if (new_state == SIGNAL_STATE_INTERACTIVE)
+        setup_interactive_signals();
+    else if (new_state == SIGNAL_STATE_EXEC)
+        setup_exec_signals();
+    else if (new_state == SIGNAL_STATE_HEREDOC)
+        setup_heredoc_signals();
+    else if (new_state == SIGNAL_STATE_RESET)
+        reset_signals();
 }

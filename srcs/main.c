@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 15:50:51 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:43:34 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,20 +64,22 @@ static t_mshell	init_shell(char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-  int status;
+  	int status;
+	struct sigaction	old_handlers[2];
+	
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-	init_signals();
+	save_signal_handlers(&old_handlers[0], &old_handlers[1]);
+	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	obj = init_shell(argv, envp);
 	while (1)
 	{
-    g_signal_received = 0;
+    	g_signal_received = 0;
 		obj.cmd_line = readline(PROMPT);
 		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			printf("\n");
-			//ft_fprintf(2, "exit\n");
+			write(STDOUT_FILENO, "\n", 1);
 			break;
 		}
 		parse(&obj);
@@ -96,7 +98,7 @@ int	main(int argc, char **argv, char **envp)
 					write(STDERR_FILENO, "\n", 1);
 				else if (WTERMSIG(status) == SIGQUIT)  // ctrl-
 					write(STDERR_FILENO, "Quit: 3\n", 8);
-				obj.exit_code = 128 + WTERMSIG(status);  // Set appropriate exit code
+				obj.exit_code = 128 + WTERMSIG(status);
 			}
 			obj.exec_cmds--;
 		}
@@ -107,5 +109,6 @@ int	main(int argc, char **argv, char **envp)
 	clean_mshell(&obj);
 	if (obj.envp)
 		free(obj.envp);
+	restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 	return (obj.exit_code);
 }

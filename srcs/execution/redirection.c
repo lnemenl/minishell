@@ -6,101 +6,82 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 20:02:17 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:53:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static void	set_heredoc_strings(char **str, char **trimmed_str,
-	char **expanded_str, t_mshell *obj, struct sigaction *old_int, struct sigaction *old_quit)
+typedef struct s_heredoc
 {
-	*str = get_next_line(STDIN_FILENO);
-  if (!*str || g_signal_received == SIGINT)
-        {
-            if (g_signal_received == SIGINT)
-            {
-                close(obj->fd_in);
-                unlink(".heredoc_temp");  // Remove temporary file
-                obj->is_heredoc = 0;
-                // Restore signals before breaking
-                sigaction(SIGINT, old_int, NULL);
-                sigaction(SIGQUIT, old_quit, NULL);
-                return;
-            }
-          // do break;
-        }
-	*trimmed_str = ft_strtrim(*str, "\n");
-	*expanded_str = expand_env_vars(*str, obj);
+    char    *str;
+    char    *trimmed;
+    char    *expanded;
+    t_mshell *obj;
+}   t_heredoc;
+
+static void    cleanup_heredoc(t_heredoc *doc)
+{
+    if (doc->str)
+        free(doc->str);
+    if (doc->trimmed)
+        free(doc->trimmed);
+    if (doc->expanded)
+        free(doc->expanded);
+    doc->str = NULL;
+    doc->trimmed = NULL;
+    doc->expanded = NULL;
 }
 
-static void	free_heredoc_strings(char **str, char **trimmed_str,
-	char **expanded_str)
+static int    process_heredoc_line(t_heredoc *doc)
 {
-	if (*str)
-	{
-		free(*str);
-		*str = NULL;
-	}
-	if (*trimmed_str)
-	{
-		free(*trimmed_str);
-		*trimmed_str = NULL;
-	}
-	if (*expanded_str)
-	{
-		free(*expanded_str);
-		*expanded_str = NULL;
-	}
+    doc->str = get_next_line(STDIN_FILENO);
+    if (!doc->str || g_signal_received == SIGINT)
+        return (0);
+    doc->trimmed = ft_strtrim(doc->str, "\n");
+    doc->expanded = expand_env_vars(doc->str, doc->obj);
+    return (1);
 }
 
-void	handle_here_doc(t_mshell *obj, t_ast_node *node)
+static void    write_heredoc_line(t_heredoc *doc)
 {
-	char	*str;
-	char	*trimmed_str;
-	char	*expanded_str;
-    struct sigaction    old_int, old_quit;
-    struct sigaction    sa;
+    if (doc->str[0] == '$')
+        ft_putstr_fd(doc->expanded, doc->obj->fd_in);
+    else
+        ft_putstr_fd(doc->str, doc->obj->fd_in);
+}
 
-	if (node->type != TOKEN_HEREDOC)
-		return ;
-  // Save current signal handlers
-    sigaction(SIGINT, NULL, &old_int);
-    sigaction(SIGQUIT, NULL, &old_quit);
+void    handle_here_doc(t_mshell *obj, t_ast_node *node)
+{
+    t_heredoc    doc;
+    struct sigaction    old_handlers[2];
 
-    // Set heredoc-specific signal handling
-    sa.sa_handler = handle_signal;  // Use our custom handler
-    sa.sa_flags = 0;
-    sigemptyset(&sa.sa_mask);
-    sigaction(SIGINT, &sa, NULL);
-    sigaction(SIGQUIT, &sa, NULL);
-  
-	obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (obj->fd_in < 0)
-	{
-		clean_mshell(obj);
-    // Restore signals before error return
-    sigaction(SIGINT, &old_int, NULL);
-    sigaction(SIGQUIT, &old_quit, NULL);
-		error_ret(6, NULL);
-	}
-  obj->is_heredoc = 1;  // Set heredoc flag
-	set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj, &old_int, &old_quit);
-	while ((trimmed_str && ft_strcmp(node->args[0], trimmed_str) != 0)
-		&& expanded_str && (ft_strcmp(node->args[0], expanded_str) != 0))
-	{
-		if (str[0] == '$')
-			ft_putstr_fd(expanded_str, obj->fd_in);
-		else
-			ft_putstr_fd(str, obj->fd_in);
-		free_heredoc_strings(&str, &trimmed_str, &expanded_str);
-		set_heredoc_strings(&str, &trimmed_str, &expanded_str, obj, &old_int, &old_quit);
-	}
-	free_heredoc_strings(&str, &trimmed_str, &expanded_str);
-	close(obj->fd_in);
-  
-   sigaction(SIGINT, &old_int, NULL);
-    sigaction(SIGQUIT, &old_quit, NULL);
+    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
+    if (node->type != TOKEN_HEREDOC)
+    {
+        restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
+        return;
+    }
+    obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (obj->fd_in < 0)
+    {
+        clean_mshell(obj);
+        restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
+        error_ret(6, NULL);
+    }
+    doc = (t_heredoc){NULL, NULL, NULL, obj};
+    obj->is_heredoc = 1;
+    while (process_heredoc_line(&doc))
+    {
+        if (!ft_strcmp(node->args[0], doc.trimmed) || 
+            !ft_strcmp(node->args[0], doc.expanded))
+            break;
+        write_heredoc_line(&doc);
+        cleanup_heredoc(&doc);
+    }
+    cleanup_heredoc(&doc);
+    close(obj->fd_in);
+    restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 }
 
 void	redirection_input(t_mshell *obj, t_ast_node *node)
