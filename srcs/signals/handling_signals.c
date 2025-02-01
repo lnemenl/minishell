@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/01 17:48:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:21:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,7 +38,17 @@ static void exec_signal_handler(int signum)
 
 void setup_interactive_signals(void)
 {
-    struct sigaction sa;
+    struct sigaction	sa;
+	struct termios		term;
+	
+	//Getting current terminal attributes
+	tcgetattr(STDIN_FILENO, &term);
+	
+	//Disabling ECHOCTL flag to remove ^C
+	term.c_lflag &= ~ECHOCTL;
+	
+	//Setting new attributes
+	tcsetattr(STDIN_FILENO, TCSANOW, &term);
 
     sa.sa_handler = interactive_signal_handler;
     sigemptyset(&sa.sa_mask);
