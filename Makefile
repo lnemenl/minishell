@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: r <r@student.42.fr>                        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/20 01:16:29 by r                ###   ########.fr        #
+#    Updated: 2025/01/31 16:28:47 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -59,9 +59,9 @@ SRCS = \
 
 OBJS = ${SRCS:.c=.o}
 
-CFLAGS = -g -Wall -Werror -Wextra
+CFLAGS = -g -Wall -Werror -Wextra -I/opt/homebrew/opt/readline/include
 INCLUDES = -I/usr/local/include
-LDFLAGS = -L/usr/local/lib -lreadline
+LDFLAGS = -L/opt/homebrew/opt/readline/lib -lreadline
 
 LIBFT_NAME = ./libft_updated/libft.a
 LIBFT_DIR = ./libft_updated

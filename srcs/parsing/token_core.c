@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_core.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 14:56:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/06 15:41:42 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/01/30 18:51:15 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,6 @@ t_token *new_token(t_token_type type, const char *content, size_t len, t_mshell 
     token->quote_state = QUOTE_NONE;
     token->next = NULL;
     token->mshell = mshell;
-    //token->mshell->total_cmds++;
     return (token);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 11:20:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 17:54:31 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -149,7 +149,7 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
+void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
     if (!left)
         return;
@@ -165,38 +165,39 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     }
     if (obj->pids[obj->cur_pid] == 0)
     {
-        reset_signals();  // Reset signals in child process
+        transition_signal_handlers(SIGNAL_STATE_RESET);
 
-        // redirection handling remains the same
-        if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
-            redirection_input(obj, left);
-        if (obj->allocated_pipes >= 1)
+        // Handle all input redirections first
+        t_ast_node *temp = left;
+        while (temp)
         {
-            if (left && left->type == TOKEN_WORD)
-                pipe_redirection(obj);
+            if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
+                redirection_input(obj, temp);
+            temp = temp->left;
         }
+
+        // Handle pipe redirection
+        if (obj->allocated_pipes >= 1 && left->type == TOKEN_WORD)
+            pipe_redirection(obj);
+
+        // Handle output redirections
         if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
             redirection_output(obj, right);
+
         close_fds(obj);
 
-        // command execution remains the same
+        // Execute command
         if (is_builtin_cmd(left->args[0]) == 1)
-        {
             run_builtins_exec(left->args, obj);
-            exit_child(obj, left->args[0], 127);
-        }
         else
         {
             obj->cur_path = check_paths_access(obj->paths, left, obj);
-            execve(obj->cur_path, left->args, obj->paths);
+            execve(obj->cur_path, left->args, obj->envp);
             exit_child(obj, left->args[0], 127);
         }
     }
     else
-    {
-        // Parent process
-        signal(SIGINT, SIG_IGN);  // Ignore SIGINT while child is running
-    }
+        transition_signal_handlers(SIGNAL_STATE_EXEC);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
@@ -221,7 +222,9 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 void    choose_actions(t_mshell *obj)
 {
     t_ast_node    *temp;
+    struct sigaction    old_handlers[2];
 
+    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
     if (!obj)
         return;
     alloc_pipes(obj);
@@ -232,16 +235,11 @@ void    choose_actions(t_mshell *obj)
         error_ret(5, NULL);
     }
 
-    // Save original signal handlers
-    struct sigaction    old_int, old_quit;
-    sigaction(SIGINT, NULL, &old_int);
-    sigaction(SIGQUIT, NULL, &old_quit);
-
     temp = obj->ast;
     while (temp)
     {
         if (g_signal_received)
-            break;  // Break if signal received
+            break;
 
         if (temp->type == TOKEN_WORD)
             execute_cmd(obj, temp, NULL);
@@ -250,17 +248,26 @@ void    choose_actions(t_mshell *obj)
         {
             handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
             if (temp->left->type == TOKEN_HEREDOC)
+            {
+                transition_signal_handlers(SIGNAL_STATE_HEREDOC);
                 handle_here_doc(obj, temp->left);
+                transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+            }
             execute_cmd(obj, temp->left->left, NULL);
         }
         else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
         {
             handle_cat_redir(temp->left, temp->args[0], temp->type);
             if (temp->type == TOKEN_HEREDOC)
+            {
+                transition_signal_handlers(SIGNAL_STATE_HEREDOC);
                 handle_here_doc(obj, temp);
+                transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+            }
             execute_cmd(obj, temp->left, NULL);
         }
-        else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
+        else if (temp->type == TOKEN_REDIRECT_OUT || 
+                 temp->type == TOKEN_REDIRECT_APPEND)
             execute_cmd(obj, temp->left, temp);
         else
             execute_cmd(obj, temp->left, NULL);
@@ -269,7 +276,5 @@ void    choose_actions(t_mshell *obj)
         obj->cur_pid++;
     }
 
-    // Restore original signal handlers
-    sigaction(SIGINT, &old_int, NULL);
-    sigaction(SIGQUIT, &old_quit, NULL);
+    restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 }
