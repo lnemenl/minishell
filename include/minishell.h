@@ -34,6 +34,14 @@ typedef	enum e_quote_state
 	QUOTE_DOUBLE
 }	t_quote_state;
 
+typedef enum e_signal_state
+{
+    SIGNAL_STATE_INTERACTIVE,
+    SIGNAL_STATE_EXEC,
+    SIGNAL_STATE_HEREDOC,
+    SIGNAL_STATE_RESET
+}	t_signal_state;
+
 
 typedef struct s_quote_context
 {
@@ -171,8 +179,11 @@ void					clean_strs(char **strs);
 
 
 /* ===== SIGNALS ===== */
-void    				handle_signal(int signum);
-void    				init_signals(void);
-void    				reset_signals(void);
-void    				handle_heredoc_signals(void);
+void 					setup_interactive_signals(void);
+void 					setup_exec_signals(void);
+void 					setup_heredoc_signals(void);
+void 					reset_signals(void);
+void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
+void    				restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
+void    				transition_signal_handlers(t_signal_state new_state);
 #endif

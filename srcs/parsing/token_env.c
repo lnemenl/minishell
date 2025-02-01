@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/20 13:16:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/01/30 18:54:29 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,9 +56,15 @@ static char *join_and_free(char *s1, char *s2)
     if (!s2)
         return (s1);
     result = ft_strjoin(s1, s2);
+    if (!result)
+    {
+        free(s1);
+        free(s2);
+        return (NULL);
+    }
     free(s1);
     free(s2);
-    return (result);
+    return (result); 
 }
 
 char *expand_env_vars(const char *str, t_mshell *mshell)
