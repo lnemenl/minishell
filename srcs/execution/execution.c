@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 18:42:53 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:59:17 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -192,16 +192,9 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		}
         if (obj->allocated_pipes >= 1)
         {
-            if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
-                redirection_input(obj, temp);
-            temp = temp->left;
+            if (left && left->type == TOKEN_WORD)
+                pipe_redirection(obj);
         }
-
-        // Handle pipe redirection
-        if (obj->allocated_pipes >= 1 && left->type == TOKEN_WORD)
-            pipe_redirection(obj);
-
-        // Handle output redirections
         if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
             redirection_output(obj, right);
 
