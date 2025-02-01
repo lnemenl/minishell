@@ -82,6 +82,7 @@ typedef struct	s_mshell
 	int					fd_in;
 	int					fd_out;
 	size_t				args_move;
+	int					redir_check;
 }	t_mshell;
 
 int						error_ret(int type, char *arg);

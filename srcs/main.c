@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 13:26:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:10:45 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,6 +59,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.fd_out = -1;
 	obj.exit_code = 0;
 	obj.args_move = 0;
+	obj.redir_check = 0;
 	(void) argv;
 	return (obj);
 }
