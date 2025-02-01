@@ -123,10 +123,10 @@ t_token					*handle_quotes(t_token **head, t_token **current, const char *input,
 
 /* ===== BUILT-INS ===== */
 int			cd(char **cd_args, t_mshell *obj);
-void		pwd(void);
+int			pwd(void);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
 int			env(t_mshell *obj);
-void		echo(char **args);
+int			echo(char **args);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 

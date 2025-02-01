@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 11:20:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 12:56:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,7 +68,12 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 static int	is_builtin_cmd(char *cmd)
 {
 	if (ft_strcmp(cmd, "echo") == 0 
-		|| ft_strcmp(cmd, "env") == 0)
+		|| ft_strcmp(cmd, "env") == 0
+		|| ft_strcmp(cmd, "cd") == 0
+		|| ft_strcmp(cmd, "export") == 0
+		|| ft_strcmp(cmd, "unset") == 0
+		|| ft_strcmp(cmd, "pwd") == 0
+		|| ft_strcmp(cmd, "exit") == 0)
 		return (1);
 	return (0);
 }
@@ -92,6 +97,16 @@ static void	run_builtins_exec(char **args, t_mshell *obj)
 		echo(args);
 	else if (ft_strcmp(args[0], "env") == 0)
 	 	env(obj);
+	if (ft_strcmp(args[0], "cd") == 0)
+		cd(args, obj);
+	else if (ft_strcmp(args[0], "export") == 0)
+		export(args, obj);
+	else if (ft_strcmp(args[0], "unset") == 0)
+		unset(args, obj);
+	else if (ft_strcmp(args[0], "pwd") == 0)
+		pwd();
+	else if (ft_strcmp(args[0], "exit") == 0)
+		check_and_handle_exit(args, obj);
 	exit_child(obj, args[0], 0);
 }
 
@@ -99,17 +114,18 @@ static int	run_bultins(char **args, t_mshell *obj)
 {
 	if (!args || !*args)
 		return (0);
-	if (ft_strcmp(args[0], "cd") == 0)
+	if (ft_strcmp(args[0], "echo") == 0)
+		return(echo(args));
+	else if (ft_strcmp(args[0], "env") == 0)
+	 	return (env(obj));
+	else if (ft_strcmp(args[0], "cd") == 0)
 		return (cd(args, obj));
 	else if (ft_strcmp(args[0], "export") == 0)
 		return (export(args, obj));
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args, obj));
 	else if (ft_strcmp(args[0], "pwd") == 0)
-	{
-		pwd();
-		return (1);
-	}
+		return(pwd());
 	else if (ft_strcmp(args[0], "exit") == 0)
 	{
 		check_and_handle_exit(args, obj);
@@ -153,7 +169,7 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
     if (!left)
         return;
-    if (run_bultins(left->args, obj) == 1)
+    if (obj->allocated_pipes == 0 && run_bultins(left->args, obj) == 1)
         return;
 
     obj->exec_cmds++;
