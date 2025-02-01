@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
 /*   Updated: 2025/02/01 17:53:53 by rkhakimu         ###   ########.fr       */
@@ -38,8 +38,8 @@ static int    process_heredoc_line(t_heredoc *doc)
     doc->str = get_next_line(STDIN_FILENO);
     if (!doc->str || g_signal_received == SIGINT)
         return (0);
-    doc->trimmed = ft_strtrim(doc->str, "\n");
     doc->expanded = expand_env_vars(doc->str, doc->obj);
+    doc->trimmed = ft_strtrim(doc->expanded, "\n");
     return (1);
 }
 
@@ -89,16 +89,16 @@ void	redirection_input(t_mshell *obj, t_ast_node *node)
 	if (node->type == TOKEN_REDIRECT_IN)
 	{
 		if (access(node->args[0], F_OK) != 0)
-			exit_child(obj, node->args[0], 1);
+			exit_child(obj, node->args[0], 1, 0);
 		obj->fd_in = open(node->args[0], O_RDONLY);
 		if (obj->fd_in == -1)
-			exit_child(obj, node->args[0], 1);
+			exit_child(obj, node->args[0], 1, 0);
 	}
 	else
 	{
 		obj->fd_in = open(".heredoc_temp", O_RDONLY);
 			if (obj->fd_in == -1)
-				exit_child(obj, ".heredoc_temp", 1);
+				exit_child(obj, ".heredoc_temp", 1, 0);
 	}
 	dup2(obj->fd_in, STDIN_FILENO);
 	close(obj->fd_in);
@@ -113,7 +113,7 @@ void	redirection_output(t_mshell *obj, t_ast_node *node)
 		obj->fd_out = open(node->args[0],
 				O_WRONLY | O_CREAT | O_TRUNC, 0644);
 	if (obj->fd_out == -1)
-		exit_child(obj, node->args[0], 1);
+		exit_child(obj, node->args[0], 1, 0);
 	dup2(obj->fd_out, STDOUT_FILENO);
 	close(obj->fd_out);
 }

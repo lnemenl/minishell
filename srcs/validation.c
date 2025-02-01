@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 12:03:28 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 16:02:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,18 +55,22 @@ static void	check_is_dir(char *arg, t_mshell *obj)
 	}
 }
 
-static char	*check_paths(char **paths, char **args)
+static char	*check_paths(char **paths, char **args, size_t *args_move)
 {
 	int		i;
 	char	*path;
 	size_t	path_len;
 
+	if (!args || (!args[0][0] && !*(args + 1)[0]))
+		return (ft_strdup(""));
+	else if (!args[0][0] && *(args + 2)[0])
+		*args_move = 1;
 	if (!paths || !*paths)
 		return (ft_strdup(args[0]));
 	i = 0;
 	while (paths[i])
 	{
-		path_len = ft_strlen(paths[i]) + ft_strlen(args[0]) + 2;
+		path_len = ft_strlen(paths[i]) + ft_strlen(args[0 + *args_move]) + 2;
 		path = ft_calloc(path_len, sizeof(char));
 		if (!path)
 		{
@@ -75,7 +79,7 @@ static char	*check_paths(char **paths, char **args)
 		}
 		ft_strlcpy(path, paths[i], path_len);
 		ft_strlcat(path, "/", path_len);
-		ft_strlcat(path, args[0], path_len);
+		ft_strlcat(path, args[0 + *args_move], path_len);
 		if (access(path, F_OK) == 0)
 			return (path);
 		free_path(path);
@@ -101,14 +105,19 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 	check_is_dir(node->args[0], obj);
 	if (node->args[0][0] == '/' || node->args[0][0] == '.')
 		return (ft_strdup(node->args[0]));
-	path = check_paths(paths, node->args);
-	if (!path || node->args[0][0] == '\0')
+	path = check_paths(paths, node->args, &obj->args_move);
+	if (path && !*path)
+	{
+		free(path);
+		exit_child(obj, NULL, 0, 0);
+	}
+	else if (!path || node->args[0 + obj->args_move][0] == '\0')
 	{
 		clean_mshell(obj);
 		if (path)
 			free(path);
 		obj->exit_code = 127;
-		print_exit("command not found\n", node->args[0], obj->exit_code);
+		print_exit("command not found\n", node->args[0 + obj->args_move], obj->exit_code);
 	}
 	check_is_dir(path, obj);
 	return (path);

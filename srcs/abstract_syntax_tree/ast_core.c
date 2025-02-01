@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
 /*   Updated: 2025/01/31 17:56:11 by rkhakimu         ###   ########.fr       */
