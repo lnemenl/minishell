@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 14:45:27 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 16:04:11 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,53 +35,6 @@ t_ast_node	*create_ast_node(t_token_type type)
 	return (node);
 }
 
-// static t_ast_node *handle_redirection_node(t_token **tokens) //Creates and sets up a single redirection node
-// {
-//     t_ast_node *redir;
-//     t_token     *temp;
-
-//     redir = create_ast_node((*tokens)->type);
-//     if (!redir)
-//         return (free_ast_return_null(redir));
-//     temp = *tokens;
-//     *tokens = (*tokens)->next;
-//     redir->args = ft_calloc(2, sizeof(char *));
-//     if (!redir->args)
-//         return (free_ast_return_null(redir));
-        
-//     if (!*tokens || (*tokens)->type != TOKEN_WORD)
-//     {
-//         ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
-//         return (free_ast_return_null(redir));
-//     }
-//     if (redir->type == TOKEN_REDIRECT_OUT || redir->type == TOKEN_REDIRECT_APPEND)
-//     {
-//         if (access((*tokens)->content, W_OK) == -1)
-//         {
-//             perror("minishell");
-//             return (free_ast_return_null(redir));
-//         }
-//     }
-//     redir->args[0] = ft_strdup((*tokens)->content);
-//     if (!redir->args[0])
-//         return (free_ast_return_null(redir));
-//     if ((temp->type == TOKEN_REDIRECT_IN || temp->type == TOKEN_HEREDOC)
-//         && ((!(*tokens)->next) || (*tokens)->next->type != TOKEN_WORD))
-//     {
-//         redir->left = create_ast_node(TOKEN_WORD);
-//         if (!redir->left)
-//             return (free_ast_return_null(redir));
-//         redir->left->args = ft_calloc(2, sizeof(char *));
-//         if (!redir->left->args)
-//             return (free_ast_return_null(redir));
-//         redir->left->args[0] = ft_strdup("cat");
-//         redir->left->args[1] = NULL;
-//     }
-//     *tokens = (*tokens)->next;
-//     return (redir);
-// }
-
-
 static t_ast_node *handle_redirection_node(t_token **tokens)
 {
     t_ast_node *redir;
@@ -99,12 +52,6 @@ static t_ast_node *handle_redirection_node(t_token **tokens)
     if (!*tokens || (*tokens)->type != TOKEN_WORD) {
         ft_putstr_fd("minishell: syntax error near unexpected token `newline'\n", 2);
         return (free_ast_return_null(redir));
-    }
-    if (redir->type == TOKEN_REDIRECT_OUT || redir->type == TOKEN_REDIRECT_APPEND) {
-        if (access((*tokens)->content, W_OK) == -1) {
-            perror("minishell");
-            return (free_ast_return_null(redir));
-        }
     }
     redir->args[0] = ft_strdup((*tokens)->content);
     if (!redir->args[0])
@@ -142,14 +89,14 @@ static t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd
             free_ast(current);
             return (NULL);
         }      
-    redir = handle_redirection_node(tokens);
-    if (!redir)
-    {
-        free_ast(current);
-        return (NULL);
-    }
-    redir->left = current;
-    current = redir;
+        redir = handle_redirection_node(tokens);
+        if (!redir)
+        {
+            free_ast(current);
+            return (NULL);
+        }
+        redir->left = current;
+        current = redir;
     }
     return (current);
 }

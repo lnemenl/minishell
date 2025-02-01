@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 12:56:12 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 15:57:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,13 +78,13 @@ static int	is_builtin_cmd(char *cmd)
 	return (0);
 }
 
-void	exit_child(t_mshell *obj, char *arg, int exit_code)
+void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 {
 	obj->exit_code = exit_code;
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
-	if (obj->exit_code != 0)
+	if (obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
 		obj->exit_code = 126;
@@ -107,10 +107,9 @@ static void	run_builtins_exec(char **args, t_mshell *obj)
 		pwd();
 	else if (ft_strcmp(args[0], "exit") == 0)
 		check_and_handle_exit(args, obj);
-	exit_child(obj, args[0], 0);
 }
 
-static int	run_bultins(char **args, t_mshell *obj)
+int	run_bultins(char **args, t_mshell *obj)
 {
 	if (!args || !*args)
 		return (0);
@@ -168,10 +167,10 @@ void	alloc_pipes(t_mshell *obj)
 void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
     if (!left)
-        return;
-    if (obj->allocated_pipes == 0 && run_bultins(left->args, obj) == 1)
-        return;
-
+		return ;
+    // if (obj->allocated_pipes == 0 && run_bultins(left->args, obj) == 1)
+	// 	return ;
+	obj->args_move = 0;
     obj->exec_cmds++;
     obj->pids[obj->cur_pid] = fork();
     if (obj->pids[obj->cur_pid] == -1)
@@ -199,13 +198,13 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
         if (is_builtin_cmd(left->args[0]) == 1)
         {
             run_builtins_exec(left->args, obj);
-            exit_child(obj, left->args[0], 127);
+            exit_child(obj, left->args[0], obj->exit_code, 1);
         }
         else
         {
             obj->cur_path = check_paths_access(obj->paths, left, obj);
-            execve(obj->cur_path, left->args, obj->paths);
-            exit_child(obj, left->args[0], 127);
+            execve(obj->cur_path, left->args + obj->args_move, obj->paths);
+            exit_child(obj, left->args[0], 127, 0);
         }
     }
     else

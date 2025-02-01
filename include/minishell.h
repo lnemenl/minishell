@@ -74,13 +74,14 @@ typedef struct	s_mshell
 	int					**pipfd;        	// File descriptors for pipes
 	t_ast_node			*ast;
 	t_token				*token;
-  uint8_t		exit_code;
+	uint8_t				exit_code;
 	int					pipes_count;
 	pid_t				*pids;
 	int					cur_pid;
 	char 				**envp;
 	int					fd_in;
 	int					fd_out;
+	size_t				args_move;
 }	t_mshell;
 
 int						error_ret(int type, char *arg);
@@ -152,7 +153,7 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
 void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
-void	exit_child(t_mshell *obj, char *arg, int exit_code);
+void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin);
 size_t	get_envp_memory_size(char **envp);
 size_t	get_envp_length(char **envp);
 int		is_env_created(char *arg, char **strs);
