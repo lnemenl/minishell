@@ -6,13 +6,15 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/01 18:21:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:28:01 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
 volatile sig_atomic_t g_signal_received = 0;
+static struct termios original_term;
+static struct termios shell_term;
 
 // Signal handler for interactive mode
 static void interactive_signal_handler(int signum)
@@ -36,24 +38,29 @@ static void exec_signal_handler(int signum)
         write(STDERR_FILENO, "Quit: 3\n", 8);
 }
 
+void init_terminal_settings(void)
+{
+    // Get the current terminal settings
+    tcgetattr(STDIN_FILENO, &original_term);
+    
+    // Make a copy for our shell's use
+    shell_term = original_term;
+    
+    // Modify only the ECHOCTL flag
+    shell_term.c_lflag &= ~ECHOCTL;
+}
+
 void setup_interactive_signals(void)
 {
-    struct sigaction	sa;
-	struct termios		term;
-	
-	//Getting current terminal attributes
-	tcgetattr(STDIN_FILENO, &term);
-	
-	//Disabling ECHOCTL flag to remove ^C
-	term.c_lflag &= ~ECHOCTL;
-	
-	//Setting new attributes
-	tcsetattr(STDIN_FILENO, TCSANOW, &term);
-
+    struct sigaction sa;
+    
+    // Apply our shell's terminal settings
+    tcsetattr(STDIN_FILENO, TCSANOW, &shell_term);
+    
     sa.sa_handler = interactive_signal_handler;
     sigemptyset(&sa.sa_mask);
     sa.sa_flags = SA_RESTART;
-
+    
     sigaction(SIGINT, &sa, NULL);
     signal(SIGQUIT, SIG_IGN);
 }
@@ -92,6 +99,11 @@ void    save_signal_handlers(struct sigaction *old_int, struct sigaction *old_qu
 {
     sigaction(SIGINT, NULL, old_int);
     sigaction(SIGQUIT, NULL, old_quit);
+}
+
+void restore_terminal_settings(void)
+{
+    tcsetattr(STDIN_FILENO, TCSANOW, &original_term);
 }
 
 void    restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)

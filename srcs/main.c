@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 17:43:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:31:11 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,6 +71,7 @@ int	main(int argc, char **argv, char **envp)
 	if (argc != 1)
 		return (error_ret(1, NULL));
 	save_signal_handlers(&old_handlers[0], &old_handlers[1]);
+	init_terminal_settings();
 	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	obj = init_shell(argv, envp);
 	while (1)
@@ -109,6 +110,7 @@ int	main(int argc, char **argv, char **envp)
 	clean_mshell(&obj);
 	if (obj.envp)
 		free(obj.envp);
+	restore_terminal_settings();
 	restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 	return (obj.exit_code);
 }

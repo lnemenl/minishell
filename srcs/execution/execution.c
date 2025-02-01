@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 17:54:31 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 18:31:52 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,7 +165,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     }
     if (obj->pids[obj->cur_pid] == 0)
     {
-        transition_signal_handlers(SIGNAL_STATE_RESET);
+        restore_terminal_settings();
 
         // Handle all input redirections first
         t_ast_node *temp = left;

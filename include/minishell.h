@@ -184,4 +184,6 @@ void 					reset_signals(void);
 void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				transition_signal_handlers(t_signal_state new_state);
+void					init_terminal_settings(void);
+void					restore_terminal_settings(void);
 #endif
