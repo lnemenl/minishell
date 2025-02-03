@@ -145,6 +145,7 @@ t_ast_node				*parse_pipeline(t_token **tokens, int i, t_mshell *obj);
 t_ast_node				*parse_command(t_token **tokens);
 void					free_ast(t_ast_node *node);
 t_ast_node				*free_ast_return_null(t_ast_node *node);
+t_ast_node				*handle_command_redirections(t_token **tokens, t_ast_node *cmd_node);
 
 /* ===== AST COM		MAND (ast_command.c) ===== */
 t_ast_node				*build_command_node(t_token **tokens);
