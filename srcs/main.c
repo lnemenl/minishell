@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 20:33:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 17:42:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,13 +64,10 @@ static t_mshell	init_shell(char **argv, char **envp)
 int	main(int argc, char **argv, char **envp)
 {
 	t_mshell	obj;
-  	int status;
-	struct sigaction	old_handlers[2];
-	
+  	int status;	
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-	save_signal_handlers(&old_handlers[0], &old_handlers[1]);
 	init_terminal_settings();
 	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	obj = init_shell(argv, envp);
@@ -80,7 +77,7 @@ int	main(int argc, char **argv, char **envp)
 		obj.cmd_line = readline(PROMPT);
 		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
 		{
-			write(STDOUT_FILENO, "\n", 1);
+			write(STDOUT_FILENO, "exit\n", 6);
 			break;
 		}
 		parse(&obj);
@@ -90,22 +87,38 @@ int	main(int argc, char **argv, char **envp)
 		choose_actions(&obj);
 		close_fds(&obj);
 		while (obj.exec_cmds > 0)
-		{
-			if (wait(&status) == obj.pids[obj.pipes_count])
-			{
-				if (WIFEXITED(status))
-					obj.exit_code = WEXITSTATUS(status);
-				if (WIFSIGNALED(status))
-				{
-					//if (WTERMSIG(status) == SIGINT)
-					//	write(STDERR_FILENO, "^C\n", 3);
-					//else if (WTERMSIG(status) == SIGQUIT)
-					//	write(STDERR_FILENO, "^\\Quit: 3\n", 10);
-					obj.exit_code = 128 + WTERMSIG(status);
-				}
-			}
+        {
+            if (wait(&status) == obj.pids[obj.pipes_count])
+            {
+                if (WIFEXITED(status))
+                {
+                    obj.exit_code = WEXITSTATUS(status);
+                }
+                else if (WIFSIGNALED(status))
+                {
+                    if (WTERMSIG(status) == SIGINT)
+                    {
+                        /* Child died from Ctrl+C */
+                        write(STDOUT_FILENO, "\n", 1);
+                        obj.exit_code = 130; // Typically 130 for SIGINT
+                    }
+                    else if (WTERMSIG(status) == SIGQUIT)
+                    {
+                        /* Child died from Ctrl+\ */
+                        write(STDOUT_FILENO, "Quit: (core dumped)\n", 20);
+                        obj.exit_code = 131; // Typically 131 for SIGQUIT
+                    }
+                    else
+                    {
+                        /* Generic handling for other signals */
+                        write(STDOUT_FILENO, "\n", 1);
+                        obj.exit_code = 128 + WTERMSIG(status);
+                    }
+                }
+            }
 			obj.exec_cmds--;
 		}
+		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 		clean_mshell(&obj);
 		obj.paths = fetch_paths(obj.envp);
 	}
@@ -114,6 +127,5 @@ int	main(int argc, char **argv, char **envp)
 	if (obj.envp)
 		free(obj.envp);
 	restore_terminal_settings();
-	restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 	return (obj.exit_code);
 }

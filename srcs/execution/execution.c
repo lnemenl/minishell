@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 20:02:14 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 17:37:58 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -152,10 +152,13 @@ void	alloc_pipes(t_mshell *obj)
 void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
     if (!left)
-        return;
+        return ;
     if (run_bultins(left->args, obj) == 1)
-        return;
-
+	{
+		return ;
+	}
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
     obj->exec_cmds++;
     obj->pids[obj->cur_pid] = fork();
     if (obj->pids[obj->cur_pid] == -1)
@@ -165,8 +168,8 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     }
     if (obj->pids[obj->cur_pid] == 0)
     {
-        restore_terminal_settings();
 		reset_signals();
+        restore_terminal_settings();
         // Handle all input redirections first
         t_ast_node *temp = left;
         while (temp)
@@ -196,8 +199,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
             exit_child(obj, left->args[0], 127);
         }
     }
-    else
-        transition_signal_handlers(SIGNAL_STATE_EXEC);
 }
 
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
@@ -222,9 +223,6 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 void    choose_actions(t_mshell *obj)
 {
     t_ast_node    *temp;
-    struct sigaction    old_handlers[2];
-
-    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
     if (!obj)
         return;
     alloc_pipes(obj);
@@ -275,6 +273,4 @@ void    choose_actions(t_mshell *obj)
         temp = temp->right;
         obj->cur_pid++;
     }
-
-    restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 }

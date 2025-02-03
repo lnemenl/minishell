@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 17:53:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 15:45:05 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,19 +54,15 @@ static void    write_heredoc_line(t_heredoc *doc)
 void    handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
     t_heredoc    doc;
-    struct sigaction    old_handlers[2];
+    //struct sigaction    old_handlers[2];
 
-    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
+    //save_signal_handlers(&old_handlers[0], &old_handlers[1]);
     if (node->type != TOKEN_HEREDOC)
-    {
-        restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
         return;
-    }
     obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
     if (obj->fd_in < 0)
     {
         clean_mshell(obj);
-        restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
         error_ret(6, NULL);
     }
     doc = (t_heredoc){NULL, NULL, NULL, obj};
@@ -81,7 +77,6 @@ void    handle_here_doc(t_mshell *obj, t_ast_node *node)
     }
     cleanup_heredoc(&doc);
     close(obj->fd_in);
-    restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 }
 
 void	redirection_input(t_mshell *obj, t_ast_node *node)
