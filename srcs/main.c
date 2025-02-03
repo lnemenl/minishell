@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 18:31:11 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 20:33:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,15 +91,18 @@ int	main(int argc, char **argv, char **envp)
 		close_fds(&obj);
 		while (obj.exec_cmds > 0)
 		{
-			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
-				obj.exit_code = WEXITSTATUS(status);
-			if (WIFSIGNALED(status))  // Check if process was terminated by a signal
+			if (wait(&status) == obj.pids[obj.pipes_count])
 			{
-				if (WTERMSIG(status) == SIGINT)  // ctrl-C
-					write(STDERR_FILENO, "\n", 1);
-				else if (WTERMSIG(status) == SIGQUIT)  // ctrl-
-					write(STDERR_FILENO, "Quit: 3\n", 8);
-				obj.exit_code = 128 + WTERMSIG(status);
+				if (WIFEXITED(status))
+					obj.exit_code = WEXITSTATUS(status);
+				if (WIFSIGNALED(status))
+				{
+					//if (WTERMSIG(status) == SIGINT)
+					//	write(STDERR_FILENO, "^C\n", 3);
+					//else if (WTERMSIG(status) == SIGQUIT)
+					//	write(STDERR_FILENO, "^\\Quit: 3\n", 10);
+					obj.exit_code = 128 + WTERMSIG(status);
+				}
 			}
 			obj.exec_cmds--;
 		}

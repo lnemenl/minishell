@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 18:31:52 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 20:02:14 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     if (obj->pids[obj->cur_pid] == 0)
     {
         restore_terminal_settings();
-
+		reset_signals();
         // Handle all input redirections first
         t_ast_node *temp = left;
         while (temp)
@@ -185,7 +185,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
             redirection_output(obj, right);
 
         close_fds(obj);
-
+		
         // Execute command
         if (is_builtin_cmd(left->args[0]) == 1)
             run_builtins_exec(left->args, obj);

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/01 18:28:01 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/01 20:30:01 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,11 +17,31 @@ static struct termios original_term;
 static struct termios shell_term;
 
 // Signal handler for interactive mode
+// static void interactive_signal_handler(int signum)
+// {
+//     struct termios term;
+//     g_signal_received = signum;
+    
+//     if (signum == SIGINT)
+//     {
+//         tcgetattr(STDIN_FILENO, &term);
+//         if (term.c_lflag & ICANON)  // If we're in canonical mode (command line input)
+//         {
+//             write(STDERR_FILENO, "\n", 1);
+//             rl_on_new_line();
+//             rl_replace_line("", 0);
+//             rl_redisplay();
+//         }
+//     }
+// }
+
 static void interactive_signal_handler(int signum)
 {
-    g_signal_received = signum;
     if (signum == SIGINT)
     {
+        g_signal_received = signum;
+        if (!isatty(STDIN_FILENO))  // If input is not from terminal (like in cat)
+            return;
         write(STDERR_FILENO, "\n", 1);
         rl_on_new_line();
         rl_replace_line("", 0);
