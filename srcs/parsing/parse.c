@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/31 18:35:06 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 19:37:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,9 @@ void    parse(t_mshell *obj)
         return;
     tokens = tokenize(obj->cmd_line, obj);
     if (!tokens)
+    {
         return;
+    }
     obj->token = tokens;
     obj->pipes_count = 0;
     temp = tokens;

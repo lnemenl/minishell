@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/03 17:41:50 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 19:51:45 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,7 +35,7 @@ static void exec_signal_handler(int signum)
     if (signum == SIGINT)
         write(STDERR_FILENO, "\n", 1);
     else if (signum == SIGQUIT)
-        write(STDERR_FILENO, "Quit: (core dumped)\n", 23);
+        write(STDERR_FILENO, "Quit: (core dumped)\n", 21);
 }
 
 void init_terminal_settings(void)

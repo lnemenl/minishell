@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 17:37:58 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 20:06:46 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 				obj->exit_code = 156;
 		}
 		clean_mshell(obj);
-		free(obj->envp);
+		//free(obj->envp);
 		exit(obj->exit_code);
 	}
 }
@@ -151,6 +151,8 @@ void	alloc_pipes(t_mshell *obj)
 
 void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 {
+	t_ast_node *temp;
+	
     if (!left)
         return ;
     if (run_bultins(left->args, obj) == 1)
@@ -171,7 +173,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		reset_signals();
         restore_terminal_settings();
         // Handle all input redirections first
-        t_ast_node *temp = left;
+    	temp = left;
         while (temp)
         {
             if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
