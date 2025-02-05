@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/03 21:21:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/05 20:30:09 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static t_token_type get_operator_type(const char *input, int *i)
 		return (TOKEN_PIPE);
 	if (input[*i] == '<')
 	{
-		if (input[*i + 1] == '<')
+		if ( input[*i + 1] && input[*i + 1] == '<')
 		{
 			(*i)++;
 			return (TOKEN_HEREDOC);
@@ -27,7 +27,7 @@ static t_token_type get_operator_type(const char *input, int *i)
 	}
 	if (input[*i] == '>')
 	{
-		if (input[*i + 1] == '>')
+		if (input[*i + 1] && input[*i + 1] == '>')
 		{
 			(*i)++;
 			return (TOKEN_REDIRECT_APPEND);
@@ -39,13 +39,15 @@ static t_token_type get_operator_type(const char *input, int *i)
 
 t_token *handle_operator(t_token **head, t_token **current, const char *input, int *i)
 {
-	t_token *token;
-	t_token_type type;
-	int start;
+	t_token			*token;
+	t_token_type	type;
+	int				start;
 
+	if (!head || !*head || !current || !*current)
+		return (NULL);
 	start = *i;
 	type = get_operator_type(input, i);
-	token = new_token(type, input + start, *i - start + 1, (*head)->mshell);
+	token = new_token(type, input + start, (*i - start + 1), (*head)->mshell);
 	if (!token)
 		return (NULL);
 	(*i)++;
@@ -77,8 +79,9 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	char	*expanded;
 	char	*temp;
 	int		start;
+	char	*joined;
 	
-	if (!*current)
+	if (!head || !current || !*current)
 		return (NULL);
 	start = *i;
 	while (input[*i] && !ft_isspace(input[*i]) && 
@@ -91,7 +94,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	// Check if previous token exists and has quote state
 	if (*current && (*current)->quote_state != QUOTE_NONE)
 	{
-		char *joined = ft_strjoin((*current)->content, temp);
+		joined = ft_strjoin((*current)->content, temp);
 		free(temp);
 		if (!joined)
 			return (NULL);

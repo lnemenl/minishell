@@ -160,7 +160,7 @@ void					print_tokens(t_token *tokens);
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
-void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
+//void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin);
@@ -185,7 +185,6 @@ void 					setup_exec_signals(void);
 void 					setup_heredoc_signals(void);
 void 					reset_signals(void);
 void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
-void    				restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				transition_signal_handlers(t_signal_state new_state);
 void					init_terminal_settings(void);
 void					restore_terminal_settings(void);
