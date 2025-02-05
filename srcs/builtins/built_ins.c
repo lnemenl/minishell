@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.42.fr>          +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/30 12:00:47 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/01 12:49:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	cd(char **cd_args, t_mshell *obj)
 	return (1);
 }
 
-void	pwd(void)
+int	pwd(void)
 {
 	size_t	buffer_size;
 	char	*buf;
@@ -90,6 +90,7 @@ void	pwd(void)
 		realloc_buffer(&buf, &buffer_size);
 	printf("%s\n", buf);
 	free(buf);
+	return (1);
 }
 
 void	set_env_args(t_mshell *obj, t_ast_node *node)
@@ -126,14 +127,14 @@ int	env(t_mshell *obj)
 	return (1);
 }
 
-void	echo(char **args)
+int	echo(char **args)
 {
 	int	i;
 
 	if (!args || !*args)
 	{
 		printf("\n");
-		return ;
+		return (0);
 	}
 	i = 1;
 	while (args[i])
@@ -144,4 +145,5 @@ void	echo(char **args)
 		i++;
 	}
 	printf("\n");
+	return (1);
 }
