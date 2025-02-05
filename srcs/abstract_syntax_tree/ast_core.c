@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/03 22:51:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/05 13:54:04 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static int validate_redirection_chain(t_ast_node *node)
 	return (1);
 }
 
-static t_ast_node *handle_redirection_node(t_token **tokens)
+static t_ast_node *parse_single_redirection(t_token **tokens)
 {
 	t_ast_node	*redir;
 	char		*filename;
@@ -99,20 +99,31 @@ static t_ast_node *handle_redirection_node(t_token **tokens)
 	return redir;
 }
 
-
-static t_ast_node *handle_initial_redirection(t_token **tokens)
+static t_ast_node *parse_redirections(t_token **tokens, t_ast_node *base)
 {
-    t_ast_node *redir = handle_redirection_node(tokens);
-    if (!redir)
-        return NULL;
-
-    // Parse the command that follows as the left child
-    redir->left = parse_command(tokens);
-    if (!redir->left)
-        return free_ast_return_null(redir);
-
-    return redir;
+    t_ast_node  *redir;
+    while (*tokens && is_redirect_token((*tokens)->type))
+    {
+        redir = parse_single_redirection(tokens);
+        if (!redir)
+            return (free_ast_return_null(base));
+    }
+    redir->left = base;
+    base = redir;
 }
+// static t_ast_node *handle_initial_redirection(t_token **tokens)
+// {
+//     t_ast_node *redir = handle_redirection_node(tokens);
+//     if (!redir)
+//         return NULL;
+
+//     // Parse the command that follows as the left child
+//     redir->left = parse_command(tokens);
+//     if (!redir->left)
+//         return free_ast_return_null(redir);
+
+//     return redir;
+// }
 
 t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd_node)
 {
@@ -138,11 +149,12 @@ t_ast_node *handle_command_redirections(t_token **tokens, t_ast_node *cmd_node)
 
 static t_ast_node *parse_additional_words(t_ast_node *cmd_node, t_token **tokens)
 {
+    int     len;
+    char    **new_args;
+    int     i;
+    
     while (*tokens && (*tokens)->type == TOKEN_WORD)
     {
-        int     len;
-        char    **new_args;
-        int     i;
 
         /* Count how many args we have so far */
         len = 0;
@@ -208,8 +220,8 @@ static t_ast_node *build_and_expand_command(t_token **tokens)
 
 t_ast_node *parse_command(t_token **tokens)
 {
-    t_ast_node *cmd_node;
-	t_ast_node *leaf;
+    t_ast_node  *cmd_node;
+    t_ast_node  *command_part;
 
     if (!tokens || !*tokens)
         return NULL;
@@ -219,38 +231,28 @@ t_ast_node *parse_command(t_token **tokens)
         ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
         return NULL;
     }
-    if (is_redirect_token((*tokens)->type))
+    cmd_node = parse_redirections(tokens, NULL);
+    if (*tokens && (*tokens)->type == TOKEN_WORD)
     {
-        cmd_node = handle_initial_redirection(tokens);
-        if (!cmd_node || !validate_redirection_chain(cmd_node))
+        command_part = build_command_node(tokens);
+        if (!command_part)
+            return (free_ast_return_null(cmd_node));
+        if (cmd_node == NULL)
+            cmd_node = command_part;
+        else
         {
-            free_ast(cmd_node);
-            return NULL;
+            cmd_node->left = command_part;
         }
-		leaf = get_command_leaf(cmd_node);
-		if (leaf &&leaf->type == TOKEN_WORD && *tokens && (*tokens)->type == TOKEN_WORD)
-		{
-			leaf = parse_additional_words(leaf, tokens);
-			if (!leaf)
-				return (free_ast_return_null(cmd_node));
-		}
-        if (*tokens && is_redirect_token((*tokens)->type))
-            cmd_node = handle_command_redirections(tokens, cmd_node);
+        command_part = parse_additional_words(command_part, tokens);
+        if (!command_part)
+            return (NULL);
     }
-    else
-    {
-        cmd_node = build_and_expand_command(tokens);
-        if (!cmd_node)
-            return NULL;
-    }
+    cmd_node = parse_redirections(tokens, cmd_node);
     if (!cmd_node || !validate_redirection_chain(cmd_node))
-    {
-        free_ast(cmd_node);
-        return NULL;
-    }
-
-    return cmd_node;
+        return (free_ast_return_null(cmd_node));
+    return(cmd_node);
 }
+
 
 t_ast_node *parse_pipeline(t_token **tokens, int i, t_mshell *obj)
 {
