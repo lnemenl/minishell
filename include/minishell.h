@@ -147,6 +147,7 @@ t_ast_node				*parse_pipeline(t_token **tokens, int i, t_mshell *obj);
 t_ast_node				*parse_command(t_token **tokens);
 void					free_ast(t_ast_node *node);
 t_ast_node				*free_ast_return_null(t_ast_node *node);
+t_ast_node				*handle_command_redirections(t_token **tokens, t_ast_node *cmd_node);
 
 /* ===== AST COM		MAND (ast_command.c) ===== */
 t_ast_node				*build_command_node(t_token **tokens);
@@ -186,4 +187,6 @@ void 					reset_signals(void);
 void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				transition_signal_handlers(t_signal_state new_state);
+void					init_terminal_settings(void);
+void					restore_terminal_settings(void);
 #endif

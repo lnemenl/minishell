@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 18:10:45 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/03 20:21:38 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ static char	**copy_envp(char **envp)
 	if (!envp)
 		return (NULL);
 	envp_len = get_envp_length(envp);
-	new_envp = ft_calloc(envp_len, sizeof(char *));
+	new_envp = ft_calloc(envp_len + 1, sizeof(char *));
 	if (!new_envp)
 		return (NULL);
 	envp_len = 0;
@@ -64,54 +64,98 @@ static t_mshell	init_shell(char **argv, char **envp)
 	return (obj);
 }
 
-int	main(int argc, char **argv, char **envp)
+static void wait_for_children(t_mshell *obj)
 {
-	t_mshell	obj;
-  	int status;
-	struct sigaction	old_handlers[2];
-	
+    int   status;
+    pid_t wpid;
 
-	if (argc != 1)
-		return (error_ret(1, NULL));
-	save_signal_handlers(&old_handlers[0], &old_handlers[1]);
-	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
-	obj = init_shell(argv, envp);
-	while (1)
-	{
-    	g_signal_received = 0;
-		obj.cmd_line = readline(PROMPT);
-		if (!obj.cmd_line)	// Handling CTRL+D (EOF)
-		{
-			write(STDOUT_FILENO, "\n", 1);
-			break;
-		}
-		parse(&obj);
-		add_history(obj.cmd_line);
-		free(obj.cmd_line);
-		obj.cmd_line = NULL;
-		choose_actions(&obj);
-		close_fds(&obj);
-		while (obj.exec_cmds > 0)
-		{
-			if (wait(&status) == obj.pids[obj.pipes_count] && WIFEXITED(status))
-				obj.exit_code = WEXITSTATUS(status);
-			if (WIFSIGNALED(status))  // Check if process was terminated by a signal
-			{
-				if (WTERMSIG(status) == SIGINT)  // ctrl-C
-					write(STDERR_FILENO, "\n", 1);
-				else if (WTERMSIG(status) == SIGQUIT)  // ctrl-
-					write(STDERR_FILENO, "Quit: 3\n", 8);
-				obj.exit_code = 128 + WTERMSIG(status);
-			}
-			obj.exec_cmds--;
-		}
-		clean_mshell(&obj);
-		obj.paths = fetch_paths(obj.envp);
-	}
-	unlink(".heredoc_temp");
-	clean_mshell(&obj);
-	if (obj.envp)
-		free(obj.envp);
-	restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
-	return (obj.exit_code);
+    while (obj->exec_cmds > 0)
+    {
+        wpid = wait(&status);
+
+        if (wpid == obj->pids[obj->pipes_count])
+        {
+            if (WIFEXITED(status))
+            {
+                obj->exit_code = WEXITSTATUS(status);
+            }
+            else if (WIFSIGNALED(status))
+            {
+                if (WTERMSIG(status) == SIGINT)
+                {
+                    /* Child died from Ctrl+C */
+                    write(STDOUT_FILENO, "\n", 1);
+                    obj->exit_code = 130; /* typical for SIGINT */
+                }
+                else if (WTERMSIG(status) == SIGQUIT)
+                {
+                    /* Child died from Ctrl+\ */
+                    write(STDOUT_FILENO, "Quit: (core dumped)\n", 20);
+                    obj->exit_code = 131; /* typical for SIGQUIT */
+                }
+                else
+                {
+                    write(STDOUT_FILENO, "\n", 1);
+                    obj->exit_code = 128 + WTERMSIG(status);
+                }
+            }
+        }
+        obj->exec_cmds--;
+    }
+}
+
+int main(int argc, char **argv, char **envp)
+{
+    t_mshell obj;
+
+    if (argc != 1)
+        return (error_ret(1, NULL));
+
+    init_terminal_settings();
+    transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+
+    /* Initialize shell data structures (copies envp, fetches PATH, etc.). */
+    obj = init_shell(argv, envp);
+
+    while (1)
+    {
+        g_signal_received = 0;
+        obj.cmd_line = readline(PROMPT);
+        if (!obj.cmd_line)  /* Handling Ctrl+D (EOF) */
+        {
+            write(STDOUT_FILENO, "exit\n", 5);
+            break;
+        }
+
+        parse(&obj);       /* Tokenize / build AST */
+        add_history(obj.cmd_line);
+
+        free(obj.cmd_line);
+        obj.cmd_line = NULL;
+
+        /* Actually run the commands built by parse() */
+        choose_actions(&obj);
+        close_fds(&obj);
+
+        /* Wait for all child processes to finish */
+        wait_for_children(&obj);
+
+        /* Reset signals to ignore or catch again for new interactive input */
+        transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+
+        /* Clean up AST, pids, etc., then refresh PATH in case environment changed */
+        clean_mshell(&obj);
+        obj.paths = fetch_paths(obj.envp);
+    }
+
+    /* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
+    unlink(".heredoc_temp");
+    clean_mshell(&obj);
+
+    /* Free envp only once */
+    if (obj.envp)
+        ft_free_strs(obj.envp, get_envp_length(obj.envp));
+
+    restore_terminal_settings();
+    return (obj.exit_code);
 }

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/31 18:35:08 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/03 21:39:24 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
         (*current)->mshell->exit_code = 1;
         return (NULL);
     }
-    if (in_word && prev_token && prev_token->content)
+    if (in_word && prev_token && prev_token->content && prev_token->type == TOKEN_WORD)
     {
         char *joined = ft_strjoin(prev_token->content, token->content);
         if (!joined)

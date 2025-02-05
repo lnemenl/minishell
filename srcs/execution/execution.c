@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 18:59:17 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/03 20:06:46 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 				obj->exit_code = 156;
 		}
 		clean_mshell(obj);
-		free(obj->envp);
+		//free(obj->envp);
 		exit(obj->exit_code);
 	}
 }
@@ -171,7 +171,7 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
     if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(left->args, obj) == 1)
 		return ;
-	obj->args_move = 0;
+	  obj->args_move = 0;
     obj->exec_cmds++;
     obj->pids[obj->cur_pid] = fork();
     if (obj->pids[obj->cur_pid] == -1)
@@ -181,7 +181,8 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     }
     else if (obj->pids[obj->cur_pid] == 0)
     {
-        transition_signal_handlers(SIGNAL_STATE_RESET);
+        reset_signals();
+        restore_terminal_settings();
 
         // redirection handling remains the same
         if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
@@ -199,7 +200,7 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
             redirection_output(obj, right);
 
         close_fds(obj);
-
+		
         // Execute command
         if (is_builtin_cmd(left->args[0]) == 1)
         {
@@ -213,8 +214,6 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
             exit_child(obj, left->args[0], 127, 0);
         }
     }
-    else
-        transition_signal_handlers(SIGNAL_STATE_EXEC);
 }
 
 static void	check_redirections(t_mshell *obj)
@@ -240,9 +239,6 @@ static void	check_redirections(t_mshell *obj)
 void    choose_actions(t_mshell *obj)
 {
     t_ast_node    *temp;
-    struct sigaction    old_handlers[2];
-
-    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
     if (!obj)
         return;
     alloc_pipes(obj);
@@ -302,6 +298,4 @@ void    choose_actions(t_mshell *obj)
         temp = temp->right;
         obj->cur_pid++;
     }
-
-    restore_signal_handlers(&old_handlers[0], &old_handlers[1]);
 }
