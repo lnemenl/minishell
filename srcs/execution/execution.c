@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 20:06:46 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/05 12:33:19 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,6 +171,8 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
 		return ;
     if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(left->args, obj) == 1)
 		return ;
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
 	  obj->args_move = 0;
     obj->exec_cmds++;
     obj->pids[obj->cur_pid] = fork();
