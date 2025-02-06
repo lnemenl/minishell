@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/05 20:30:09 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/06 12:23:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -57,18 +57,16 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
 	// Skip spaces but continue processing if there's more content
 	while (input[*i] && ft_isspace(input[*i]))
 		(*i)++;
-	
-	// Handle immediate next token if it exists
-	// if (input[*i] && !is_operator(input[*i]))
-	// {
-	// 	t_token *next_token;
-	// 	if (is_quote(input[*i]))
-	// 		next_token = handle_quotes(head, current, input, i);
-	// 	else
-	// 		next_token = handle_word(head, current, input, i);
-	// 	if (!next_token)
-	// 		return (NULL);
-	// }
+	if (input[*i] && !is_operator(input[*i]))
+	{
+		t_token *next_token;
+		if (is_quote(input[*i]))
+			next_token = handle_quotes(head, current, input, i);
+		else
+			next_token = handle_word(head, current, input, i);
+		if (!next_token)
+			return (NULL);
+	}
 	
 	return (token);
 }

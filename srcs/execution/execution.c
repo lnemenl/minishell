@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/05 21:03:31 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/06 13:19:39 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,26 +146,6 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-// static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
-// {
-// 	char	**new_args;
-
-// 	if (ft_strcmp(node->args[0], "cat") != 0)
-// 		return ;
-// 	new_args = ft_calloc(3, sizeof(char *));
-// 	if (!new_args)
-// 		return ; //cleanup
-// 	new_args[0] = ft_strdup(node->args[0]);
-// 	if (type == TOKEN_HEREDOC)
-// 		new_args[1] = ft_strdup(".heredoc_temp");
-// 	else
-// 		new_args[1] = ft_strdup(redir_file);
-// 	new_args[2] = NULL;
-// 	ft_free_strs(node->args, 1);
-// 	node->args = new_args;
-// }
-
-
 static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
 {
 	int		old_count;
@@ -194,40 +174,64 @@ static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type ty
 	/* If old_count > 1, do nothing; let cat keep its user-supplied args. */
 }
 
-
-static t_ast_node *apply_all_redirections(t_mshell *obj, t_ast_node *node)
+static t_ast_node *apply_chain(t_mshell *obj, t_ast_node *cmd, t_ast_node *redir_node)
 {
-    t_ast_node *current = node;
+    if (redir_node == NULL)
+        return cmd;  /* Base case: no more redirections to apply */
 
-    while (current && (current->type == TOKEN_REDIRECT_IN
-        || current->type == TOKEN_HEREDOC
-        || current->type == TOKEN_REDIRECT_OUT
-        || current->type == TOKEN_REDIRECT_APPEND))
+    if (redir_node->type == TOKEN_HEREDOC)
     {
-        if (current->type == TOKEN_HEREDOC)
-        {
-            /* Force 'cat' argument if needed. */
-            handle_cat_redir(current->left, current->args[0], current->type);
-
-            /* Actually create and open the heredoc temp file. */
-            handle_here_doc(obj, current);
-
-            /* Then treat it as input redirection from .heredoc_temp. */
-            redirection_input(obj, current);
-        }
-        else if (current->type == TOKEN_REDIRECT_IN)
-        {
-            handle_cat_redir(current->left, current->args[0], current->type);
-            redirection_input(obj, current);
-        }
-        else if (current->type == TOKEN_REDIRECT_OUT
-            || current->type == TOKEN_REDIRECT_APPEND)
-        {
-            redirection_output(obj, current);
-        }
-        current = current->left;
+        handle_cat_redir(cmd, redir_node->args[0], redir_node->type);
+        handle_here_doc(obj, redir_node);
+        redirection_input(obj, redir_node);
     }
-    return current; /* Should be TOKEN_WORD or NULL. */
+    else if (redir_node->type == TOKEN_REDIRECT_IN)
+    {
+        handle_cat_redir(cmd, redir_node->args[0], redir_node->type);
+        redirection_input(obj, redir_node);
+    }
+    else if (redir_node->type == TOKEN_REDIRECT_OUT ||
+             redir_node->type == TOKEN_REDIRECT_APPEND)
+    {
+        redirection_output(obj, redir_node);
+    }
+    /* Recursively apply any further redirections attached via the left pointer */
+    return apply_chain(obj, cmd, redir_node->left);
+}
+
+t_ast_node *apply_all_redirections(t_mshell *obj, t_ast_node *node)
+{
+    if (node == NULL)
+        return NULL;
+
+    if (node->type == TOKEN_WORD)
+    {
+        if (node->left != NULL)
+            return apply_chain(obj, node, node->left);
+        else
+            return node;
+    }
+    else if (node->left != NULL)
+    {
+        if (node->type == TOKEN_HEREDOC)
+        {
+            handle_cat_redir(node->left, node->args[0], node->type);
+            handle_here_doc(obj, node);
+            redirection_input(obj, node);
+        }
+        else if (node->type == TOKEN_REDIRECT_IN)
+        {
+            handle_cat_redir(node->left, node->args[0], node->type);
+            redirection_input(obj, node);
+        }
+        else if (node->type == TOKEN_REDIRECT_OUT ||
+                 node->type == TOKEN_REDIRECT_APPEND)
+        {
+            redirection_output(obj, node);
+        }
+        return node->left;
+    }
+    return node;  /* Fallback for unexpected AST structures */
 }
 
 static void execute_cmd(t_mshell *obj, t_ast_node *top_node)
