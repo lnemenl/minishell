@@ -170,8 +170,9 @@ int		is_env_created(char *arg, char **strs);
 char	*get_env_var(char **envp, const char *var_name);
 
 /* =====				 REDIRECTION ===== */
-void					redirection_input(t_mshell *obj, t_ast_node *node);
-void					redirection_output(t_mshell *obj, t_ast_node *node);
+// void					redirection_input(t_mshell *obj, t_ast_node *node);
+// void					redirection_output(t_mshell *obj, t_ast_node *node);
+void					apply_redirections(t_mshell *obj, t_ast_node **redirs, int count);
 void					pipe_redirection(t_mshell *obj);
 void					handle_here_doc(t_mshell *obj, t_ast_node *node);
 

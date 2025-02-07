@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/05 19:53:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/06 20:05:03 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,11 +88,6 @@ void reset_signals(void)
     signal(SIGQUIT, SIG_DFL);
 }
 
-// void    save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)
-// {
-//     sigaction(SIGINT, NULL, old_int);
-//     sigaction(SIGQUIT, NULL, old_quit);
-// }
 
 void restore_terminal_settings(void)
 {
@@ -102,9 +97,6 @@ void restore_terminal_settings(void)
 
 void    transition_signal_handlers(t_signal_state new_state)
 {
-    // static struct sigaction    old_handlers[2];
-
-    // save_signal_handlers(&old_handlers[0], &old_handlers[1]);
 
     if (new_state == SIGNAL_STATE_INTERACTIVE)
         setup_interactive_signals();
