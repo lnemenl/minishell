@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 20:06:46 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:19:44 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -146,33 +146,44 @@ void	alloc_pipes(t_mshell *obj)
 	}
 }
 
-static void	handle_cat_redir(t_ast_node *node, char *redir_file, t_token_type type)
+static void apply_redirections(t_mshell *obj, t_ast_node *cmd)
 {
-	char	**new_args;
+    int i;
 
-	if (ft_strcmp(node->args[0], "cat") != 0)
-		return ;
-	new_args = ft_calloc(3, sizeof(char *));
-	if (!new_args)
-		return ; //cleanup
-	new_args[0] = ft_strdup(node->args[0]);
-	if (type == TOKEN_HEREDOC)
-		new_args[1] = ft_strdup(".heredoc_temp");
-	else
-		new_args[1] = ft_strdup(redir_file);
-	new_args[2] = NULL;
-	ft_free_strs(node->args, 1);
-	node->args = new_args;
+    if (!cmd || !cmd->redirs)
+        return;
+    i = 0;
+    while (cmd->redirs[i])
+    {
+        if (cmd->redirs[i]->type == TOKEN_HEREDOC)
+        {
+            /* For heredoc, write temporary file and then redirect input */
+            handle_here_doc(obj, cmd->redirs[i]);
+            redirection_input(obj, cmd->redirs[i]);
+        }
+        else if (cmd->redirs[i]->type == TOKEN_REDIRECT_IN)
+        {
+            redirection_input(obj, cmd->redirs[i]);
+        }
+        else if (cmd->redirs[i]->type == TOKEN_REDIRECT_OUT ||
+                 cmd->redirs[i]->type == TOKEN_REDIRECT_APPEND)
+        {
+            redirection_output(obj, cmd->redirs[i]);
+        }
+        i++;
+    }
 }
 
-void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
+void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
-    if (!left)
-		return ;
-    if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(left->args, obj) == 1)
-		return ;
-	  obj->args_move = 0;
+    if (!cmd)
+        return;
+    if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
+        return;
+    obj->args_move = 0;
     obj->exec_cmds++;
+    signal(SIGINT, SIG_IGN);
+    signal(SIGQUIT, SIG_IGN);
     obj->pids[obj->cur_pid] = fork();
     if (obj->pids[obj->cur_pid] == -1)
     {
@@ -183,35 +194,22 @@ void    execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right)
     {
         reset_signals();
         restore_terminal_settings();
-
-        // redirection handling remains the same
-        if (left && (left->type == TOKEN_HEREDOC || left->type == TOKEN_REDIRECT_IN))
-		{
-            redirection_input(obj, left);
-			if (left->type == TOKEN_HEREDOC)
-				handle_here_doc(obj, left);
-		}
+        /* Instead of checking various redir node types, simply apply redirections */
+        apply_redirections(obj, cmd);
         if (obj->allocated_pipes >= 1)
-        {
-            if (left && left->type == TOKEN_WORD)
-                pipe_redirection(obj);
-        }
-        if (right && (right->type == TOKEN_REDIRECT_APPEND || right->type == TOKEN_REDIRECT_OUT))
-            redirection_output(obj, right);
-
+            pipe_redirection(obj, cmd);
         close_fds(obj);
-		
-        // Execute command
-        if (is_builtin_cmd(left->args[0]) == 1)
+        /* Execute builtins or external command */
+        if (is_builtin_cmd(cmd->args[0]) == 1)
         {
-            run_builtins(left->args, obj);
-            exit_child(obj, left->args[0], obj->exit_code, 1);
+            run_builtins(cmd->args, obj);
+            exit_child(obj, cmd->args[0], obj->exit_code, 1);
         }
         else
         {
-            obj->cur_path = check_paths_access(obj->paths, left, obj);
-            execve(obj->cur_path, left->args + obj->args_move, obj->paths);
-            exit_child(obj, left->args[0], 127, 0);
+            obj->cur_path = check_paths_access(obj->paths, cmd, obj);
+            execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
+            exit_child(obj, cmd->args[0], 127, 0);
         }
     }
 }
@@ -236,65 +234,29 @@ static void	check_redirections(t_mshell *obj)
 	}
 }
 
-void    choose_actions(t_mshell *obj)
+void choose_actions(t_mshell *obj)
 {
-    t_ast_node    *temp;
+    t_ast_node *temp;
+
     if (!obj)
         return;
     alloc_pipes(obj);
-	check_redirections(obj);
+    check_redirections(obj);
     obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
     if (!obj->pids)
     {
         clean_mshell(obj);
         error_ret(5, NULL);
     }
-
     temp = obj->ast;
     while (temp)
     {
         if (g_signal_received)
             break;
-
-        if (temp->type == TOKEN_WORD && !temp->right)
-            execute_cmd(obj, temp, NULL);
-        else if (temp->type == TOKEN_PIPE && temp->left &&
-            (temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
-        {
-            handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
-            if (temp->left->type == TOKEN_HEREDOC)
-            {
-                transition_signal_handlers(SIGNAL_STATE_HEREDOC);
-                handle_here_doc(obj, temp->left);
-                transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
-            }
-            execute_cmd(obj, temp->left->left, NULL);
-        }
-        else if (temp->type == TOKEN_HEREDOC || temp->type == TOKEN_REDIRECT_IN)
-        {
-            handle_cat_redir(temp->left, temp->args[0], temp->type);
-            if (temp->type == TOKEN_HEREDOC)
-            {
-                transition_signal_handlers(SIGNAL_STATE_HEREDOC);
-                handle_here_doc(obj, temp);
-                transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
-            }
-            execute_cmd(obj, temp->left, NULL);
-        }
-        else if (temp->type == TOKEN_REDIRECT_OUT || temp->type == TOKEN_REDIRECT_APPEND)
-		{
-			if (temp->left && (temp->left->type == TOKEN_HEREDOC || temp->left->type == TOKEN_REDIRECT_IN))
-			{
-				handle_cat_redir(temp->left->left, temp->left->args[0], temp->left->type);
-				if (temp->left->type == TOKEN_HEREDOC)
-					handle_here_doc(obj, temp->left);
-				temp->left = temp->left->left;
-			}
-            execute_cmd(obj, temp->left, temp);
-		}
-        else
-            execute_cmd(obj, temp->left, NULL);
-
+		if (temp->left)
+			execute_cmd(obj, temp->left);
+		else
+			execute_cmd(obj, temp);
         temp = temp->right;
         obj->cur_pid++;
     }

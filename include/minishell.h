@@ -68,6 +68,7 @@ typedef struct s_ast_node
 	char				**args;     // Command arguments (for TOKEN_WORD nodes)
 	struct s_ast_node	*left;      //Left child (e.g., command before a pipe)
 	struct s_ast_node	*right;     //Right child (e.g., command after a pipe or target of a redirection)
+	struct s_ast_node	**redirs;	//for redirections, order is preserved as encountered
 }   t_ast_node;
 
 typedef struct	s_mshell
@@ -141,18 +142,21 @@ int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
-int						is_redirect_token(t_token_type type);
 t_ast_node				*create_ast_node(t_token_type type);
-t_ast_node				*parse_pipeline(t_token **tokens, int i, t_mshell *obj);
-t_ast_node				*parse_command(t_token **tokens);
-void					free_ast(t_ast_node *node);
 t_ast_node				*free_ast_return_null(t_ast_node *node);
-t_ast_node				*handle_command_redirections(t_token **tokens, t_ast_node *cmd_node);
+void					free_ast(t_ast_node *node);
+int						is_redirect_token(t_token_type type);
+t_ast_node				*parse_simple_command(t_token **tokens);
+t_ast_node				*parse_command(t_token **tokens);
+t_ast_node				*parse_pipeline(t_token **tokens);
+void					normalize_ast(t_ast_node *node);
 
-/* ===== AST COM		MAND (ast_command.c) ===== */
+
+
+/* ===== AST COMMAND (ast_command.c) ===== */
 t_ast_node				*build_command_node(t_token **tokens);
 
-/* ===== AST DEB		UG (ast_debug.c) ===== */
+/* ===== AST DEBUG (ast_debug.c) ===== */
 void					print_ast(t_ast_node *node, int depth);
 void					print_tokens(t_token *tokens);
 
@@ -160,7 +164,7 @@ void					print_tokens(t_token *tokens);
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
-void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
+void	execute_cmd(t_mshell *obj, t_ast_node *cmd);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin);
@@ -172,7 +176,7 @@ char	*get_env_var(char **envp, const char *var_name);
 /* =====				 REDIRECTION ===== */
 void					redirection_input(t_mshell *obj, t_ast_node *node);
 void					redirection_output(t_mshell *obj, t_ast_node *node);
-void					pipe_redirection(t_mshell *obj);
+void pipe_redirection(t_mshell *obj, t_ast_node *cmd);
 void					handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 /* =====				 CLEANUP ===== */
@@ -184,8 +188,6 @@ void 					setup_interactive_signals(void);
 void 					setup_exec_signals(void);
 void 					setup_heredoc_signals(void);
 void 					reset_signals(void);
-void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
-void    				restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				transition_signal_handlers(t_signal_state new_state);
 void					init_terminal_settings(void);
 void					restore_terminal_settings(void);

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 19:37:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 15:11:33 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -60,7 +60,7 @@ void    parse(t_mshell *obj)
 			obj->pipes_count++;
 		temp = temp->next;
 	}
-    obj->ast = parse_pipeline(&tokens, 0, obj);
+    obj->ast = parse_pipeline(&tokens);
     if (!obj->ast)
     {
         clean_tokens(tokens);

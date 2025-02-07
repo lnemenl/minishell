@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 20:21:38 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:31:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -95,7 +95,7 @@ static void wait_for_children(t_mshell *obj)
                 }
                 else
                 {
-                    write(STDOUT_FILENO, "\n", 1);
+                    //write(STDOUT_FILENO, "\n", 1);
                     obj->exit_code = 128 + WTERMSIG(status);
                 }
             }
@@ -128,6 +128,8 @@ int main(int argc, char **argv, char **envp)
         }
 
         parse(&obj);       /* Tokenize / build AST */
+        if (!obj.ast)
+            normalize_ast(obj.ast);
         add_history(obj.cmd_line);
 
         free(obj.cmd_line);

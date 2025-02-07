@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/03 22:59:27 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 16:17:22 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,6 +50,41 @@ static void    write_heredoc_line(t_heredoc *doc)
     else
         ft_putstr_fd(doc->str, doc->obj->fd_in);
 }
+
+static int has_input_redirection(t_ast_node *cmd)
+{
+    int i = 0;
+    if (!cmd->redirs)
+        return (0);
+    while (cmd->redirs[i])
+    {
+        if (cmd->redirs[i]->type == TOKEN_REDIRECT_IN ||
+            cmd->redirs[i]->type == TOKEN_HEREDOC)
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
+/*
+ * A helper to check if a command node declares an output redirection
+ * (either TOKEN_REDIRECT_OUT or TOKEN_REDIRECT_APPEND)
+ */
+static int has_output_redirection(t_ast_node *cmd)
+{
+    int i = 0;
+    if (!cmd->redirs)
+        return (0);
+    while (cmd->redirs[i])
+    {
+        if (cmd->redirs[i]->type == TOKEN_REDIRECT_OUT ||
+            cmd->redirs[i]->type == TOKEN_REDIRECT_APPEND)
+            return (1);
+        i++;
+    }
+    return (0);
+}
+
 
 void    handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
@@ -111,23 +146,35 @@ void	redirection_output(t_mshell *obj, t_ast_node *node)
 	close(obj->fd_out);
 }
 
-void	pipe_redirection(t_mshell *obj)
+void pipe_redirection(t_mshell *obj, t_ast_node *cmd)
 {
-	if (obj->cur_pid == 0)
-	{
-		dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
-		close(obj->pipfd[obj->cur_pid][1]);
-	}
-	else if (obj->cur_pid == obj->allocated_pipes)
-	{
-		dup2(obj->pipfd[obj->cur_pid - 1][0], STDIN_FILENO);
-		close(obj->pipfd[obj->cur_pid - 1][0]);
-	}
-	else
-	{
-		dup2(obj->pipfd[obj->cur_pid - 1][0], STDIN_FILENO);
-		close(obj->pipfd[obj->cur_pid - 1][0]);
-		dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
-		close(obj->pipfd[obj->cur_pid][1]);
-	}
+    if (obj->cur_pid == 0)
+    {
+        if (!has_output_redirection(cmd))
+        {
+            dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
+            close(obj->pipfd[obj->cur_pid][1]);
+        }
+    }
+    else if (obj->cur_pid == obj->allocated_pipes)
+    {
+        if (!has_input_redirection(cmd))
+        {
+            dup2(obj->pipfd[obj->cur_pid - 1][0], STDIN_FILENO);
+            close(obj->pipfd[obj->cur_pid - 1][0]);
+        }
+    }
+    else
+    {
+        if (!has_input_redirection(cmd))
+        {
+            dup2(obj->pipfd[obj->cur_pid - 1][0], STDIN_FILENO);
+            close(obj->pipfd[obj->cur_pid - 1][0]);
+        }
+        if (!has_output_redirection(cmd))
+        {
+            dup2(obj->pipfd[obj->cur_pid][1], STDOUT_FILENO);
+            close(obj->pipfd[obj->cur_pid][1]);
+        }
+    }
 }
