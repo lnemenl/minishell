@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/03 21:39:24 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/05 20:30:10 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,8 +14,8 @@
 
 t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
-    int     start;
     t_token *token;
+    int     start;
     char    *word;
 
     (*i)++;  // Skip the opening quote
@@ -83,19 +83,17 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 
 t_token *handle_quotes(t_token **head, t_token **current, const char *input, int *i)
 {
-    static int  in_word;
+    int         merging_with_previous;
     char        quote;
     t_token     *token;
     t_token     *prev_token;
+    char        *joined;
 
-    in_word = 0;
-    if (!input[*i])
+    if (!input || !input[*i] || !head || !current || !*current)
         return (NULL);
     // If we are not at the start of the line and the preceding character isn't whitespace,
-    // set in_word to 1 so that we are still in the same word    
-    if (*i > 0 && !ft_isspace(input[*i - 1]))
-        in_word = 1;
-        
+    // set in word to 1 so that we are still in the same word    
+    merging_with_previous = ( (*i > 0) && !ft_isspace(input[*i - 1]) );
     prev_token = *current;
     quote = input[*i];
     if (quote == '"')
@@ -107,11 +105,15 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
         (*current)->mshell->exit_code = 1;
         return (NULL);
     }
-    if (in_word && prev_token && prev_token->content && prev_token->type == TOKEN_WORD)
+    if (merging_with_previous && prev_token && prev_token->type == TOKEN_WORD)
     {
-        char *joined = ft_strjoin(prev_token->content, token->content);
+        joined = ft_strjoin(prev_token->content, token->content);
         if (!joined)
+        {
+            free(token->content);
+            free(token);
             return (NULL);
+        }
         free(prev_token->content);
         prev_token->content = joined;
         prev_token->quote_state = token->quote_state;
