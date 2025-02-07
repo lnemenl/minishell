@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/07 16:19:44 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 17:50:54 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -81,6 +81,7 @@ static int	is_builtin_cmd(char *cmd)
 void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 {
 	obj->exit_code = exit_code;
+	close_fds(obj);
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
@@ -136,6 +137,8 @@ void	alloc_pipes(t_mshell *obj)
 			clean_mshell(obj);
 			error_ret(5, NULL);
 		}
+		obj->pipfd[i][0] = -1;
+		obj->pipfd[i][1] = -1;
 		if (pipe(obj->pipfd[i]) == -1)
 		{
 			clean_mshell(obj);
@@ -176,10 +179,10 @@ static void apply_redirections(t_mshell *obj, t_ast_node *cmd)
 
 void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
-    if (!cmd)
-        return;
+    if (!cmd || !cmd->args || !cmd->args[0])
+		return;
     if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
-        return;
+		return;
     obj->args_move = 0;
     obj->exec_cmds++;
     signal(SIGINT, SIG_IGN);

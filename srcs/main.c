@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/07 16:31:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 17:27:49 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -129,7 +129,8 @@ int main(int argc, char **argv, char **envp)
 
         parse(&obj);       /* Tokenize / build AST */
         if (!obj.ast)
-            normalize_ast(obj.ast);
+            continue;
+            //normalize_ast(obj.ast);
         add_history(obj.cmd_line);
 
         free(obj.cmd_line);

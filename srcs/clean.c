@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/29 15:59:40 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/07 17:36:29 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,17 +48,17 @@ void	close_fds(t_mshell *obj)
 	{
 		if (obj->pipfd[i][0] != -1)
 			close(obj->pipfd[i][0]);
+		obj->pipfd[i][0] = -1;
 		if (obj->pipfd[i][1] != -1)
 			close(obj->pipfd[i][1]);
-		obj->pipfd[i][0] = -1;
 		obj->pipfd[i][1] = -1;
 		i++;
 	}
 	if (obj->fd_in != -1)
 		close(obj->fd_in);
+	obj->fd_in = -1;
 	if (obj->fd_out != -1)
 		close(obj->fd_out);
-	obj->fd_in = -1;
 	obj->fd_out = -1;
 }
 
