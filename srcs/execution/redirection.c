@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/07 18:11:38 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/10 19:58:00 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ static void    cleanup_heredoc(t_heredoc *doc)
 
 static int    process_heredoc_line(t_heredoc *doc)
 {
+    write(STDERR_FILENO, "> ", 2);
     doc->str = get_next_line(STDIN_FILENO);
     if (!doc->str || g_signal_received == SIGINT)
         return (0);
@@ -100,6 +101,7 @@ void    handle_here_doc(t_mshell *obj, t_ast_node *node)
     }
     doc = (t_heredoc){NULL, NULL, NULL, obj};
     obj->is_heredoc = 1;
+    g_signal_received = 0;
     while (process_heredoc_line(&doc))
     {
         if (!ft_strcmp(node->args[0], doc.trimmed) || 
@@ -110,41 +112,50 @@ void    handle_here_doc(t_mshell *obj, t_ast_node *node)
     }
     cleanup_heredoc(&doc);
     close(obj->fd_in);
+    if (g_signal_received == SIGINT)
+    {
+        obj->heredoc_interrupted = 1;
+        unlink(".heredoc_temp");
+        return ;
+    }
 }
 
-void	redirection_input(t_mshell *obj, t_ast_node *node)
+void redirection_input(t_mshell *obj, t_ast_node *node)
 {
-	if (node->type == TOKEN_REDIRECT_IN)
-	{
-		if (access(node->args[0], F_OK) != 0)
-			exit_child(obj, node->args[0], 1, 0);
-		obj->fd_in = open(node->args[0], O_RDONLY);
-		if (obj->fd_in == -1)
-			exit_child(obj, node->args[0], 1, 0);
-	}
-	else
-	{
-		obj->fd_in = open(".heredoc_temp", O_RDONLY);
-		if (obj->fd_in == -1)
-			exit_child(obj, ".heredoc_temp", 1, 0);
-	}
-	dup2(obj->fd_in, STDIN_FILENO);
-	close(obj->fd_in);
+    if (node->type == TOKEN_REDIRECT_IN)
+    {
+        if (access(node->args[0], F_OK) != 0)
+            exit_child(obj, node->args[0], 1, 0);
+        obj->fd_in = open(node->args[0], O_RDONLY);
+        if (obj->fd_in == -1)
+            exit_child(obj, node->args[0], 1, 0);
+    }
+    else
+    {
+        /* If heredoc was interrupted, do not proceed with redirection */
+        if (obj->heredoc_interrupted)
+            return ;
+        obj->fd_in = open(".heredoc_temp", O_RDONLY);
+        if (obj->fd_in == -1)
+            exit_child(obj, ".heredoc_temp", 1, 0);
+    }
+    dup2(obj->fd_in, STDIN_FILENO);
+    close(obj->fd_in);
     obj->fd_in = -1;
 }
 
-void	redirection_output(t_mshell *obj, t_ast_node *node)
+void redirection_output(t_mshell *obj, t_ast_node *node)
 {
-	if (node->type == TOKEN_REDIRECT_APPEND)
-		obj->fd_out = open(node->args[0],
-				O_WRONLY | O_CREAT | O_APPEND, 0644);
-	else
-		obj->fd_out = open(node->args[0],
-				O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (obj->fd_out == -1)
-		exit_child(obj, node->args[0], 1, 0);
-	dup2(obj->fd_out, STDOUT_FILENO);
-	close(obj->fd_out);
+    if (node->type == TOKEN_REDIRECT_APPEND)
+        obj->fd_out = open(node->args[0],
+                O_WRONLY | O_CREAT | O_APPEND, 0644);
+    else
+        obj->fd_out = open(node->args[0],
+                O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (obj->fd_out == -1)
+        exit_child(obj, node->args[0], 1, 0);
+    dup2(obj->fd_out, STDOUT_FILENO);
+    close(obj->fd_out);
     obj->fd_out = -1;
 }
 

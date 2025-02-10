@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/07 17:50:54 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/10 20:52:09 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,14 +24,18 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 		args_len++;
 	if (args_len == 1)
 	{
-		printf("exit\n");
+		if (isatty(STDIN_FILENO))
+			printf("exit\n");
+		//printf("exit\n");
 		clean_mshell(obj);
 		free(obj->envp);
 		exit(obj->exit_code);
 	}
 	else if (args_len >= 2)
 	{
-		printf("exit\n");
+		if (isatty(STDIN_FILENO))
+			printf("exit\n");
+		//printf("exit\n");
 		i = 0;
 		while (args[1][i])
 		{
@@ -180,9 +184,9 @@ static void apply_redirections(t_mshell *obj, t_ast_node *cmd)
 void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
     if (!cmd || !cmd->args || !cmd->args[0])
-		return;
+        return;
     if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
-		return;
+        return;
     obj->args_move = 0;
     obj->exec_cmds++;
     signal(SIGINT, SIG_IGN);
@@ -197,8 +201,13 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
     {
         reset_signals();
         restore_terminal_settings();
-        /* Instead of checking various redir node types, simply apply redirections */
+        /* Apply redirections (including heredoc) */
         apply_redirections(obj, cmd);
+
+        /* Abort command execution if heredoc was interrupted */
+        if (obj->heredoc_interrupted)
+            exit_child(obj, "", 130, 0);
+
         if (obj->allocated_pipes >= 1)
             pipe_redirection(obj, cmd);
         close_fds(obj);
@@ -243,6 +252,7 @@ void choose_actions(t_mshell *obj)
 
     if (!obj)
         return;
+
     alloc_pipes(obj);
     check_redirections(obj);
     obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
@@ -254,12 +264,12 @@ void choose_actions(t_mshell *obj)
     temp = obj->ast;
     while (temp)
     {
-        if (g_signal_received)
+        if (obj->heredoc_interrupted || g_signal_received)
             break;
-		if (temp->left)
-			execute_cmd(obj, temp->left);
-		else
-			execute_cmd(obj, temp);
+        if (temp->left)
+            execute_cmd(obj, temp->left);
+        else
+            execute_cmd(obj, temp);
         temp = temp->right;
         obj->cur_pid++;
     }

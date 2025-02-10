@@ -11,6 +11,13 @@
 # include <sys/wait.h>
 # include <signal.h>
 # include <termios.h>
+# include <sys/ioctl.h>
+
+# ifndef TCFLSH
+
+# define TCFLSH TCIFLUSH
+
+# endif
 
 # define PROMPT "shit-shell: " //"💩-shell: "
 
@@ -92,6 +99,7 @@ typedef struct	s_mshell
 	int					fd_out;
 	size_t				args_move;
 	int					redir_check;
+	int					heredoc_interrupted;
 }	t_mshell;
 
 int						error_ret(int type, char *arg);
@@ -149,7 +157,7 @@ int						is_redirect_token(t_token_type type);
 t_ast_node				*parse_simple_command(t_token **tokens);
 t_ast_node				*parse_command(t_token **tokens);
 t_ast_node				*parse_pipeline(t_token **tokens);
-void					normalize_ast(t_ast_node *node);
+//void					normalize_ast(t_ast_node *node);
 
 
 

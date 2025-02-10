@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/07 15:10:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/10 17:58:49 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -332,58 +332,57 @@ In other words, when you have a command like "ls | grep foo",
 a PIPE node is created where the left pointer refers to the AST node for "ls" and the right pointer is the AST node for "grep foo".
 */
 
-static void normalize_redirs(t_ast_node *cmd_node)
-{
-    int i;
-    int count;
-    int last_input = -1;
-    int last_output = -1;
-    t_ast_node **new_redirs;
+// static void normalize_redirs(t_ast_node *cmd_node)
+// {
+//     int i;
+//     int count;
+//     int last_input = -1;
+//     int last_output = -1;
+//     t_ast_node **new_redirs;
 
-    if (!cmd_node || !cmd_node->redirs)
-        return;
-    count = 0;
-    while (cmd_node->redirs[count])
-    {
-        if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_IN ||
-            cmd_node->redirs[count]->type == TOKEN_HEREDOC)
-            last_input = count;
-        if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_OUT ||
-            cmd_node->redirs[count]->type == TOKEN_REDIRECT_APPEND)
-            last_output = count;
-        count++;
-    }
-    new_redirs = (t_ast_node **)ft_calloc(3, sizeof(t_ast_node *));
-    if (!new_redirs)
-        return; /* Allocation issue: leave unchanged */
-    /* Keep only the winning redirections (if they exist) */
-    if (last_input != -1)
-        new_redirs[0] = cmd_node->redirs[last_input];
-    if (last_output != -1)
-        new_redirs[1] = cmd_node->redirs[last_output];
-    new_redirs[(last_input != -1) + (last_output != -1)] = NULL;
-    /* Free all redir nodes that were not kept */
-    i = 0;
-    while (i < count)
-    {
-        if ((i != last_input) && (i != last_output))
-            free_ast(cmd_node->redirs[i]);
-        i++;
-    }
-    free(cmd_node->redirs);
-    cmd_node->redirs = new_redirs;
-}
+//     if (!cmd_node || !cmd_node->redirs)
+//         return;
+//     count = 0;
+//     while (cmd_node->redirs[count])
+//     {
+//         if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_IN ||
+//             cmd_node->redirs[count]->type == TOKEN_HEREDOC)
+//             last_input = count;
+//         if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_OUT ||
+//             cmd_node->redirs[count]->type == TOKEN_REDIRECT_APPEND)
+//             last_output = count;
+//         count++;
+//     }
+//     new_redirs = (t_ast_node **)ft_calloc(3, sizeof(t_ast_node *));
+//     if (!new_redirs)
+//         return; /* Allocation issue: leave unchanged */
+//     /* Keep only the winning redirections (if they exist) */
+//     if (last_input != -1)
+//         new_redirs[0] = cmd_node->redirs[last_input];
+//     if (last_output != -1)
+//         new_redirs[1] = cmd_node->redirs[last_output];
+//     new_redirs[(last_input != -1) + (last_output != -1)] = NULL;
+//     /* Free all redir nodes that were not kept */
+//     i = 0;
+//     while (i < count)
+//     {
+//         if ((i != last_input) && (i != last_output))
+//             free_ast(cmd_node->redirs[i]);
+//         i++;
+//     }
+//     free(cmd_node->redirs);
+//     cmd_node->redirs = new_redirs;
+// }
 
-void normalize_ast(t_ast_node *node)
-{
-    if (!node)
-        return;
-    if (node->type == TOKEN_WORD)
-    {
-        if (node->redirs)
-            normalize_redirs(node);
-    }
-    normalize_ast(node->left);
-    normalize_ast(node->right);
-}
-
+// void normalize_ast(t_ast_node *node)
+// {
+//     if (!node)
+//         return;
+//     if (node->type == TOKEN_WORD)
+//     {
+//         if (node->redirs)
+//             normalize_redirs(node);
+//     }
+//     normalize_ast(node->left);
+//     normalize_ast(node->right);
+// }
