@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/10 17:58:49 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/10 23:54:39 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -309,80 +309,3 @@ t_ast_node *parse_pipeline(t_token **tokens)
     }
     return root;
 }
-
-
-/*
-• type: Indicates what kind of node it is.
-For example, a command node (often marked as TOKEN_WORD),
-a pipe operator (TOKEN_PIPE), or a redirection operator (like TOKEN_REDIRECT_IN, TOKEN_REDIRECT_OUT, etc.)
-
-• args: For command nodes, this is a NULL-terminated array of strings.
-The first element is usually the command name and the rest are its arguments.
-For redirection nodes, this array holds its associated filename (typically stored in args[0]).
-
-• redirs: This is also a NULL-terminated array.
-In command nodes, any redirection nodes parsed (using redirection tokens like <, >, etc.) are stored here.
-This separation makes execution easier because you later iterate over this array to set up the file redirections.
-
-• left and right: These are used to build a binary tree structure for operations that connect commands.
-In the context of pipelines, a pipe operator node will have:
-    – left child: The command (or pipeline) on the left of the pipe.
-    – right child: The command (or pipeline) on the right of the pipe.
-In other words, when you have a command like "ls | grep foo",
-a PIPE node is created where the left pointer refers to the AST node for "ls" and the right pointer is the AST node for "grep foo".
-*/
-
-// static void normalize_redirs(t_ast_node *cmd_node)
-// {
-//     int i;
-//     int count;
-//     int last_input = -1;
-//     int last_output = -1;
-//     t_ast_node **new_redirs;
-
-//     if (!cmd_node || !cmd_node->redirs)
-//         return;
-//     count = 0;
-//     while (cmd_node->redirs[count])
-//     {
-//         if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_IN ||
-//             cmd_node->redirs[count]->type == TOKEN_HEREDOC)
-//             last_input = count;
-//         if (cmd_node->redirs[count]->type == TOKEN_REDIRECT_OUT ||
-//             cmd_node->redirs[count]->type == TOKEN_REDIRECT_APPEND)
-//             last_output = count;
-//         count++;
-//     }
-//     new_redirs = (t_ast_node **)ft_calloc(3, sizeof(t_ast_node *));
-//     if (!new_redirs)
-//         return; /* Allocation issue: leave unchanged */
-//     /* Keep only the winning redirections (if they exist) */
-//     if (last_input != -1)
-//         new_redirs[0] = cmd_node->redirs[last_input];
-//     if (last_output != -1)
-//         new_redirs[1] = cmd_node->redirs[last_output];
-//     new_redirs[(last_input != -1) + (last_output != -1)] = NULL;
-//     /* Free all redir nodes that were not kept */
-//     i = 0;
-//     while (i < count)
-//     {
-//         if ((i != last_input) && (i != last_output))
-//             free_ast(cmd_node->redirs[i]);
-//         i++;
-//     }
-//     free(cmd_node->redirs);
-//     cmd_node->redirs = new_redirs;
-// }
-
-// void normalize_ast(t_ast_node *node)
-// {
-//     if (!node)
-//         return;
-//     if (node->type == TOKEN_WORD)
-//     {
-//         if (node->redirs)
-//             normalize_redirs(node);
-//     }
-//     normalize_ast(node->left);
-//     normalize_ast(node->right);
-// }
