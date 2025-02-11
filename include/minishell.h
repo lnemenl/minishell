@@ -139,6 +139,7 @@ t_token					*process_token(t_token **head, t_token **current, const char *input,
 t_token					*handle_single_quotes(const char *input, int *i, t_mshell *mshell);
 t_token					*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
 t_token					*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
+char					*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
 int			cd(char **cd_args, t_mshell *obj);

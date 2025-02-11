@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/10 21:18:32 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:53:42 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,11 +59,41 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
 	return (token);
 }
 
+char	*handle_backslash(char *str)
+{
+	char	*new_str;
+	size_t	i;
+	size_t	j;
+	size_t	len;
+	size_t	skip_slash;
+
+	if (!str)
+		return (NULL);
+	len = ft_strlen(str);
+	new_str = ft_calloc(len + 1, sizeof(char));
+	if (!new_str)
+		return (NULL);
+	i = 0;
+	j = 0;
+	while (i < len)
+	{
+		skip_slash = 0;
+		if (str[i] == '\\')
+			i++;
+		new_str[j] = str[i];
+		i++;
+		j++;
+	}
+	new_str[j] = '\0';
+	return (new_str);
+}
+
 t_token *handle_word(t_token **head, t_token **current, const char *input, int *i)
 {
 	t_token	*token;
 	char	*expanded;
 	char	*temp;
+	char	*without_backslashes;
 	int		start;
 	
 	if (!*current)
@@ -72,15 +102,27 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	while (input[*i] && !ft_isspace(input[*i]) && 
 		   !is_operator(input[*i]) && !is_quote(input[*i]))
 		(*i)++;
+	if (*i - start == 1 && is_quote(input[*i]))
+		start++;
 	temp = ft_substr(input, start, (*i) - start);
 	if (!temp)
 		return (NULL);
-	
+	without_backslashes = handle_backslash(temp);
+	if (!without_backslashes)
+	{
+		free(temp);
+		return (NULL);
+	}
+	free (temp);
 	// Check if previous token exists and has quote state
 	if (*current && (*current)->quote_state != QUOTE_NONE)
 	{
-		char *joined = ft_strjoin((*current)->content, temp);
-		free(temp);
+		expanded = expand_env_vars(without_backslashes, (*current)->mshell);
+		free(without_backslashes);
+		if (!expanded)
+			return (NULL);
+		char *joined = ft_strjoin((*current)->content, expanded);
+		free(expanded);
 		if (!joined)
 			return (NULL);
 		free((*current)->content);
@@ -88,8 +130,8 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 		return (*current);
 	}
 	
-	expanded = expand_env_vars(temp, (*current)->mshell);
-	free(temp);
+	expanded = expand_env_vars(without_backslashes, (*current)->mshell);
+	free(without_backslashes);
 	if (!expanded)
 		return (NULL);
 	token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), (*head)->mshell);
