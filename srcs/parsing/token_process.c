@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/11 15:53:42 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/11 16:14:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -148,6 +148,8 @@ t_token *process_token(t_token **head, t_token **current, const char *input, int
 
 	if (ft_isspace(input[*i]))
 	{
+		(*current)->quote_state = QUOTE_NONE;
+		(*head)->quote_state = QUOTE_NONE;
 		(*i)++;
 		return (*current);
 	}

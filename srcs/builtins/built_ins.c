@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 12:49:25 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/11 16:04:23 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,6 +137,8 @@ int	echo(char **args)
 		return (0);
 	}
 	i = 1;
+	if (ft_strcmp(args[1], "-n") == 0)
+		i++;
 	while (args[i])
 	{
 		printf("%s", args[i]);
@@ -144,6 +146,7 @@ int	echo(char **args)
 			printf(" ");
 		i++;
 	}
-	printf("\n");
+	if (ft_strcmp(args[1], "-n") != 0)
+		printf("\n");
 	return (1);
 }

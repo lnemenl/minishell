@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/10 19:58:00 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 17:01:04 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,8 +35,7 @@ static void    cleanup_heredoc(t_heredoc *doc)
 
 static int    process_heredoc_line(t_heredoc *doc)
 {
-    write(STDERR_FILENO, "> ", 2);
-    doc->str = get_next_line(STDIN_FILENO);
+    doc->str = readline("> ");
     if (!doc->str || g_signal_received == SIGINT)
         return (0);
     doc->expanded = expand_env_vars(doc->str, doc->obj);
@@ -47,9 +46,11 @@ static int    process_heredoc_line(t_heredoc *doc)
 static void    write_heredoc_line(t_heredoc *doc)
 {
     if (doc->str[0] == '$')
-        ft_putstr_fd(doc->expanded, doc->obj->fd_in);
+        ft_fprintf(doc->obj->fd_in, "%s\n", doc->expanded);
+        //ft_putstr_fd(doc->expanded, doc->obj->fd_in);
     else
-        ft_putstr_fd(doc->str, doc->obj->fd_in);
+        ft_fprintf(doc->obj->fd_in, "%s\n", doc->str);
+        //ft_putstr_fd(doc->str, doc->obj->fd_in);
 }
 
 static int has_input_redirection(t_ast_node *cmd)

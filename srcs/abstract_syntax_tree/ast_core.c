@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/10 23:54:39 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 16:46:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -235,8 +235,24 @@ t_ast_node *parse_simple_command(t_token **tokens)
     }
 
     // At least one argument (the command name) must be present.
+
     if (!cmd_node->args || !cmd_node->args[0])
     {
+        if (cmd_node->redirs)
+        {
+            t_ast_node *redir = *cmd_node->redirs;
+            int fd;
+            fd = -1;
+            if (redir)
+            {
+                if (redir->type == TOKEN_REDIRECT_APPEND)
+                    fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+                else if (redir->type == TOKEN_REDIRECT_OUT)
+                    fd = open(redir->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+            }
+            if (fd != -1)
+                close(fd);
+        }
         free_ast(cmd_node);
         return (NULL);
     }
