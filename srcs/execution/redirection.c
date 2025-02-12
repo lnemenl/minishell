@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   redirection.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
 /*   Updated: 2025/02/11 17:01:04 by msavelie         ###   ########.fr       */
@@ -14,23 +14,23 @@
 
 typedef struct s_heredoc
 {
-    char    *str;
-    char    *trimmed;
+    char    *line;
     char    *expanded;
+    char    *trimmed;
     t_mshell *obj;
 }   t_heredoc;
 
 static void    cleanup_heredoc(t_heredoc *doc)
 {
-    if (doc->str)
-        free(doc->str);
-    if (doc->trimmed)
-        free(doc->trimmed);
+    if (doc->line)
+        free(doc->line);
     if (doc->expanded)
         free(doc->expanded);
-    doc->str = NULL;
-    doc->trimmed = NULL;
+    if (doc->trimmed)
+        free(doc->trimmed);
+    doc->line = NULL;
     doc->expanded = NULL;
+    doc->trimmed = NULL;
 }
 
 static int    process_heredoc_line(t_heredoc *doc)
@@ -38,7 +38,7 @@ static int    process_heredoc_line(t_heredoc *doc)
     doc->str = readline("> ");
     if (!doc->str || g_signal_received == SIGINT)
         return (0);
-    doc->expanded = expand_env_vars(doc->str, doc->obj);
+    doc->expanded = expand_env_vars(doc->line, doc->obj);
     doc->trimmed = ft_strtrim(doc->expanded, "\n");
     return (1);
 }
@@ -87,28 +87,31 @@ static int has_output_redirection(t_ast_node *cmd)
     return (0);
 }
 
-
 void    handle_here_doc(t_mshell *obj, t_ast_node *node)
 {
-    t_heredoc    doc;
-
+    t_heredoc   doc;
+    int         fd;
+    
     if (node->type != TOKEN_HEREDOC)
         return;
-    obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (obj->fd_in < 0)
+    fd = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    if (fd < 0)
     {
         clean_mshell(obj);
         error_ret(6, NULL);
     }
-    doc = (t_heredoc){NULL, NULL, NULL, obj};
     obj->is_heredoc = 1;
     g_signal_received = 0;
     while (process_heredoc_line(&doc))
     {
-        if (!ft_strcmp(node->args[0], doc.trimmed) || 
+        /* If line equals the delimiter (checking both raw and expanded), stop */
+        if (!ft_strcmp(node->args[0], doc.trimmed) ||
             !ft_strcmp(node->args[0], doc.expanded))
+        {
+            cleanup_heredoc(&doc);
             break;
-        write_heredoc_line(&doc);
+        }
+        ft_putstr_fd(doc.line, fd);
         cleanup_heredoc(&doc);
     }
     cleanup_heredoc(&doc);

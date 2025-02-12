@@ -14,7 +14,6 @@
 
 t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
-    int     start;
     t_token *token;
     char    *without_backslashes;
     char    *word;
@@ -102,6 +101,7 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
     char        quote;
     t_token     *token;
     t_token     *prev_token;
+    char        *joined;
 
     if (!input[*i])
         return (NULL);
@@ -122,11 +122,15 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
         (*current)->mshell->exit_code = 1;
         return (NULL);
     }
-    if (in_word && prev_token && prev_token->content && prev_token->type == TOKEN_WORD)
+    if (merging_with_previous && prev_token && prev_token->type == TOKEN_WORD)
     {
-        char *joined = ft_strjoin(prev_token->content, token->content);
+        joined = ft_strjoin(prev_token->content, token->content);
         if (!joined)
+        {
+            free(token->content);
+            free(token);
             return (NULL);
+        }
         free(prev_token->content);
         prev_token->content = joined;
         prev_token->quote_state = token->quote_state;

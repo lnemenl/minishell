@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
+/*   Updated: 2025/02/12 12:27:03 by msavelie         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -19,7 +31,7 @@
 
 # endif
 
-# define PROMPT "shit-shell: " //"💩-shell: "
+# define PROMPT "shit-shell: "
 
 extern volatile sig_atomic_t g_signal_received;
 

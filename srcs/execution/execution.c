@@ -195,10 +195,11 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
     if (obj->pids[obj->cur_pid] == -1)
     {
         clean_mshell(obj);
-        return;
+        return ;
     }
     else if (obj->pids[obj->cur_pid] == 0)
     {
+        /* Child process context */
         reset_signals();
         restore_terminal_settings();
         /* Apply redirections (including heredoc) */
