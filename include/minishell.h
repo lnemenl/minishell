@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 12:27:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/12 13:29:51 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,20 +64,20 @@ typedef enum e_signal_state
 
 typedef struct s_quote_context
 {
-	char				*buffer;
-	size_t				capacity;
-	size_t				length;
-	char				quote_type;
-	t_quote_state		state;
+	char			*buffer;
+	size_t			capacity;
+	size_t			length;
+	char			quote_type;
+	t_quote_state	state;
 }   t_quote_context;
 
 typedef struct s_token
 {
-	t_token_type		type;		// Type of token (e.g., WORD, PIPE)
-	char				*content;
-	t_quote_state		quote_state;
-	struct s_token		*next;		// Pointer to the next token
-	struct s_mshell		*mshell;	// Pointer to the mshell object
+	t_token_type	type;		// Type of token (e.g., WORD, PIPE)
+	char			*content;
+	t_quote_state	quote_state;
+	struct s_token	*next;		// Pointer to the next token
+	struct s_mshell	*mshell;	// Pointer to the mshell object
 }   t_token;
 
 
@@ -112,7 +112,17 @@ typedef struct	s_mshell
 	size_t				args_move;
 	int					redir_check;
 	int					heredoc_interrupted;
+	struct s_heredoc	*heredoc;
 }	t_mshell;
+
+typedef struct s_heredoc
+{
+    char		*str;
+    char		*trimmed;
+    char		*expanded;
+	int			pipe_fd[2];
+    t_mshell	*obj;
+}   t_heredoc;
 
 int						error_ret(int type, char *arg);
 void					clean_mshell(t_mshell *obj);

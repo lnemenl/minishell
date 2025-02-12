@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/10 20:55:17 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/12 14:11:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,6 +165,12 @@ int main(int argc, char **argv, char **envp)
         /* Actually run the commands built by parse() */
         choose_actions(&obj);
         close_fds(&obj);
+        if (obj.heredoc)
+        {
+            if (obj.heredoc->pipe_fd[0] != -1)
+		        close(obj.heredoc->pipe_fd[0]);
+	        free(obj.heredoc);
+        }
 
         /* Wait for all child processes to finish */
         wait_for_children(&obj);
@@ -178,8 +184,13 @@ int main(int argc, char **argv, char **envp)
     }
 
     /* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
-    unlink(".heredoc_temp");
     clean_mshell(&obj);
+    if (obj.heredoc)
+    {
+        if (obj.heredoc->pipe_fd[0] != -1)
+	        close(obj.heredoc->pipe_fd[0]);
+	    free(obj.heredoc);
+    }
 
     /* Free envp only once */
     if (obj.envp)

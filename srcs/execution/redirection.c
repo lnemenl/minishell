@@ -6,52 +6,11 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 12:47:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/12 13:57:10 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-typedef struct s_heredoc
-{
-    char    *str;
-    char    *trimmed;
-    char    *expanded;
-    t_mshell *obj;
-}   t_heredoc;
-
-static void    cleanup_heredoc(t_heredoc *doc)
-{
-    if (doc->str)
-        free(doc->str);
-    if (doc->trimmed)
-        free(doc->trimmed);
-    if (doc->expanded)
-        free(doc->expanded);
-    doc->str = NULL;
-    doc->trimmed = NULL;
-    doc->expanded = NULL;
-}
-
-static int    process_heredoc_line(t_heredoc *doc)
-{
-    doc->str = readline("> ");
-    if (!doc->str || g_signal_received == SIGINT)
-        return (0);
-    doc->expanded = expand_env_vars(doc->str, doc->obj);
-    doc->trimmed = ft_strtrim(doc->expanded, "\n");
-    return (1);
-}
-
-static void    write_heredoc_line(t_heredoc *doc)
-{
-    if (doc->str[0] == '$')
-        ft_fprintf(doc->obj->fd_in, "%s\n", doc->expanded);
-        //ft_putstr_fd(doc->expanded, doc->obj->fd_in);
-    else
-        ft_fprintf(doc->obj->fd_in, "%s\n", doc->str);
-        //ft_putstr_fd(doc->str, doc->obj->fd_in);
-}
 
 static int has_input_redirection(t_ast_node *cmd)
 {
@@ -87,40 +46,6 @@ static int has_output_redirection(t_ast_node *cmd)
     return (0);
 }
 
-
-void    handle_here_doc(t_mshell *obj, t_ast_node *node)
-{
-    t_heredoc    doc;
-
-    if (node->type != TOKEN_HEREDOC)
-        return;
-    obj->fd_in = open(".heredoc_temp", O_WRONLY | O_CREAT | O_TRUNC, 0644);
-    if (obj->fd_in < 0)
-    {
-        clean_mshell(obj);
-        error_ret(6, NULL);
-    }
-    doc = (t_heredoc){NULL, NULL, NULL, obj};
-    obj->is_heredoc = 1;
-    g_signal_received = 0;
-    while (process_heredoc_line(&doc))
-    {
-        if (!ft_strcmp(node->args[0], doc.trimmed) || 
-            !ft_strcmp(node->args[0], doc.expanded))
-            break;
-        write_heredoc_line(&doc);
-        cleanup_heredoc(&doc);
-    }
-    cleanup_heredoc(&doc);
-    close(obj->fd_in);
-    if (g_signal_received == SIGINT)
-    {
-        obj->heredoc_interrupted = 1;
-        unlink(".heredoc_temp");
-        return ;
-    }
-}
-
 void redirection_input(t_mshell *obj, t_ast_node *node)
 {
     if (node->type == TOKEN_REDIRECT_IN)
@@ -136,13 +61,14 @@ void redirection_input(t_mshell *obj, t_ast_node *node)
         /* If heredoc was interrupted, do not proceed with redirection */
         if (obj->heredoc_interrupted)
             return ;
-        obj->fd_in = open(".heredoc_temp", O_RDONLY);
-        if (obj->fd_in == -1)
-            exit_child(obj, ".heredoc_temp", 1, 0);
+        obj->fd_in = obj->heredoc->pipe_fd[0];
     }
     dup2(obj->fd_in, STDIN_FILENO);
     close(obj->fd_in);
     obj->fd_in = -1;
+    obj->heredoc->pipe_fd[0] = -1;
+    free(obj->heredoc);
+    obj->heredoc = NULL;
 }
 
 void redirection_output(t_mshell *obj, t_ast_node *node)
