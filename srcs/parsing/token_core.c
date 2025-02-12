@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_core.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 14:56:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 18:51:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 13:12:56 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,8 @@ void    link_token(t_token **head, t_token **current, t_token *new)
         return;
     if (!*head)
         *head = new;
+    // else if (!*new->content)
+    //     return ;
     else
         (*current)->next = new;
     *current = new;

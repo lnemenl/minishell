@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/01/30 18:54:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 15:38:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,93 +14,107 @@
 
 static char *get_var_name(const char *str, int *i)
 {
-    int start;
-    int len;
+	int start;
+	int len;
 
-    start = *i;
-    if (!str[*i])
-        return (NULL);
-    if (str[*i] == '?')
-    {
-        (*i)++;
-        return (ft_strdup("?"));
-    }
-    while (str[*i] && (ft_isalnum(str[*i]) || str[*i] == '_'))
-        (*i)++;
-    len = *i - start;
-    if (len == 0)
-        return (NULL);
-    return (ft_substr(str, start, len));
+	start = *i;
+	if (!str[*i])
+		return (NULL);
+	if (str[*i] == '?')
+	{
+		(*i)++;
+		return (ft_strdup("?"));
+	}
+	while (str[*i] && (ft_isalnum(str[*i]) || str[*i] == '_'))
+		(*i)++;
+	len = *i - start;
+	if (len == 0)
+		return (NULL);
+	return (ft_substr(str, start, len));
 }
 
 char *get_env_value(const char *var_name, t_mshell *mshell)
 {
-    char *value;
+	char *value;
 
-    if (!var_name)
-        return (NULL);
-    if (ft_strcmp(var_name, "?") == 0)
-        return (ft_itoa(mshell->exit_code));
-    value = get_env_var(mshell->envp, var_name);
-    if (!value)
-        return (ft_strdup(""));
-    return (ft_strdup(value));
+	if (!var_name)
+		return (NULL);
+	if (ft_strcmp(var_name, "?") == 0)
+		return (ft_itoa(mshell->exit_code));
+	value = get_env_var(mshell->envp, var_name);
+	if (!value)
+		return (ft_strdup(""));
+	return (ft_strdup(value));
 }
 
 static char *join_and_free(char *s1, char *s2)
 {
-    char *result;
+	char *result;
 
-    if (!s1)
-        return (s2);
-    if (!s2)
-        return (s1);
-    result = ft_strjoin(s1, s2);
-    if (!result)
-    {
-        free(s1);
-        free(s2);
-        return (NULL);
-    }
-    free(s1);
-    free(s2);
-    return (result); 
+	if (!s1)
+		return (s2);
+	if (!s2)
+		return (s1);
+	result = ft_strjoin(s1, s2);
+	if (!result)
+	{
+		free(s1);
+		free(s2);
+		return (NULL);
+	}
+	free(s1);
+	free(s2);
+	return (result); 
 }
 
 char *expand_env_vars(const char *str, t_mshell *mshell)
 {
-    char *result;
-    char *var_name;
-    char *var_value;
-    int i;
-    int start;
+	char	*result;
+	char	*var_name;
+	char	*var_value;
+	char	*bash_pid;
+	int		i;
+	int		start;
 
-    if (!str || !mshell)
-        return (ft_strdup(""));
-    result = NULL;
-    i = 0;
-    while (str[i])
-    {
-        start = i;
-        while (str[i] && str[i] != '$')
-            i++;
-        if (i > start)
-            result = join_and_free(result, ft_substr(str, start, i - start));
-        if (str[i] == '$')
-        {
-            i++;
-            var_name = get_var_name(str, &i);
-            if (var_name)
-            {
-                var_value = get_env_value(var_name, mshell);
-                result = join_and_free(result, var_value);
-                free(var_name);
-            }
-            else
-                result = join_and_free(result, ft_strdup("$"));
-        }
-    }
-    if (!result)
-        return (ft_strdup(""));
-    return (result);
+	if (!str || !mshell)
+		return (ft_strdup(""));
+	result = NULL;
+	i = 0;
+	while (str[i])
+	{
+		start = i;
+		while (str[i] && str[i] != '$')
+			i++;
+		if (i > start)
+			result = join_and_free(result, ft_substr(str, start, i - start));
+		if (str[i] == '$')
+		{
+			i++;
+			if (str[i] == '$')
+			{
+				i++;
+				bash_pid = get_env_var(mshell->envp, "SESSION_MANAGER=");
+				if (!bash_pid)
+					result = join_and_free(result, NULL); 
+				result = join_and_free(result, ft_strdup(ft_strrchr(bash_pid, '/') + 1));
+			}
+			else if (is_quote(str[i]))
+				result = join_and_free(result, NULL);
+			else
+			{
+				var_name = get_var_name(str, &i);
+				if (var_name)
+				{
+					var_value = get_env_value(var_name, mshell);
+					result = join_and_free(result, var_value);
+					free(var_name);
+				}
+				else
+					result = join_and_free(result, ft_strdup("$"));
+			}
+		}
+	}
+	if (!result)
+		return (ft_strdup(""));
+	return (result);
 }

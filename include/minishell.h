@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   minishell.h                                        :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
+/*   Updated: 2025/02/12 12:27:03 by msavelie         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #ifndef MINISHELL_H
 # define MINISHELL_H
 
@@ -11,8 +23,15 @@
 # include <sys/wait.h>
 # include <signal.h>
 # include <termios.h>
+# include <sys/ioctl.h>
 
-# define PROMPT "shit-shell: " //"💩-shell: "
+# ifndef TCFLSH
+
+# define TCFLSH TCIFLUSH
+
+# endif
+
+# define PROMPT "shit-shell: "
 
 extern volatile sig_atomic_t g_signal_received;
 
@@ -68,6 +87,7 @@ typedef struct s_ast_node
 	char				**args;     // Command arguments (for TOKEN_WORD nodes)
 	struct s_ast_node	*left;      //Left child (e.g., command before a pipe)
 	struct s_ast_node	*right;     //Right child (e.g., command after a pipe or target of a redirection)
+	struct s_ast_node	**redirs;	//for redirections, order is preserved as encountered
 }   t_ast_node;
 
 typedef struct	s_mshell
@@ -91,6 +111,7 @@ typedef struct	s_mshell
 	int					fd_out;
 	size_t				args_move;
 	int					redir_check;
+	int					heredoc_interrupted;
 }	t_mshell;
 
 int						error_ret(int type, char *arg);
@@ -130,6 +151,7 @@ t_token					*process_token(t_token **head, t_token **current, const char *input,
 t_token					*handle_single_quotes(const char *input, int *i, t_mshell *mshell);
 t_token					*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
 t_token					*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
+char					*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
 int			cd(char **cd_args, t_mshell *obj);
@@ -141,18 +163,21 @@ int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
-int						is_redirect_token(t_token_type type);
 t_ast_node				*create_ast_node(t_token_type type);
-t_ast_node				*parse_pipeline(t_token **tokens, int i, t_mshell *obj);
-t_ast_node				*parse_command(t_token **tokens);
-void					free_ast(t_ast_node *node);
 t_ast_node				*free_ast_return_null(t_ast_node *node);
-t_ast_node				*handle_command_redirections(t_token **tokens, t_ast_node *cmd_node);
+void					free_ast(t_ast_node *node);
+int						is_redirect_token(t_token_type type);
+t_ast_node				*parse_simple_command(t_token **tokens);
+t_ast_node				*parse_command(t_token **tokens);
+t_ast_node				*parse_pipeline(t_token **tokens);
+//void					normalize_ast(t_ast_node *node);
 
-/* ===== AST COM		MAND (ast_command.c) ===== */
+
+
+/* ===== AST COMMAND (ast_command.c) ===== */
 t_ast_node				*build_command_node(t_token **tokens);
 
-/* ===== AST DEB		UG (ast_debug.c) ===== */
+/* ===== AST DEBUG (ast_debug.c) ===== */
 void					print_ast(t_ast_node *node, int depth);
 void					print_tokens(t_token *tokens);
 
@@ -160,7 +185,7 @@ void					print_tokens(t_token *tokens);
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
-//void	execute_cmd(t_mshell *obj, t_ast_node *left, t_ast_node *right);
+void	execute_cmd(t_mshell *obj, t_ast_node *cmd);
 char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin);
@@ -170,10 +195,9 @@ int		is_env_created(char *arg, char **strs);
 char	*get_env_var(char **envp, const char *var_name);
 
 /* =====				 REDIRECTION ===== */
-// void					redirection_input(t_mshell *obj, t_ast_node *node);
-// void					redirection_output(t_mshell *obj, t_ast_node *node);
-void					apply_redirections(t_mshell *obj, t_ast_node **redirs, int count);
-void					pipe_redirection(t_mshell *obj);
+void					redirection_input(t_mshell *obj, t_ast_node *node);
+void					redirection_output(t_mshell *obj, t_ast_node *node);
+void pipe_redirection(t_mshell *obj, t_ast_node *cmd);
 void					handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 /* =====				 CLEANUP ===== */
@@ -185,7 +209,6 @@ void 					setup_interactive_signals(void);
 void 					setup_exec_signals(void);
 void 					setup_heredoc_signals(void);
 void 					reset_signals(void);
-void    				save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit);
 void    				transition_signal_handlers(t_signal_state new_state);
 void					init_terminal_settings(void);
 void					restore_terminal_settings(void);

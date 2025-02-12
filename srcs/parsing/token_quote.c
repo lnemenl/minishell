@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/05 20:30:10 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/11 13:05:45 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,7 +15,7 @@
 t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
     t_token *token;
-    int     start;
+    char    *without_backslashes;
     char    *word;
 
     (*i)++;  // Skip the opening quote
@@ -32,8 +32,15 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
     word = ft_substr(input, start, (*i) - start);
     if (!word)
         return (NULL);
-    token = new_token(TOKEN_WORD, word, ft_strlen(word), mshell);
-    free(word);
+    without_backslashes = handle_backslash(word);
+	if (!without_backslashes)
+	{
+		free(word);
+		return (NULL);
+	}
+	free (word);
+    token = new_token(TOKEN_WORD, without_backslashes, ft_strlen(without_backslashes), mshell);
+    free(without_backslashes);
     if (!token)
         return (NULL);
     token->quote_state = QUOTE_SINGLE;
@@ -45,6 +52,7 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 {
     int     start;
     char    *content;
+    char    *without_backslashes;
     char    *expanded;
     t_token *token;
 
@@ -66,9 +74,15 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
         mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
         return (NULL);
     }
-    
-    expanded = expand_env_vars(content, mshell);
-    free(content);
+    without_backslashes = handle_backslash(content);
+	if (!without_backslashes)
+	{
+		free(content);
+		return (NULL);
+	}
+	free (content);
+    expanded = expand_env_vars(without_backslashes, mshell);
+    free(without_backslashes);
     if (!expanded)
         return (NULL);
     token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), mshell);
@@ -83,17 +97,20 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 
 t_token *handle_quotes(t_token **head, t_token **current, const char *input, int *i)
 {
-    int         merging_with_previous;
+    int         in_word;
     char        quote;
     t_token     *token;
     t_token     *prev_token;
     char        *joined;
 
-    if (!input || !input[*i] || !head || !current || !*current)
+    if (!input[*i])
         return (NULL);
     // If we are not at the start of the line and the preceding character isn't whitespace,
-    // set in word to 1 so that we are still in the same word    
-    merging_with_previous = ( (*i > 0) && !ft_isspace(input[*i - 1]) );
+    // set in_word to 1 so that we are still in the same word    
+    in_word = 0;
+    if (*i > 0 && !ft_isspace(input[*i - 1]))
+        in_word = 1;
+        
     prev_token = *current;
     quote = input[*i];
     if (quote == '"')
