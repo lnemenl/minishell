@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/11 16:14:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/12 12:46:30 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -124,7 +124,7 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 		free(without_backslashes);
 		if (!expanded)
 			return (NULL);
-		char *joined = ft_strjoin((*current)->content, expanded);
+		joined = ft_strjoin((*current)->content, expanded);
 		free(expanded);
 		if (!joined)
 			return (NULL);
