@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 13:29:51 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/12 16:32:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -121,6 +121,7 @@ typedef struct s_heredoc
     char		*trimmed;
     char		*expanded;
 	int			pipe_fd[2];
+	int			stdin_fd;
     t_mshell	*obj;
 }   t_heredoc;
 

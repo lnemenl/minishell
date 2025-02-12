@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/10 20:52:09 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/12 17:06:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -155,76 +155,65 @@ void	alloc_pipes(t_mshell *obj)
 
 static void apply_redirections(t_mshell *obj, t_ast_node *cmd)
 {
-    int i;
+	int i;
 
-    if (!cmd || !cmd->redirs)
-        return;
-    i = 0;
-    while (cmd->redirs[i])
-    {
-        if (cmd->redirs[i]->type == TOKEN_HEREDOC)
-        {
-            /* For heredoc, write temporary file and then redirect input */
-            handle_here_doc(obj, cmd->redirs[i]);
-            redirection_input(obj, cmd->redirs[i]);
-        }
-        else if (cmd->redirs[i]->type == TOKEN_REDIRECT_IN)
-        {
-            redirection_input(obj, cmd->redirs[i]);
-        }
-        else if (cmd->redirs[i]->type == TOKEN_REDIRECT_OUT ||
-                 cmd->redirs[i]->type == TOKEN_REDIRECT_APPEND)
-        {
-            redirection_output(obj, cmd->redirs[i]);
-        }
-        i++;
-    }
+	if (!cmd || !cmd->redirs)
+		return;
+	i = 0;
+	while (cmd->redirs[i])
+	{
+		if (cmd->redirs[i]->type == TOKEN_HEREDOC
+			|| cmd->redirs[i]->type == TOKEN_REDIRECT_IN)
+			redirection_input(obj, cmd->redirs[i]);
+		else if (cmd->redirs[i]->type == TOKEN_REDIRECT_OUT ||
+				cmd->redirs[i]->type == TOKEN_REDIRECT_APPEND)
+			redirection_output(obj, cmd->redirs[i]);
+		i++;
+	}
 }
 
 void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
-    if (!cmd || !cmd->args || !cmd->args[0])
-        return;
-    if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
-        return;
-    obj->args_move = 0;
-    obj->exec_cmds++;
-    signal(SIGINT, SIG_IGN);
-    signal(SIGQUIT, SIG_IGN);
-    obj->pids[obj->cur_pid] = fork();
-    if (obj->pids[obj->cur_pid] == -1)
-    {
-        clean_mshell(obj);
-        return ;
-    }
-    else if (obj->pids[obj->cur_pid] == 0)
-    {
-        /* Child process context */
-        reset_signals();
-        restore_terminal_settings();
-        /* Apply redirections (including heredoc) */
-        apply_redirections(obj, cmd);
+	if (!cmd || !cmd->args || !cmd->args[0])
+		return;
+	if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
+		return;
+	obj->args_move = 0;
+	obj->exec_cmds++;
+	signal(SIGINT, SIG_IGN);
+	signal(SIGQUIT, SIG_IGN);
+	obj->pids[obj->cur_pid] = fork();
+	if (obj->pids[obj->cur_pid] == -1)
+	{
+		clean_mshell(obj);
+		return ;
+	}
+	else if (obj->pids[obj->cur_pid] == 0)
+	{
+		reset_signals();
+		restore_terminal_settings();
+		apply_redirections(obj, cmd);
 
-        /* Abort command execution if heredoc was interrupted */
-        if (obj->heredoc_interrupted)
-            exit_child(obj, "", 130, 0);
+		/* Abort command execution if heredoc was interrupted */
+		if (obj->heredoc_interrupted)
+			exit_child(obj, "", 130, 0);
 
-        if (obj->allocated_pipes >= 1)
-            pipe_redirection(obj, cmd);
-        close_fds(obj);
-        /* Execute builtins or external command */
-        if (is_builtin_cmd(cmd->args[0]) == 1)
-        {
-            run_builtins(cmd->args, obj);
-            exit_child(obj, cmd->args[0], obj->exit_code, 1);
-        }
-        else
-        {
-            obj->cur_path = check_paths_access(obj->paths, cmd, obj);
-            execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
-            exit_child(obj, cmd->args[0], 127, 0);
-        }
-    }
+		if (obj->allocated_pipes >= 1)
+			pipe_redirection(obj, cmd);
+		close_fds(obj);
+		/* Execute builtins or external command */
+		if (is_builtin_cmd(cmd->args[0]) == 1)
+		{
+			run_builtins(cmd->args, obj);
+			exit_child(obj, cmd->args[0], obj->exit_code, 1);
+		}
+		else
+		{
+			obj->cur_path = check_paths_access(obj->paths, cmd, obj);
+			execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
+			exit_child(obj, cmd->args[0], 127, 0);
+		}
+	}
 }
 
 static void	check_redirections(t_mshell *obj)
@@ -247,31 +236,51 @@ static void	check_redirections(t_mshell *obj)
 	}
 }
 
+static void	run_heredoc(t_mshell *obj, t_ast_node *node)
+{
+	int	i;
+
+	if (!node || !node->redirs || !*node->redirs)
+		return ;
+	i = 0;
+	while (node->redirs[i])
+	{
+		handle_here_doc(obj, node->redirs[i]);
+		i++;
+	}
+}
+
 void choose_actions(t_mshell *obj)
 {
-    t_ast_node *temp;
+	t_ast_node *temp;
 
-    if (!obj)
-        return;
+	if (!obj)
+		return;
 
-    alloc_pipes(obj);
-    check_redirections(obj);
-    obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
-    if (!obj->pids)
-    {
-        clean_mshell(obj);
-        error_ret(5, NULL);
-    }
-    temp = obj->ast;
-    while (temp)
-    {
-        if (obj->heredoc_interrupted || g_signal_received)
-            break;
-        if (temp->left)
-            execute_cmd(obj, temp->left);
-        else
-            execute_cmd(obj, temp);
-        temp = temp->right;
-        obj->cur_pid++;
-    }
+	alloc_pipes(obj);
+	check_redirections(obj);
+	obj->pids = ft_calloc(obj->allocated_pipes + 1, sizeof(pid_t));
+	if (!obj->pids)
+	{
+		clean_mshell(obj);
+		error_ret(5, NULL);
+	}
+	temp = obj->ast;
+	while (temp)
+	{
+		if (obj->heredoc_interrupted || g_signal_received)
+			break;
+		if (temp->left)
+		{
+			run_heredoc(obj, temp->left);
+			execute_cmd(obj, temp->left);
+		}
+		else
+		{
+			run_heredoc(obj, temp);
+			execute_cmd(obj, temp);
+		}
+		temp = temp->right;
+		obj->cur_pid++;
+	}
 }

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 14:01:51 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/12 16:34:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,7 @@ static t_heredoc	*init_heredoc(t_mshell *obj)
 	heredoc_obj->obj = obj;
 	heredoc_obj->pipe_fd[0] = -1;
 	heredoc_obj->pipe_fd[1] = -1;
+	heredoc_obj->stdin_fd = -1;
 	if (pipe(heredoc_obj->pipe_fd) == -1)
 	{
 		clean_mshell(obj);
@@ -49,14 +50,12 @@ static void	cleanup_heredoc(t_heredoc *doc)
 	doc->str = NULL;
 	doc->trimmed = NULL;
 	doc->expanded = NULL;
-	if (doc->pipe_fd[1] != -1)
-		close(doc->pipe_fd[1]);
-	doc->pipe_fd[1] = -1;
 }
 
 static int	process_heredoc_line(t_heredoc *doc)
 {
-	doc->str = readline("> ");
+	write(STDOUT_FILENO, "> ", 2);
+	doc->str = get_next_line(STDIN_FILENO);
 	if (!doc->str || g_signal_received == SIGINT)
 		return (0);
 	doc->expanded = expand_env_vars(doc->str, doc->obj);
@@ -67,9 +66,9 @@ static int	process_heredoc_line(t_heredoc *doc)
 static void	write_heredoc_line(t_heredoc *doc)
 {
 	if (doc->str[0] == '$')
-		ft_fprintf(doc->pipe_fd[1], "%s\n", doc->expanded);
+		ft_fprintf(doc->pipe_fd[1], "%s", doc->expanded);
 	else
-		ft_fprintf(doc->pipe_fd[1], "%s\n", doc->str);
+		ft_fprintf(doc->pipe_fd[1], "%s", doc->str);
 }
 
 void	handle_here_doc(t_mshell *obj, t_ast_node *node)
@@ -77,6 +76,7 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 	if (node->type != TOKEN_HEREDOC)
 		return;
 	obj->heredoc = init_heredoc(obj);
+	obj->heredoc->stdin_fd = dup(STDIN_FILENO);
 	obj->is_heredoc = 1;
 	g_signal_received = 0;
 	while (process_heredoc_line(obj->heredoc))
@@ -88,6 +88,8 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 		cleanup_heredoc(obj->heredoc);
 	}
 	cleanup_heredoc(obj->heredoc);
+	if (obj->heredoc->pipe_fd[1] != -1)
+		close(obj->heredoc->pipe_fd[1]);
 	if (g_signal_received == SIGINT)
 	{
 		obj->heredoc_interrupted = 1;
