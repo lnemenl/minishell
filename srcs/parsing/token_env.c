@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/11 15:38:26 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:13:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -67,7 +67,45 @@ static char *join_and_free(char *s1, char *s2)
 	return (result); 
 }
 
-char *expand_env_vars(const char *str, t_mshell *mshell)
+
+char	*extract_quoted_var_name(const char *str, int *i)
+{
+	char	quote;
+	int		start;
+	char	*quoted;
+
+	if (str[*i] != '"' && str[*i] != '\'')
+		return (NULL);
+	quote = str[*i];
+	(*i)++;
+	start = *i;
+	while (str[*i] && str[*i] != quote)
+		(*i)++;
+	quoted = ft_substr(str, start, *i - start);
+	if (str[*i] == quote)
+		(*i)++;
+	return (quoted);
+}
+
+char	*remove_quotes(const char *str)
+{
+	int		len;
+	char	*without;
+	
+	if (!str)
+		return (ft_strdup(""));
+	len = ft_strlen(str);
+	if ((str[0] == '"' && str[len - 1] == '"') ||
+		(str[0] == '\'' && str[len - 1] == '\''))
+		without = ft_substr(str, 1, len - 2);
+	else
+		without = ft_strdup(str);
+	return (without);
+}
+
+
+
+char	*expand_env_vars(const char *str, t_mshell *mshell)
 {
 	char	*result;
 	char	*var_name;
@@ -90,16 +128,27 @@ char *expand_env_vars(const char *str, t_mshell *mshell)
 		if (str[i] == '$')
 		{
 			i++;
+			/* Handle literal "$$" case */
 			if (str[i] == '$')
 			{
 				i++;
 				bash_pid = get_env_var(mshell->envp, "SESSION_MANAGER=");
-				if (!bash_pid)
-					result = join_and_free(result, NULL); 
-				result = join_and_free(result, ft_strdup(ft_strrchr(bash_pid, '/') + 1));
+				if (bash_pid)
+					result = join_and_free(result, ft_strdup(ft_strrchr(bash_pid, '/') + 1));
+				else
+					result = join_and_free(result, ft_strdup(""));
 			}
 			else if (is_quote(str[i]))
-				result = join_and_free(result, NULL);
+			{
+				var_name = extract_quoted_var_name(str, &i);
+				if (var_name)
+				{
+					result = join_and_free(result, var_name);
+					free(var_name);
+				}
+				else
+					result = join_and_free(result, ft_strdup("$"));
+			}
 			else
 			{
 				var_name = get_var_name(str, &i);

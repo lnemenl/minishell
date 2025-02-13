@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/10 20:33:11 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:14:30 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,19 +73,15 @@ static void exec_signal_handler(int signum)
 
 void init_terminal_settings(void)
 {
-    /* Only attempt terminal manipulation if STDIN is a tty.
-       This prevents “Inappropriate ioctl for device” errors on macOS test environments. */
     if (!isatty(STDIN_FILENO))
         return;
         
     if (tcgetattr(STDIN_FILENO, &original_term) == -1)
     {
         perror("tcgetattr error");
-        /* Instead of exiting, you might decide to continue in non-interactive mode */
         return;
     }
     shell_term = original_term;
-    /* Optionally modify shell_term if needed by your shell */
     if (tcsetattr(STDIN_FILENO, TCSANOW, &shell_term) == -1)
     {
         perror("tcsetattr error");
@@ -127,7 +123,6 @@ void restore_terminal_settings(void)
         perror("tcsetattr restore error");
     }
 }
-
 
 void transition_signal_handlers(t_signal_state new_state)
 {

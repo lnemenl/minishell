@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/12 12:46:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:13:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,17 +19,16 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 	char    *without_backslashes;
 	char    *word;
 
-	(*i)++;  // Skip the opening quote
+	(*i)++;
 	start = *i;
 	while (input[*i] && input[*i] != '\'')
 		(*i)++;
 	if (!input[*i])
 	{
 		ft_putstr_fd("minishell: syntax error: unclosed single quote\n", 2);
-		mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
+		mshell->exit_code = 2;
 		return (NULL);
 	}
-	// Creating a substring for the content between single quotes
 	word = ft_substr(input, start, (*i) - start);
 	if (!word)
 		return (NULL);
@@ -39,13 +38,13 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 		free(word);
 		return (NULL);
 	}
-	free (word);
+	free(word);
 	token = new_token(TOKEN_WORD, without_backslashes, ft_strlen(without_backslashes), mshell);
 	free(without_backslashes);
 	if (!token)
 		return (NULL);
 	token->quote_state = QUOTE_SINGLE;
-	(*i)++;  // Skip the closing quote
+	(*i)++;
 	return (token);
 }
 
@@ -57,22 +56,21 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 	char    *expanded;
 	t_token *token;
 
-	(*i)++;  // Skip opening quote
+	(*i)++;
 	start = *i;
 	while (input[*i] && input[*i] != '"')
 		(*i)++;
 	if (!input[*i])
 	{
 		ft_putstr_fd("minishell: syntax error: unclosed double quote\n", 2);
-		mshell->exit_code = 2;  // Specific error code for unclosed quotes
+		mshell->exit_code = 2;
 		return (NULL);
 	}
-	
 	content = ft_substr(input, start, *i - start);
 	if (!content)
 	{
 		ft_putstr_fd("minishell: syntax error: unclosed double quote\n", 2);
-		mshell->exit_code = 2;  // Set a specific error code for unclosed quotes
+		mshell->exit_code = 2;
 		return (NULL);
 	}
 	without_backslashes = handle_backslash(content);
@@ -81,7 +79,7 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 		free(content);
 		return (NULL);
 	}
-	free (content);
+	free(content);
 	expanded = expand_env_vars(without_backslashes, mshell);
 	free(without_backslashes);
 	if (!expanded)
@@ -90,28 +88,25 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 	free(expanded);
 	if (!token)
 		return (NULL);
-	
 	token->quote_state = QUOTE_DOUBLE;
-	(*i)++;  // Skip closing quote
+	(*i)++;
 	return (token);
 }
 
-t_token *handle_quotes(t_token **head, t_token **current, const char *input, int *i)
+t_token	*handle_quotes(t_token **head, t_token **current, const char *input, int *i)
 {
-	int         in_word;
-	char        quote;
-	char		*joined;
-	t_token     *token;
-	t_token     *prev_token;
+	int in_word;
+	char quote;
+	char *joined;
+	t_token *token;
+	t_token *prev_token;
 
 	if (!input[*i])
 		return (NULL);
-	// If we are not at the start of the line and the preceding character isn't whitespace,
-	// set in_word to 1 so that we are still in the same word    
 	in_word = 0;
 	if (*i > 0 && !ft_isspace(input[*i - 1]))
 		in_word = 1;
-		
+
 	prev_token = *current;
 	quote = input[*i];
 	if (quote == '"')
@@ -123,17 +118,29 @@ t_token *handle_quotes(t_token **head, t_token **current, const char *input, int
 		(*current)->mshell->exit_code = 1;
 		return (NULL);
 	}
-	if (in_word && prev_token && prev_token->content && prev_token->type == TOKEN_WORD)
+	if (in_word && prev_token && prev_token->type == TOKEN_WORD)
 	{
-		joined = ft_strjoin(prev_token->content, token->content);
-		if (!joined)
-			return (NULL);
-		free(prev_token->content);
-		prev_token->content = joined;
-		prev_token->quote_state = token->quote_state;
-		free(token->content);
-		free(token);
-		return prev_token;
+		if (ft_strcmp(prev_token->content, "$") == 0)
+		{
+			free(prev_token->content);
+			prev_token->content = ft_strdup(token->content);
+			prev_token->quote_state = token->quote_state;
+			free(token->content);
+			free(token);
+			return (prev_token);
+		}
+		else
+		{
+			joined = ft_strjoin(prev_token->content, token->content);
+			if (!joined)
+				return (NULL);
+			free(prev_token->content);
+			prev_token->content = joined;
+			prev_token->quote_state = token->quote_state;
+			free(token->content);
+			free(token);
+			return (prev_token);
+		}
 	}
 	link_token(head, current, token);
 	return (token);

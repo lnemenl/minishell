@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 15:13:02 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:11:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,7 +137,6 @@ t_quote_state			get_quote_state(char quote);
 
 /* ===== PARSING		 ===== */
 void					parse(t_mshell *obj);
-void					print_parse_debug(t_mshell *obj);
 t_token					*tokenize(const char *input, t_mshell *mshell);
 void					init_tokenize(t_token **head, t_token **current);
 t_token					*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
@@ -180,16 +179,6 @@ int						is_redirect_token(t_token_type type);
 t_ast_node				*parse_simple_command(t_token **tokens);
 t_ast_node				*parse_command(t_token **tokens);
 t_ast_node				*parse_pipeline(t_token **tokens);
-//void					normalize_ast(t_ast_node *node);
-
-
-
-/* ===== AST COMMAND (ast_command.c) ===== */
-t_ast_node				*build_command_node(t_token **tokens);
-
-/* ===== AST DEBUG (ast_debug.c) ===== */
-void					print_ast(t_ast_node *node, int depth);
-void					print_tokens(t_token *tokens);
 
 
 /* ===== EXECUTION ===== */
@@ -222,4 +211,120 @@ void 	reset_signals(void);
 void	transition_signal_handlers(t_signal_state new_state);
 void	init_terminal_settings(void);
 void	restore_terminal_settings(void);
+
+
 #endif
+
+/*
+rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << $USER
+
+> why
+
+> not
+
+> $USER
+
+why
+
+not
+
+rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << "$USER"
+
+> why
+
+> not
+
+> $USER
+
+why
+
+not
+
+rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << "$US"E"R"
+
+> why
+
+> not
+
+> $USER
+
+why
+
+not
+
+rkhakimu@c1r6p4:~/Desktop/42/minishell$ ./minishell
+
+shit-shell: cat << $USER
+
+> why
+
+> not
+
+> $USER
+
+why
+
+not
+
+shit-shell: cat << "$USER"
+
+> why
+
+> not
+
+> $USER
+
+why
+
+not
+
+shit-shell: cat << "$US"E"R"
+
+> why
+
+> not
+
+> $USER
+
+> NOT WORKING
+
+> ^C
+
+shit-shell: : Inappropriate ioctl for device
+
+shit-shell:
+
+
+char	*process_heredoc_delimiter(const char *input, int *i)
+{
+	char	*delimiter;
+	char	*piece;
+	int		start;
+
+	delimiter = ft_strdup("");  // Start with empty string
+	while (input[*i] && !ft_isspace(input[*i]))
+	{
+		if (input[*i] == '"' || input[*i] == '\'')
+		{
+			char quote = input[*i];
+			(*i)++;  // Skip the opening quote
+			start = *i;
+			while (input[*i] && input[*i] != quote)
+				(*i)++;
+			piece = ft_substr(input, start, *i - start);
+			if (input[*i] == quote)
+				(*i)++;
+		}
+		else
+		{
+			start = *i;
+			while (input[*i] && !ft_isspace(input[*i]) &&
+				   input[*i] != '"' && input[*i] != '\'')
+				(*i)++;
+			piece = ft_substr(input, start, *i - start);
+		}
+		delimiter = join_and_free(delimiter, piece);
+	}
+	return (delimiter);
+}
+*/
