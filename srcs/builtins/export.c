@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 15:52:36 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:13:32 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,5 +106,6 @@ int	export(char **args, t_mshell *obj)
 		return (1);
 	put_env_var(obj, new_arg);
 	free(new_arg);
+	obj->exit_code = 0;
 	return (1);
 }

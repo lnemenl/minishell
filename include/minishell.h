@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 11:42:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:13:02 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -165,10 +165,10 @@ char					*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
 int			cd(char **cd_args, t_mshell *obj);
-int			pwd(void);
+int			pwd(t_mshell *obj);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
 int			env(t_mshell *obj);
-int			echo(char **args);
+int			echo(char **args, t_mshell *obj);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
@@ -205,21 +205,21 @@ int		is_env_created(char *arg, char **strs);
 char	*get_env_var(char **envp, const char *var_name);
 
 /* =====				 REDIRECTION ===== */
-void					redirection_input(t_mshell *obj, t_ast_node *node);
-void					redirection_output(t_mshell *obj, t_ast_node *node);
-void pipe_redirection(t_mshell *obj, t_ast_node *cmd);
-void					handle_here_doc(t_mshell *obj, t_ast_node *node);
+void	redirection_input(t_mshell *obj, t_ast_node *node);
+void	redirection_output(t_mshell *obj, t_ast_node *node);
+void	pipe_redirection(t_mshell *obj, t_ast_node *cmd);
+int		handle_here_doc(t_mshell *obj, t_ast_node *node);
 
 /* =====				 CLEANUP ===== */
-void					clean_strs(char **strs);
+void	clean_strs(char **strs);
 
 
 /* ===== SIGNALS ===== */
-void 					setup_interactive_signals(void);
-void 					setup_exec_signals(void);
-void 					setup_heredoc_signals(void);
-void 					reset_signals(void);
-void    				transition_signal_handlers(t_signal_state new_state);
-void					init_terminal_settings(void);
-void					restore_terminal_settings(void);
+void 	setup_interactive_signals(void);
+void 	setup_exec_signals(void);
+void 	setup_heredoc_signals(void);
+void 	reset_signals(void);
+void	transition_signal_handlers(t_signal_state new_state);
+void	init_terminal_settings(void);
+void	restore_terminal_settings(void);
 #endif

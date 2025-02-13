@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/11 16:04:23 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:12:55 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -73,7 +73,7 @@ int	cd(char **cd_args, t_mshell *obj)
 	return (1);
 }
 
-int	pwd(void)
+int	pwd(t_mshell *obj)
 {
 	size_t	buffer_size;
 	char	*buf;
@@ -82,14 +82,14 @@ int	pwd(void)
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
-		//cleanup struct
-		ft_fprintf(2, "Malloc error!\n");
-		exit(1);
+		clean_mshell(obj);
+		error_ret(5, NULL);
 	}
 	while (!getcwd(buf, buffer_size))
 		realloc_buffer(&buf, &buffer_size);
 	printf("%s\n", buf);
 	free(buf);
+	obj->exit_code = 0;
 	return (1);
 }
 
@@ -127,7 +127,7 @@ int	env(t_mshell *obj)
 	return (1);
 }
 
-int	echo(char **args)
+int	echo(char **args, t_mshell *obj)
 {
 	int	i;
 
@@ -148,5 +148,6 @@ int	echo(char **args)
 	}
 	if (ft_strcmp(args[1], "-n") != 0)
 		printf("\n");
+	obj->exit_code = 0;
 	return (1);
 }
