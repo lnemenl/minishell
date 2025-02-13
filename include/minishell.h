@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 12:27:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 10:47:41 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,8 +175,6 @@ t_ast_node				*parse_pipeline(t_token **tokens);
 
 
 /* ===== AST COMMAND (ast_command.c) ===== */
-t_ast_node				*build_command_node(t_token **tokens);
-
 /* ===== AST DEBUG (ast_debug.c) ===== */
 void					print_ast(t_ast_node *node, int depth);
 void					print_tokens(t_token *tokens);
