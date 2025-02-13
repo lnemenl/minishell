@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/10 20:33:11 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/13 10:17:04 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,43 +16,16 @@ volatile sig_atomic_t g_signal_received = 0;
 static struct termios original_term;
 static struct termios shell_term;
 
-
-static void set_sigaction(int signum, void (*handler)(int), int flags)
-{
-    struct sigaction sa;
-    if (sigemptyset(&sa.sa_mask) == -1)
-    {
-        perror("sigemptyset error");
-        exit(EXIT_FAILURE);
-    }
-    sa.sa_flags = flags;
-    sa.sa_handler = handler;
-    if (sigaction(signum, &sa, NULL) == -1)
-    {
-        perror("sigaction error");
-        exit(EXIT_FAILURE);
-    }
-}
-
-
 static void interactive_signal_handler(int signum)
 {
-    struct termios t;
     g_signal_received = signum;
+    
     if (signum == SIGINT)
     {
-        if (write(STDOUT_FILENO, "\n", 1) == -1)
-            restore_terminal_settings();
-        if(tcgetattr(STDIN_FILENO, &t) == 0)
-        {
-            t.c_lflag |= (ECHO | ICANON);
-            if(tcsetattr(STDIN_FILENO, TCSANOW, &t) == -1)
-                perror("tcsetattr error in signal handler");
-        }
+        write(STDOUT_FILENO, "\n", 1);
         rl_on_new_line();
         rl_replace_line("", 0);
         rl_redisplay();
-        ioctl(STDIN_FILENO, TCFLSH, 0);
     }
 }
 
@@ -60,77 +33,83 @@ static void exec_signal_handler(int signum)
 {
     g_signal_received = signum;
     if (signum == SIGINT)
-    {
-        if (write(STDERR_FILENO, "\n", 1) == -1)
-            ;
-    }
+        write(STDERR_FILENO, "\n", 1);
     else if (signum == SIGQUIT)
-    {
-        if (write(STDERR_FILENO, "Quit: (core dumped)\n", 21) == -1)
-            ;
-    }
+        write(STDERR_FILENO, "Quit: (core dumped)\n", 21);
 }
 
 void init_terminal_settings(void)
 {
-    /* Only attempt terminal manipulation if STDIN is a tty.
-       This prevents “Inappropriate ioctl for device” errors on macOS test environments. */
-    if (!isatty(STDIN_FILENO))
-        return;
-        
-    if (tcgetattr(STDIN_FILENO, &original_term) == -1)
-    {
-        perror("tcgetattr error");
-        /* Instead of exiting, you might decide to continue in non-interactive mode */
-        return;
-    }
+    tcgetattr(STDIN_FILENO, &original_term);
     shell_term = original_term;
-    /* Optionally modify shell_term if needed by your shell */
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &shell_term) == -1)
-    {
-        perror("tcsetattr error");
-        return;
-    }
 }
 
 void setup_interactive_signals(void)
 {
-    set_sigaction(SIGINT, interactive_signal_handler, 0);
-    set_sigaction(SIGQUIT, SIG_IGN, 0);
+    struct sigaction sa;
+
+    tcsetattr(STDIN_FILENO, TCSANOW, &shell_term);
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = SA_RESTART;
+    sa.sa_handler = interactive_signal_handler;
+    
+    sigaction(SIGINT, &sa, NULL);
+    signal(SIGQUIT, SIG_IGN);
 }
 
 void setup_exec_signals(void)
 {
-    set_sigaction(SIGINT, exec_signal_handler, 0);
-    set_sigaction(SIGQUIT, exec_signal_handler, 0);
+    struct sigaction sa;
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = exec_signal_handler;
+
+    sigaction(SIGINT, &sa, NULL);
+    sigaction(SIGQUIT, &sa, NULL);
 }
 
 void setup_heredoc_signals(void)
 {
-    set_sigaction(SIGINT, interactive_signal_handler, 0);
-    set_sigaction(SIGQUIT, SIG_IGN, 0);
+    struct sigaction sa;
+
+    sigemptyset(&sa.sa_mask);
+    sa.sa_flags = 0;
+    sa.sa_handler = SIG_DFL;
+
+    sigaction(SIGINT, &sa, NULL);
+    signal(SIGQUIT, SIG_IGN);
 }
 
 void reset_signals(void)
 {
-    set_sigaction(SIGINT, SIG_DFL, 0);
-    set_sigaction(SIGQUIT, SIG_DFL, 0);
+    signal(SIGINT, SIG_DFL);
+    signal(SIGQUIT, SIG_DFL);
+}
+
+void    save_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)
+{
+    sigaction(SIGINT, NULL, old_int);
+    sigaction(SIGQUIT, NULL, old_quit);
 }
 
 void restore_terminal_settings(void)
 {
-    if (!isatty(STDIN_FILENO))
-        return;
-        
-    if (tcsetattr(STDIN_FILENO, TCSANOW, &original_term) == -1)
-    {
-        perror("tcsetattr restore error");
-    }
+    tcsetattr(STDIN_FILENO, TCSANOW, &original_term);
 }
 
-
-void transition_signal_handlers(t_signal_state new_state)
+void    restore_signal_handlers(struct sigaction *old_int, struct sigaction *old_quit)
 {
+    sigaction(SIGINT, old_int, NULL);
+    sigaction(SIGQUIT, old_quit, NULL);
+}
+
+void    transition_signal_handlers(t_signal_state new_state)
+{
+    static struct sigaction    old_handlers[2];
+
+    save_signal_handlers(&old_handlers[0], &old_handlers[1]);
 
     if (new_state == SIGNAL_STATE_INTERACTIVE)
         setup_interactive_signals();
