@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 12:12:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:27:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,7 +75,6 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 	if (node->type != TOKEN_HEREDOC)
 		return;
 	obj->heredoc = init_heredoc(obj);
-	obj->stdin_fd = dup(STDIN_FILENO);
 	g_signal_received = 0;
 	while (process_heredoc_line(obj->heredoc))
 	{

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 12:04:43 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:33:32 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -195,6 +195,8 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 		apply_redirections(obj, cmd);
 
 		/* Abort command execution if heredoc was interrupted */
+		if (obj->stdin_fd != -1)
+			close(obj->stdin_fd);
 		if (obj->heredoc_interrupted)
 			exit_child(obj, "", 130, 0);
 
@@ -243,6 +245,7 @@ static void	run_heredoc(t_mshell *obj, t_ast_node *node)
 	if (!node || !node->redirs || !*node->redirs)
 		return ;
 	i = 0;
+	obj->stdin_fd = dup(STDIN_FILENO);
 	while (node->redirs[i])
 	{
 		handle_here_doc(obj, node->redirs[i]);
