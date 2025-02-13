@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 17:06:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:04:43 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -279,6 +279,12 @@ void choose_actions(t_mshell *obj)
 		{
 			run_heredoc(obj, temp);
 			execute_cmd(obj, temp);
+		}
+		if (obj->stdin_fd != -1)
+		{
+			dup2(obj->stdin_fd, STDIN_FILENO);
+			close(obj->stdin_fd);
+			obj->stdin_fd = -1;
 		}
 		temp = temp->right;
 		obj->cur_pid++;

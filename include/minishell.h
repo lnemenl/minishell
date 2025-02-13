@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 16:32:26 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:42:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,6 @@ typedef struct	s_mshell
 	char				**cmds;         	// Array of command strings (split version of cmd_line)
 	char				*cur_path;      	// Current working directory path
 	char				**paths;
-	int					is_heredoc;     	// Flag for active heredoc mode
 	int					exec_cmds;     		// Total number of executable commands
 	int					allocated_pipes;	// Number of pipes allocated
 	int					**pipfd;        	// File descriptors for pipes
@@ -113,6 +112,7 @@ typedef struct	s_mshell
 	int					redir_check;
 	int					heredoc_interrupted;
 	struct s_heredoc	*heredoc;
+	int					stdin_fd;
 }	t_mshell;
 
 typedef struct s_heredoc
@@ -121,7 +121,6 @@ typedef struct s_heredoc
     char		*trimmed;
     char		*expanded;
 	int			pipe_fd[2];
-	int			stdin_fd;
     t_mshell	*obj;
 }   t_heredoc;
 

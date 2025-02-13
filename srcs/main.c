@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 17:12:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:47:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,6 @@ static t_mshell	init_shell(char **argv, char **envp)
 {
 	t_mshell	obj;
 
-	obj.is_heredoc = 0;
 	obj.allocated_pipes = 0;
 	obj.cmd_line = NULL;
 	obj.cmds = NULL;
@@ -61,6 +60,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.args_move = 0;
 	obj.redir_check = 0;
 	obj.heredoc_interrupted = 0;
+	obj.stdin_fd = -1;
 	(void) argv;
 	return (obj);
 }
@@ -165,13 +165,6 @@ int main(int argc, char **argv, char **envp)
 		/* Actually run the commands built by parse() */
 		choose_actions(&obj);
 		close_fds(&obj);
-		if (obj.heredoc)
-		{
-			if (obj.heredoc->pipe_fd[0] != -1)
-				close(obj.heredoc->pipe_fd[0]);
-			free(obj.heredoc);
-			obj.heredoc = NULL;
-		}
 
 		/* Wait for all child processes to finish */
 		wait_for_children(&obj);
@@ -186,13 +179,6 @@ int main(int argc, char **argv, char **envp)
 
 	/* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
 	clean_mshell(&obj);
-	if (obj.heredoc)
-	{
-		if (obj.heredoc->pipe_fd[0] != -1)
-			close(obj.heredoc->pipe_fd[0]);
-		free(obj.heredoc);
-		obj.heredoc = NULL;
-	}
 
 	/* Free envp only once */
 	if (obj.envp)

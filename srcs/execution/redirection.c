@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 13:57:10 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 11:48:07 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,17 +58,16 @@ void redirection_input(t_mshell *obj, t_ast_node *node)
     }
     else
     {
-        /* If heredoc was interrupted, do not proceed with redirection */
         if (obj->heredoc_interrupted)
             return ;
-        obj->fd_in = obj->heredoc->pipe_fd[0];
+        obj->fd_in = -1;  
     }
-    dup2(obj->fd_in, STDIN_FILENO);
-    close(obj->fd_in);
+    if (obj->fd_in > 0)
+    {
+        dup2(obj->fd_in, STDIN_FILENO);
+        close(obj->fd_in);
+    }
     obj->fd_in = -1;
-    obj->heredoc->pipe_fd[0] = -1;
-    free(obj->heredoc);
-    obj->heredoc = NULL;
 }
 
 void redirection_output(t_mshell *obj, t_ast_node *node)

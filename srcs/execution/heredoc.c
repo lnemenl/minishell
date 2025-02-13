@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/12 16:34:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 12:12:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,7 +28,6 @@ static t_heredoc	*init_heredoc(t_mshell *obj)
 	heredoc_obj->obj = obj;
 	heredoc_obj->pipe_fd[0] = -1;
 	heredoc_obj->pipe_fd[1] = -1;
-	heredoc_obj->stdin_fd = -1;
 	if (pipe(heredoc_obj->pipe_fd) == -1)
 	{
 		clean_mshell(obj);
@@ -76,8 +75,7 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 	if (node->type != TOKEN_HEREDOC)
 		return;
 	obj->heredoc = init_heredoc(obj);
-	obj->heredoc->stdin_fd = dup(STDIN_FILENO);
-	obj->is_heredoc = 1;
+	obj->stdin_fd = dup(STDIN_FILENO);
 	g_signal_received = 0;
 	while (process_heredoc_line(obj->heredoc))
 	{
@@ -88,11 +86,14 @@ void	handle_here_doc(t_mshell *obj, t_ast_node *node)
 		cleanup_heredoc(obj->heredoc);
 	}
 	cleanup_heredoc(obj->heredoc);
-	if (obj->heredoc->pipe_fd[1] != -1)
-		close(obj->heredoc->pipe_fd[1]);
+	dup2(obj->heredoc->pipe_fd[0], STDIN_FILENO);
+	close(obj->heredoc->pipe_fd[0]);
+	close(obj->heredoc->pipe_fd[1]);
 	if (g_signal_received == SIGINT)
 	{
 		obj->heredoc_interrupted = 1;
 		return ;
 	}
+	free(obj->heredoc);
+    obj->heredoc = NULL;
 }
