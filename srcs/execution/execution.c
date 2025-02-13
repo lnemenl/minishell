@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 12:33:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:23:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -101,7 +101,7 @@ static int	run_builtins(char **args, t_mshell *obj)
 	if (!args || !*args)
 		return (0);
 	if (ft_strcmp(args[0], "echo") == 0)
-		return(echo(args));
+		return(echo(args, obj));
 	else if (ft_strcmp(args[0], "env") == 0)
 	 	return (env(obj));
 	else if (ft_strcmp(args[0], "cd") == 0)
@@ -111,7 +111,7 @@ static int	run_builtins(char **args, t_mshell *obj)
 	else if (ft_strcmp(args[0], "unset") == 0)
 		return (unset(args, obj));
 	else if (ft_strcmp(args[0], "pwd") == 0)
-		return(pwd());
+		return(pwd(obj));
 	else if (ft_strcmp(args[0], "exit") == 0)
 	{
 		check_and_handle_exit(args, obj);
@@ -241,16 +241,30 @@ static void	check_redirections(t_mshell *obj)
 static void	run_heredoc(t_mshell *obj, t_ast_node *node)
 {
 	int	i;
+	int	last_fd;
 
 	if (!node || !node->redirs || !*node->redirs)
 		return ;
 	i = 0;
+	last_fd = -1;
 	obj->stdin_fd = dup(STDIN_FILENO);
 	while (node->redirs[i])
 	{
-		handle_here_doc(obj, node->redirs[i]);
+		if (last_fd != -1)
+		{
+			close(last_fd);
+			last_fd = -1;
+		}
+		last_fd = handle_here_doc(obj, node->redirs[i]);
 		i++;
 	}
+	if (last_fd != -1 && node->redirs && i > 0 && node->redirs[i - 1]->type == TOKEN_HEREDOC)
+	{
+		dup2(last_fd, STDIN_FILENO);
+		close(last_fd);
+	}
+	else
+		close(last_fd);
 }
 
 void choose_actions(t_mshell *obj)

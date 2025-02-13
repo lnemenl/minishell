@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 14:10:26 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:09:15 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -140,6 +140,12 @@ int main(int argc, char **argv, char **envp)
 			write(STDOUT_FILENO, "exit\n", 5);
 			break;
 		}
+		if (!*obj.cmd_line)
+		{
+			clean_mshell(&obj);
+			obj.paths = fetch_paths(obj.envp);
+			continue ;
+		}
 
 		parse(&obj);       /* Tokenize / build AST */
 		if (!obj.ast)
@@ -156,12 +162,6 @@ int main(int argc, char **argv, char **envp)
 			obj.ast = NULL;
 			obj.heredoc_interrupted = 0;
 			continue;
-		}
-		if (!obj.cmd_line || !*obj.cmd_line)
-		{
-			clean_mshell(&obj);
-			obj.paths = fetch_paths(obj.envp);
-			continue ;
 		}
 		add_history(obj.cmd_line);
 
