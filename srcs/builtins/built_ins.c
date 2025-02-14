@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 15:12:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/14 14:35:34 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,7 @@ int	pwd(t_mshell *obj)
 	char	*buf;
 	char	*error_args[] = {"cd", NULL};
 
-	buffer_size = 5000;
+	buffer_size = 4096;
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
