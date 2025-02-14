@@ -240,28 +240,35 @@ static void	run_heredoc(t_mshell *obj, t_ast_node *node)
 {
 	int	i;
 	int	last_fd;
+	int	is_last_heredoc;
 
 	if (!node || !node->redirs || !*node->redirs)
 		return ;
 	i = 0;
 	last_fd = -1;
 	obj->stdin_fd = dup(STDIN_FILENO);
+	is_last_heredoc = 0;
 	while (node->redirs[i])
 	{
-		if (last_fd != -1)
+		if (last_fd != -1 &&
+			(node->redirs[i]->type == TOKEN_REDIRECT_IN || node->redirs[i]->type == TOKEN_HEREDOC))
 		{
 			close(last_fd);
 			last_fd = -1;
 		}
-		last_fd = handle_here_doc(obj, node->redirs[i]);
+		if (node->redirs[i]->type == TOKEN_REDIRECT_IN)
+			is_last_heredoc = 0;
+		else if (node->redirs[i]->type == TOKEN_HEREDOC)
+			is_last_heredoc = 1;
+		last_fd = handle_here_doc(obj, node->redirs[i], last_fd);
 		i++;
 	}
-	if (last_fd != -1 && node->redirs && i > 0 && node->redirs[i - 1]->type == TOKEN_HEREDOC)
+	if (last_fd != -1 && i > 0 && is_last_heredoc == 1)
 	{
 		dup2(last_fd, STDIN_FILENO);
 		close(last_fd);
 	}
-	else
+	else if (last_fd != -1)
 		close(last_fd);
 }
 

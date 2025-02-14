@@ -64,13 +64,13 @@ static void	write_heredoc_line(t_heredoc *doc)
 		ft_fprintf(doc->pipe_fd[1], "%s", doc->str);
 }
 
-int	handle_here_doc(t_mshell *obj, t_ast_node *node)
+int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 {
 	int			ret_fd;
 	t_heredoc	heredoc;
 
 	if (node->type != TOKEN_HEREDOC)
-		return (-1);
+		return (last_fd);
 	heredoc = init_heredoc(obj);
 	g_signal_received = 0;
 	while (process_heredoc_line(&heredoc))
