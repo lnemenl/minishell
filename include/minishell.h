@@ -26,9 +26,11 @@
 # include <sys/ioctl.h>
 
 # ifndef TCFLSH
+#  define TCFLSH TCIFLUSH
+# endif
 
-# define TCFLSH TCIFLUSH
-
+# ifndef PATH_BUFFER_SIZE
+#  define PATH_BUFFER_SIZE 4096
 # endif
 
 # define PROMPT "shit-shell: "

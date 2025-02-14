@@ -26,7 +26,6 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 	{
 		if (isatty(STDIN_FILENO))
 			printf("exit\n");
-		//printf("exit\n");
 		clean_mshell(obj);
 		free(obj->envp);
 		exit(obj->exit_code);
@@ -35,7 +34,6 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 	{
 		if (isatty(STDIN_FILENO))
 			printf("exit\n");
-		//printf("exit\n");
 		i = 0;
 		while (args[1][i])
 		{
@@ -57,12 +55,12 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 			free(obj->envp);
 			exit(obj->exit_code);
 		}
-		if (obj->exit_code == 0)
-		{
-			obj->exit_code = ft_atoi(args[1]);
-			// if (obj->exit_code < 0)
-			// 	obj->exit_code = 156;
-		}
+		obj->exit_code = ft_atoi(args[1]);
+		// if (obj->exit_code == 0)
+		// {
+		// 	// if (obj->exit_code < 0)
+		// 	// 	obj->exit_code = 156;
+		// }
 		clean_mshell(obj);
 		//free(obj->envp);
 		exit(obj->exit_code);

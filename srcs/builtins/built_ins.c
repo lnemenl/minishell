@@ -26,12 +26,10 @@ void	realloc_buffer(char **buf, size_t *buffer_size)
 
 int	cd(char **cd_args, t_mshell *obj)
 {
-	char	*buf;
+	char	buf[PATH_BUFFER_SIZE];
 	char	*path;
 	char	*full_path;
-	size_t	buffer_size;
 
-	buffer_size = 50;
 	if (!cd_args[1] || !*cd_args[1])
 	{
 		obj->exit_code = 0;
@@ -44,16 +42,11 @@ int	cd(char **cd_args, t_mshell *obj)
 		ft_fprintf(2, "minishell: cd: too many arguments\n");
 		return (1);
 	}
-	buf = ft_calloc(buffer_size, sizeof(char));
-	if (!buf)
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
 	{
-		//cleanup struct
+		perror("getcwd");
 		obj->exit_code = 1;
-		ft_fprintf(2, "Malloc error!\n");
-		exit(1);
 	}
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, cd_args[1]);
 	free(path);
@@ -66,38 +59,27 @@ int	cd(char **cd_args, t_mshell *obj)
 	}
 	else
 		obj->exit_code = 0;
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
-	free(buf);
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
+	{
+		perror("getcwd");
+		obj->exit_code = 1;
+	}
 	free(full_path);
 	return (1);
 }
 
 int	pwd(t_mshell *obj)
 {
-	size_t	buffer_size;
-	char	*buf;
+	char	buf[PATH_BUFFER_SIZE];
 	char	*error_args[] = {"cd", NULL};
 
-	buffer_size = 5000;
-	buf = ft_calloc(buffer_size, sizeof(char));
-	if (!buf)
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
 	{
-		clean_mshell(obj);
-		error_ret(5, NULL);
-	}
-	// while (!getcwd(buf, buffer_size))
-	// 	realloc_buffer(&buf, &buffer_size);
-	if (!getcwd(buf, buffer_size))
-	{
-		ft_fprintf(STDERR_FILENO, "The folder doesn't exist!\n");
+		perror("getcwd");
 		cd(error_args, obj);
 	}
 	else
-	{
 		printf("%s\n", buf);
-		free(buf);
-	}
 	obj->exit_code = 0;
 	return (1);
 }
