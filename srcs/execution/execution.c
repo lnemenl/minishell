@@ -60,8 +60,8 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 		if (obj->exit_code == 0)
 		{
 			obj->exit_code = ft_atoi(args[1]);
-			if (obj->exit_code < 0)
-				obj->exit_code = 156;
+			// if (obj->exit_code < 0)
+			// 	obj->exit_code = 156;
 		}
 		clean_mshell(obj);
 		//free(obj->envp);

@@ -77,18 +77,27 @@ int	pwd(t_mshell *obj)
 {
 	size_t	buffer_size;
 	char	*buf;
+	char	*error_args[] = {"cd", NULL};
 
-	buffer_size = 50;
+	buffer_size = 5000;
 	buf = ft_calloc(buffer_size, sizeof(char));
 	if (!buf)
 	{
 		clean_mshell(obj);
 		error_ret(5, NULL);
 	}
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
-	printf("%s\n", buf);
-	free(buf);
+	// while (!getcwd(buf, buffer_size))
+	// 	realloc_buffer(&buf, &buffer_size);
+	if (!getcwd(buf, buffer_size))
+	{
+		ft_fprintf(STDERR_FILENO, "The folder doesn't exist!\n");
+		cd(error_args, obj);
+	}
+	else
+	{
+		printf("%s\n", buf);
+		free(buf);
+	}
 	obj->exit_code = 0;
 	return (1);
 }

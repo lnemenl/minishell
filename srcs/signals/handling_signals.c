@@ -62,12 +62,12 @@ static void exec_signal_handler(int signum)
     if (signum == SIGINT)
     {
         if (write(STDERR_FILENO, "\n", 1) == -1)
-            ;
+            {}
     }
     else if (signum == SIGQUIT)
     {
         if (write(STDERR_FILENO, "Quit: (core dumped)\n", 21) == -1)
-            ;
+            {}
     }
 }
 

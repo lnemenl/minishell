@@ -65,7 +65,6 @@ char	*handle_backslash(char *str)
 	size_t	i;
 	size_t	j;
 	size_t	len;
-	size_t	skip_slash;
 
 	if (!str)
 		return (NULL);
@@ -77,7 +76,6 @@ char	*handle_backslash(char *str)
 	j = 0;
 	while (i < len)
 	{
-		skip_slash = 0;
 		if (str[i] == '\\')
 			i++;
 		new_str[j] = str[i];
