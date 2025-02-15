@@ -16,7 +16,6 @@ volatile sig_atomic_t g_signal_received = 0;
 static struct termios original_term;
 static struct termios shell_term;
 
-
 static void set_sigaction(int signum, void (*handler)(int), int flags)
 {
 	struct sigaction sa;
@@ -98,7 +97,6 @@ void init_terminal_settings(void)
 	if (tcsetattr(STDIN_FILENO, TCSANOW, &shell_term) == -1)
 	{
 		perror("tcsetattr error");
-		return;
 	}
 }
 

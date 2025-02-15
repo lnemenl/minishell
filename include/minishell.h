@@ -182,7 +182,6 @@ t_ast_node				*parse_simple_command(t_token **tokens);
 t_ast_node				*parse_command(t_token **tokens);
 t_ast_node				*parse_pipeline(t_token **tokens);
 
-
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
