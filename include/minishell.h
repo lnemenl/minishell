@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 10:47:41 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:11:18 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,11 @@
 # include <sys/ioctl.h>
 
 # ifndef TCFLSH
+#  define TCFLSH TCIFLUSH
+# endif
 
-# define TCFLSH TCIFLUSH
-
+# ifndef PATH_BUFFER_SIZE
+#  define PATH_BUFFER_SIZE 4096
 # endif
 
 # define PROMPT "shit-shell: "
@@ -64,20 +66,20 @@ typedef enum e_signal_state
 
 typedef struct s_quote_context
 {
-	char				*buffer;
-	size_t				capacity;
-	size_t				length;
-	char				quote_type;
-	t_quote_state		state;
+	char			*buffer;
+	size_t			capacity;
+	size_t			length;
+	char			quote_type;
+	t_quote_state	state;
 }   t_quote_context;
 
 typedef struct s_token
 {
-	t_token_type		type;		// Type of token (e.g., WORD, PIPE)
-	char				*content;
-	t_quote_state		quote_state;
-	struct s_token		*next;		// Pointer to the next token
-	struct s_mshell		*mshell;	// Pointer to the mshell object
+	t_token_type	type;		// Type of token (e.g., WORD, PIPE)
+	char			*content;
+	t_quote_state	quote_state;
+	struct s_token	*next;		// Pointer to the next token
+	struct s_mshell	*mshell;	// Pointer to the mshell object
 }   t_token;
 
 
@@ -96,7 +98,6 @@ typedef struct	s_mshell
 	char				**cmds;         	// Array of command strings (split version of cmd_line)
 	char				*cur_path;      	// Current working directory path
 	char				**paths;
-	int					is_heredoc;     	// Flag for active heredoc mode
 	int					exec_cmds;     		// Total number of executable commands
 	int					allocated_pipes;	// Number of pipes allocated
 	int					**pipfd;        	// File descriptors for pipes
@@ -112,7 +113,18 @@ typedef struct	s_mshell
 	size_t				args_move;
 	int					redir_check;
 	int					heredoc_interrupted;
+	struct s_heredoc	*heredoc;
+	int					stdin_fd;
 }	t_mshell;
+
+typedef struct s_heredoc
+{
+    char		*str;
+    char		*trimmed;
+    char		*expanded;
+	int			pipe_fd[2];
+    t_mshell	*obj;
+}   t_heredoc;
 
 int						error_ret(int type, char *arg);
 void					clean_mshell(t_mshell *obj);
@@ -127,7 +139,6 @@ t_quote_state			get_quote_state(char quote);
 
 /* ===== PARSING		 ===== */
 void					parse(t_mshell *obj);
-void					print_parse_debug(t_mshell *obj);
 t_token					*tokenize(const char *input, t_mshell *mshell);
 void					init_tokenize(t_token **head, t_token **current);
 t_token					*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
@@ -155,10 +166,10 @@ char					*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
 int			cd(char **cd_args, t_mshell *obj);
-int			pwd(void);
+int			pwd(t_mshell *obj);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
 int			env(t_mshell *obj);
-int			echo(char **args);
+int			echo(char **args, t_mshell *obj);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 
@@ -170,15 +181,6 @@ int						is_redirect_token(t_token_type type);
 t_ast_node				*parse_simple_command(t_token **tokens);
 t_ast_node				*parse_command(t_token **tokens);
 t_ast_node				*parse_pipeline(t_token **tokens);
-//void					normalize_ast(t_ast_node *node);
-
-
-
-/* ===== AST COMMAND (ast_command.c) ===== */
-/* ===== AST DEBUG (ast_debug.c) ===== */
-void					print_ast(t_ast_node *node, int depth);
-void					print_tokens(t_token *tokens);
-
 
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, int exit_code);
@@ -193,21 +195,23 @@ int		is_env_created(char *arg, char **strs);
 char	*get_env_var(char **envp, const char *var_name);
 
 /* =====				 REDIRECTION ===== */
-void					redirection_input(t_mshell *obj, t_ast_node *node);
-void					redirection_output(t_mshell *obj, t_ast_node *node);
-void pipe_redirection(t_mshell *obj, t_ast_node *cmd);
-void					handle_here_doc(t_mshell *obj, t_ast_node *node);
+void	redirection_input(t_mshell *obj, t_ast_node *node);
+void	redirection_output(t_mshell *obj, t_ast_node *node);
+void	pipe_redirection(t_mshell *obj, t_ast_node *cmd);
+int		handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd);
 
 /* =====				 CLEANUP ===== */
-void					clean_strs(char **strs);
+void	clean_strs(char **strs);
 
 
 /* ===== SIGNALS ===== */
-void 					setup_interactive_signals(void);
-void 					setup_exec_signals(void);
-void 					setup_heredoc_signals(void);
-void 					reset_signals(void);
-void    				transition_signal_handlers(t_signal_state new_state);
-void					init_terminal_settings(void);
-void					restore_terminal_settings(void);
+void 	setup_interactive_signals(void);
+void 	setup_exec_signals(void);
+void 	setup_heredoc_signals(void);
+void 	reset_signals(void);
+void	transition_signal_handlers(t_signal_state new_state);
+void	init_terminal_settings(void);
+void	restore_terminal_settings(void);
+
+
 #endif

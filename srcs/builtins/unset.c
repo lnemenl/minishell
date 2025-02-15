@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/01/09 11:52:57 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 15:14:40 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,6 +53,7 @@ static char	**delete_env(char *arg, t_mshell *obj)
 
 int	unset(char **args, t_mshell *obj)
 {
+	obj->exit_code = 0;
 	if (!args || !args[1] || !*args[1])
 		return (1);
 	if (ft_strcmp(args[1], "PATH") == 0)

@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/01/31 16:28:47 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/02/12 13:05:58 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -52,6 +52,7 @@ SRCS = \
 	\
 	${SRC_DIR}/${EXEC}/execution.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
+	${SRC_DIR}/${EXEC}/heredoc.c \
 	${SRC_DIR}/validation.c \
 	${SRC_DIR}/utils.c \
 	\

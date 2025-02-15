@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/12 12:46:30 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/13 19:13:28 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,8 +53,6 @@ t_token *handle_operator(t_token **head, t_token **current, const char *input, i
 	(*i)++;
 	token->mshell = (*current)->mshell;
 	link_token(head, current, token);
-	
-	// Skip spaces but continue processing if there's more content
 	while (input[*i] && ft_isspace(input[*i]))
 		(*i)++;
 	
@@ -67,7 +65,6 @@ char	*handle_backslash(char *str)
 	size_t	i;
 	size_t	j;
 	size_t	len;
-	size_t	skip_slash;
 
 	if (!str)
 		return (NULL);
@@ -79,7 +76,6 @@ char	*handle_backslash(char *str)
 	j = 0;
 	while (i < len)
 	{
-		skip_slash = 0;
 		if (str[i] == '\\')
 			i++;
 		new_str[j] = str[i];
@@ -105,8 +101,6 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	while (input[*i] && !ft_isspace(input[*i]) && 
 		   !is_operator(input[*i]) && !is_quote(input[*i]))
 		(*i)++;
-	if (*i - start == 1 && is_quote(input[*i]))
-		start++;
 	temp = ft_substr(input, start, (*i) - start);
 	if (!temp)
 		return (NULL);
@@ -117,7 +111,6 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 		return (NULL);
 	}
 	free (temp);
-	// Check if previous token exists and has quote state
 	if (*current && (*current)->quote_state != QUOTE_NONE)
 	{
 		expanded = expand_env_vars(without_backslashes, (*current)->mshell);

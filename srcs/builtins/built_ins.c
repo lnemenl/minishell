@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/11 16:04:23 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/14 14:35:34 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,12 +26,10 @@ void	realloc_buffer(char **buf, size_t *buffer_size)
 
 int	cd(char **cd_args, t_mshell *obj)
 {
-	char	*buf;
+	char	buf[PATH_BUFFER_SIZE];
 	char	*path;
 	char	*full_path;
-	size_t	buffer_size;
 
-	buffer_size = 50;
 	if (!cd_args[1] || !*cd_args[1])
 	{
 		obj->exit_code = 0;
@@ -44,16 +42,11 @@ int	cd(char **cd_args, t_mshell *obj)
 		ft_fprintf(2, "minishell: cd: too many arguments\n");
 		return (1);
 	}
-	buf = ft_calloc(buffer_size, sizeof(char));
-	if (!buf)
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
 	{
-		//cleanup struct
+		perror("getcwd");
 		obj->exit_code = 1;
-		ft_fprintf(2, "Malloc error!\n");
-		exit(1);
 	}
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
 	path = ft_strjoin(buf, "/");
 	full_path = ft_strjoin(path, cd_args[1]);
 	free(path);
@@ -66,30 +59,28 @@ int	cd(char **cd_args, t_mshell *obj)
 	}
 	else
 		obj->exit_code = 0;
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
-	free(buf);
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
+	{
+		perror("getcwd");
+		obj->exit_code = 1;
+	}
 	free(full_path);
 	return (1);
 }
 
-int	pwd(void)
+int	pwd(t_mshell *obj)
 {
-	size_t	buffer_size;
-	char	*buf;
+	char	buf[PATH_BUFFER_SIZE];
+	char	*error_args[] = {"cd", NULL};
 
-	buffer_size = 50;
-	buf = ft_calloc(buffer_size, sizeof(char));
-	if (!buf)
+	if (!getcwd(buf, PATH_BUFFER_SIZE))
 	{
-		//cleanup struct
-		ft_fprintf(2, "Malloc error!\n");
-		exit(1);
+		perror("getcwd");
+		cd(error_args, obj);
 	}
-	while (!getcwd(buf, buffer_size))
-		realloc_buffer(&buf, &buffer_size);
-	printf("%s\n", buf);
-	free(buf);
+	else
+		printf("%s\n", buf);
+	obj->exit_code = 0;
 	return (1);
 }
 
@@ -127,7 +118,7 @@ int	env(t_mshell *obj)
 	return (1);
 }
 
-int	echo(char **args)
+int	echo(char **args, t_mshell *obj)
 {
 	int	i;
 
@@ -148,5 +139,6 @@ int	echo(char **args)
 	}
 	if (ft_strcmp(args[1], "-n") != 0)
 		printf("\n");
+	obj->exit_code = 0;
 	return (1);
 }
