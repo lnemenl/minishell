@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_quote.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/13 19:13:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 16:02:11 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,7 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 	return (token);
 }
 
-t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
+t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_token_type current_type)
 {
 	int     start;
 	char    *content;
@@ -80,10 +80,15 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell)
 		return (NULL);
 	}
 	free(content);
-	expanded = expand_env_vars(without_backslashes, mshell);
-	free(without_backslashes);
-	if (!expanded)
-		return (NULL);
+	if (current_type == TOKEN_HEREDOC)
+		expanded = without_backslashes;
+	else
+	{
+		expanded = expand_env_vars(without_backslashes, mshell);
+		free(without_backslashes);
+		if (!expanded)
+			return (NULL);
+	}
 	token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), mshell);
 	free(expanded);
 	if (!token)
@@ -110,13 +115,18 @@ t_token	*handle_quotes(t_token **head, t_token **current, const char *input, int
 	prev_token = *current;
 	quote = input[*i];
 	if (quote == '"')
-		token = handle_double_quotes(input, i, (*current)->mshell);
+		token = handle_double_quotes(input, i, (*current)->mshell, (*current)->type);
 	else
 		token = handle_single_quotes(input, i, (*current)->mshell);
 	if (!token)
 	{
 		(*current)->mshell->exit_code = 1;
 		return (NULL);
+	}
+	if ((*current)->type == TOKEN_HEREDOC)
+	{
+		(*current)->is_quote_heredoc = 1;
+		token->is_quote_heredoc = 1;
 	}
 	if (in_word && prev_token && prev_token->type == TOKEN_WORD)
 	{

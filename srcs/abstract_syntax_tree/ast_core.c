@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/12 12:19:49 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 16:14:23 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,6 +22,7 @@ t_ast_node *create_ast_node(t_token_type type)
     node->redirs = NULL;
     node->left = NULL;
     node->right = NULL;
+    node->is_quote_heredoc = 0;
     return node;
 }
 
@@ -83,6 +84,7 @@ static t_ast_node *handle_redirection_node(t_token **tokens)
 	redir = create_ast_node((*tokens)->type);
 	if (!redir)
 		return NULL;
+    redir->is_quote_heredoc = (*tokens)->is_quote_heredoc;
 
 	*tokens = (*tokens)->next;
 	
@@ -233,9 +235,7 @@ t_ast_node *parse_simple_command(t_token **tokens)
             break;
         }
     }
-
     // At least one argument (the command name) must be present.
-
     if (!cmd_node->args || !cmd_node->args[0])
     {
         if (cmd_node->redirs)

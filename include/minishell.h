@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 19:11:18 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 14:42:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ typedef struct s_token
 	t_quote_state	quote_state;
 	struct s_token	*next;		// Pointer to the next token
 	struct s_mshell	*mshell;	// Pointer to the mshell object
+	int				is_quote_heredoc;
 }   t_token;
 
 
@@ -90,6 +91,7 @@ typedef struct s_ast_node
 	struct s_ast_node	*left;      //Left child (e.g., command before a pipe)
 	struct s_ast_node	*right;     //Right child (e.g., command after a pipe or target of a redirection)
 	struct s_ast_node	**redirs;	//for redirections, order is preserved as encountered
+	int					is_quote_heredoc;
 }   t_ast_node;
 
 typedef struct	s_mshell
@@ -160,7 +162,7 @@ t_token					*process_token(t_token **head, t_token **current, const char *input,
 
 /* ===== QUOTE H		ANDLING (token_quote.c) ===== */
 t_token					*handle_single_quotes(const char *input, int *i, t_mshell *mshell);
-t_token					*handle_double_quotes(const char *input, int *i, t_mshell *mshell);
+t_token					*handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_token_type current_type);
 t_token					*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
 char					*handle_backslash(char *str);
 
