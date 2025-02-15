@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 13:46:29 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:20:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -138,9 +138,30 @@ int	env(t_mshell *obj)
 	return (1);
 }
 
-int	echo(char **args, t_mshell *obj)
+static int	check_no_nl(char *arg)
 {
 	int	i;
+
+	if (!arg || !*arg)
+		return (0);
+	if (ft_strncmp(arg, "-n", 2) != 0)
+		return (0);
+	i = 2;
+	while (arg[i])
+	{
+		if (arg[i] == ' ')
+			return (i + 1);
+		else if (arg[i] != 'n')
+			return (0);
+		i++;
+	}
+	return (i);
+}
+
+int	echo(char **args, t_mshell *obj, int is_quote)
+{
+	int	i;
+	size_t	no_nl_len;
 
 	if (!args || !*args)
 	{
@@ -148,16 +169,28 @@ int	echo(char **args, t_mshell *obj)
 		return (0);
 	}
 	i = 1;
+	no_nl_len = 0;
 	if (ft_strcmp(args[1], "-n") == 0)
 		i++;
+	else if (is_quote == 0)
+	{
+		no_nl_len = check_no_nl(args[1]);
+		if (no_nl_len != 0 && no_nl_len == ft_strlen(args[1]))
+		{
+			i++;
+			no_nl_len = 0;
+		}
+	}
 	while (args[i])
 	{
-		printf("%s", args[i]);
+		if (*(args[i] + no_nl_len) != '\0')
+			printf("%s", args[i] + no_nl_len);
 		if (args[i + 1])
 			printf(" ");
 		i++;
+		no_nl_len = 0;
 	}
-	if (ft_strcmp(args[1], "-n") != 0)
+	if (is_quote == 1 || (ft_strcmp(args[1], "-n") != 0 && check_no_nl(args[1]) == 0))
 		printf("\n");
 	obj->exit_code = 0;
 	return (1);

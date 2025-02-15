@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/15 16:02:11 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:23:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -128,6 +128,8 @@ t_token	*handle_quotes(t_token **head, t_token **current, const char *input, int
 		(*current)->is_quote_heredoc = 1;
 		token->is_quote_heredoc = 1;
 	}
+	// (*current)->is_quote_heredoc = 1;
+	// token->is_quote_heredoc = 1;
 	if (in_word && prev_token && prev_token->type == TOKEN_WORD)
 	{
 		if (ft_strcmp(prev_token->content, "$") == 0)

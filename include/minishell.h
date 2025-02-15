@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 14:42:27 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 17:58:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -171,7 +171,7 @@ int			cd(char **cd_args, t_mshell *obj);
 int			pwd(t_mshell *obj);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
 int			env(t_mshell *obj);
-int			echo(char **args, t_mshell *obj);
+int			echo(char **args, t_mshell *obj, int is_quote);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
 

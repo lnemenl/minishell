@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 16:33:38 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 17:04:56 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,7 +79,11 @@ static void wait_for_children(t_mshell *obj)
 			if (WIFEXITED(status))
 				obj->exit_code = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) == SIGQUIT)
+					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
 				obj->exit_code = 128 + WTERMSIG(status);
+			}
 		}
 		obj->exec_cmds--;
 	}

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 15:14:05 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 17:59:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,12 +94,12 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	exit(obj->exit_code);
 }
 
-static int	run_builtins(char **args, t_mshell *obj)
+static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
 {
 	if (!args || !*args)
 		return (0);
 	if (ft_strcmp(args[0], "echo") == 0)
-		return(echo(args, obj));
+		return(echo(args, obj, is_quote_heredoc));
 	else if (ft_strcmp(args[0], "env") == 0)
 	 	return (env(obj));
 	else if (ft_strcmp(args[0], "cd") == 0)
@@ -174,7 +174,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return;
-	if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
+	if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj, cmd->is_quote_heredoc) == 1) 
 		return;
 	obj->args_move = 0;
 	obj->exec_cmds++;
@@ -204,7 +204,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 		/* Execute builtins or external command */
 		if (is_builtin_cmd(cmd->args[0]) == 1)
 		{
-			run_builtins(cmd->args, obj);
+			run_builtins(cmd->args, obj, cmd->is_quote_heredoc);
 			exit_child(obj, cmd->args[0], obj->exit_code, 1);
 		}
 		else
