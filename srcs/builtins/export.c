@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 15:13:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/15 16:46:18 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,6 +19,8 @@ int	is_env_created(char *arg, char **strs)
 
 	len = 0;
 	while (arg[len] && arg[len] != '=')
+		len++;
+	if (arg[len] == '=')
 		len++;
 	i = 0;
 	while (strs[i])
