@@ -26,9 +26,11 @@
 # include <sys/ioctl.h>
 
 # ifndef TCFLSH
+#  define TCFLSH TCIFLUSH
+# endif
 
-# define TCFLSH TCIFLUSH
-
+# ifndef PATH_BUFFER_SIZE
+#  define PATH_BUFFER_SIZE 4096
 # endif
 
 # define PROMPT "shit-shell: "
@@ -197,7 +199,7 @@ char	*get_env_var(char **envp, const char *var_name);
 void	redirection_input(t_mshell *obj, t_ast_node *node);
 void	redirection_output(t_mshell *obj, t_ast_node *node);
 void	pipe_redirection(t_mshell *obj, t_ast_node *cmd);
-int		handle_here_doc(t_mshell *obj, t_ast_node *node);
+int		handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd);
 
 /* =====				 CLEANUP ===== */
 void	clean_strs(char **strs);
@@ -214,117 +216,3 @@ void	restore_terminal_settings(void);
 
 
 #endif
-
-/*
-rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << $USER
-
-> why
-
-> not
-
-> $USER
-
-why
-
-not
-
-rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << "$USER"
-
-> why
-
-> not
-
-> $USER
-
-why
-
-not
-
-rkhakimu@c1r6p4:~/Desktop/42/minishell$ cat << "$US"E"R"
-
-> why
-
-> not
-
-> $USER
-
-why
-
-not
-
-rkhakimu@c1r6p4:~/Desktop/42/minishell$ ./minishell
-
-shit-shell: cat << $USER
-
-> why
-
-> not
-
-> $USER
-
-why
-
-not
-
-shit-shell: cat << "$USER"
-
-> why
-
-> not
-
-> $USER
-
-why
-
-not
-
-shit-shell: cat << "$US"E"R"
-
-> why
-
-> not
-
-> $USER
-
-> NOT WORKING
-
-> ^C
-
-shit-shell: : Inappropriate ioctl for device
-
-shit-shell:
-
-
-char	*process_heredoc_delimiter(const char *input, int *i)
-{
-	char	*delimiter;
-	char	*piece;
-	int		start;
-
-	delimiter = ft_strdup("");  // Start with empty string
-	while (input[*i] && !ft_isspace(input[*i]))
-	{
-		if (input[*i] == '"' || input[*i] == '\'')
-		{
-			char quote = input[*i];
-			(*i)++;  // Skip the opening quote
-			start = *i;
-			while (input[*i] && input[*i] != quote)
-				(*i)++;
-			piece = ft_substr(input, start, *i - start);
-			if (input[*i] == quote)
-				(*i)++;
-		}
-		else
-		{
-			start = *i;
-			while (input[*i] && !ft_isspace(input[*i]) &&
-				   input[*i] != '"' && input[*i] != '\'')
-				(*i)++;
-			piece = ft_substr(input, start, *i - start);
-		}
-		delimiter = join_and_free(delimiter, piece);
-	}
-	return (delimiter);
-}
-*/
