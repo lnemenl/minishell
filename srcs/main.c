@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 14:52:41 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 13:18:33 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,29 +77,9 @@ static void wait_for_children(t_mshell *obj)
 		if (wpid == obj->pids[obj->pipes_count])
 		{
 			if (WIFEXITED(status))
-			{
 				obj->exit_code = WEXITSTATUS(status);
-			}
 			else if (WIFSIGNALED(status))
-			{
-				if (WTERMSIG(status) == SIGINT)
-				{
-					/* Child died from Ctrl+C */
-					write(STDOUT_FILENO, "\n", 1);
-					obj->exit_code = 130; /* typical for SIGINT */
-				}
-				else if (WTERMSIG(status) == SIGQUIT)
-				{
-					/* Child died from Ctrl+\ */
-					write(STDERR_FILENO, "Quit: (core dumped)\n", 21);
-					obj->exit_code = 131; /* typical for SIGQUIT */
-				}
-				else
-				{
-					//write(STDOUT_FILENO, "\n", 1);
-					obj->exit_code = 128 + WTERMSIG(status);
-				}
-			}
+				obj->exit_code = 128 + WTERMSIG(status);
 		}
 		obj->exec_cmds--;
 	}
