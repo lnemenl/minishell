@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 12:32:48 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 11:41:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,22 +36,28 @@ static void	cleanup_heredoc(t_heredoc *doc)
 		return ;
 	if (doc->str)
 		free(doc->str);
+	doc->str = NULL;
 	if (doc->trimmed)
 		free(doc->trimmed);
+	doc->trimmed = NULL;
 	if (doc->expanded)
 		free(doc->expanded);
-	doc->str = NULL;
-	doc->trimmed = NULL;
 	doc->expanded = NULL;
 }
 
-static int	process_heredoc_line(t_heredoc *doc)
+static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
 {
 	write(STDOUT_FILENO, "> ", 2);
 	doc->str = get_next_line(STDIN_FILENO);
 	if (!doc->str || g_signal_received == SIGINT)
+	{
+		write(STDOUT_FILENO, "\n", 1);
 		return (0);
-	doc->expanded = expand_env_vars(doc->str, doc->obj);
+	}
+	if (is_heredoc_quoted == 0)
+		doc->expanded = expand_env_vars(doc->str, doc->obj);
+	else
+		doc->expanded = ft_strdup(doc->str);
 	doc->trimmed = ft_strtrim(doc->expanded, "\n");
 	return (1);
 }
@@ -74,7 +80,7 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	heredoc = init_heredoc(obj);
 	g_signal_received = 0;
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
-	while (process_heredoc_line(&heredoc))
+	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
 	{
 		if (!ft_strcmp(node->args[0], heredoc.trimmed) || 
 			!ft_strcmp(node->args[0], heredoc.expanded))
@@ -88,10 +94,12 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	if (g_signal_received == SIGINT)
 	{
 		obj->heredoc_interrupted = 1;
+		g_signal_received = 0;
+		close(heredoc.pipe_fd[0]);
+		ret_fd = -1;
 		return (ret_fd);
 	}
 	if (isatty(STDIN_FILENO))
-		restore_terminal_settings();
-	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	return (ret_fd);
 }

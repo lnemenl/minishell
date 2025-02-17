@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 15:14:05 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 11:04:16 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
+	(void)is_builtin;
 	if (obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
@@ -94,12 +95,12 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	exit(obj->exit_code);
 }
 
-static int	run_builtins(char **args, t_mshell *obj)
+static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
 {
 	if (!args || !*args)
 		return (0);
 	if (ft_strcmp(args[0], "echo") == 0)
-		return(echo(args, obj));
+		return(echo(args, obj, is_quote_heredoc));
 	else if (ft_strcmp(args[0], "env") == 0)
 	 	return (env(obj));
 	else if (ft_strcmp(args[0], "cd") == 0)
@@ -174,7 +175,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
 	if (!cmd || !cmd->args || !cmd->args[0])
 		return;
-	if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj) == 1)
+	if (obj->allocated_pipes == 0 && obj->redir_check == 0 && run_builtins(cmd->args, obj, cmd->is_quote_heredoc) == 1) 
 		return;
 	obj->args_move = 0;
 	obj->exec_cmds++;
@@ -189,7 +190,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 	else if (obj->pids[obj->cur_pid] == 0)
 	{
 		setup_exec_signals();
-		restore_terminal_settings();
 		apply_redirections(obj, cmd);
 
 		/* Abort command execution if heredoc was interrupted */
@@ -204,7 +204,7 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 		/* Execute builtins or external command */
 		if (is_builtin_cmd(cmd->args[0]) == 1)
 		{
-			run_builtins(cmd->args, obj);
+			run_builtins(cmd->args, obj, cmd->is_quote_heredoc);
 			exit_child(obj, cmd->args[0], obj->exit_code, 1);
 		}
 		else
@@ -295,13 +295,16 @@ void choose_actions(t_mshell *obj)
 		if (temp->left)
 		{
 			run_heredoc(obj, temp->left);
-			execute_cmd(obj, temp->left);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp->left);
 		}
 		else
 		{
 			run_heredoc(obj, temp);
-			execute_cmd(obj, temp);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp);
 		}
+		obj->heredoc_interrupted = 0;
 		if (obj->stdin_fd != -1)
 		{
 			dup2(obj->stdin_fd, STDIN_FILENO);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   built_ins.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 14:35:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 18:20:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,30 @@ void	realloc_buffer(char **buf, size_t *buffer_size)
 	}
 }
 
+static char	*handle_cd_path(char *provided_path, char *buf)
+{
+	char	*ret_path;
+	char	*path;
+
+	if (*provided_path == '/')
+		return (provided_path);
+	path = ft_strjoin(buf, "/");
+	if (!path)
+	{
+		// clean
+	}
+	ret_path = ft_strjoin(path, provided_path);
+	free(path);
+	if (!ret_path)
+	{
+		// clean
+	}
+	return (ret_path);
+}
+
 int	cd(char **cd_args, t_mshell *obj)
 {
 	char	buf[PATH_BUFFER_SIZE];
-	char	*path;
 	char	*full_path;
 
 	if (!cd_args[1] || !*cd_args[1])
@@ -47,9 +67,7 @@ int	cd(char **cd_args, t_mshell *obj)
 		perror("getcwd");
 		obj->exit_code = 1;
 	}
-	path = ft_strjoin(buf, "/");
-	full_path = ft_strjoin(path, cd_args[1]);
-	free(path);
+	full_path = handle_cd_path(cd_args[1], buf);
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
 	else if (chdir(full_path) == -1)
@@ -64,7 +82,8 @@ int	cd(char **cd_args, t_mshell *obj)
 		perror("getcwd");
 		obj->exit_code = 1;
 	}
-	free(full_path);
+	if (ft_strcmp(full_path, cd_args[1]) != 0)
+		free(full_path);
 	return (1);
 }
 
@@ -115,12 +134,34 @@ int	env(t_mshell *obj)
 		printf("%s\n", obj->envp[i]);
 		i++;
 	}
+	obj->exit_code = 0;
 	return (1);
 }
 
-int	echo(char **args, t_mshell *obj)
+static int	check_no_nl(char *arg)
 {
 	int	i;
+
+	if (!arg || !*arg)
+		return (0);
+	if (ft_strncmp(arg, "-n", 2) != 0)
+		return (0);
+	i = 2;
+	while (arg[i])
+	{
+		if (arg[i] == ' ')
+			return (i + 1);
+		else if (arg[i] != 'n')
+			return (0);
+		i++;
+	}
+	return (i);
+}
+
+int	echo(char **args, t_mshell *obj, int is_quote)
+{
+	int	i;
+	size_t	no_nl_len;
 
 	if (!args || !*args)
 	{
@@ -128,16 +169,28 @@ int	echo(char **args, t_mshell *obj)
 		return (0);
 	}
 	i = 1;
+	no_nl_len = 0;
 	if (ft_strcmp(args[1], "-n") == 0)
 		i++;
+	else if (is_quote == 0)
+	{
+		no_nl_len = check_no_nl(args[1]);
+		if (no_nl_len != 0 && no_nl_len == ft_strlen(args[1]))
+		{
+			i++;
+			no_nl_len = 0;
+		}
+	}
 	while (args[i])
 	{
-		printf("%s", args[i]);
+		if (*(args[i] + no_nl_len) != '\0')
+			printf("%s", args[i] + no_nl_len);
 		if (args[i + 1])
 			printf(" ");
 		i++;
+		no_nl_len = 0;
 	}
-	if (ft_strcmp(args[1], "-n") != 0)
+	if (is_quote == 1 || (ft_strcmp(args[1], "-n") != 0 && check_no_nl(args[1]) == 0))
 		printf("\n");
 	obj->exit_code = 0;
 	return (1);

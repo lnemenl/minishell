@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 14:52:41 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 10:29:34 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,28 +77,14 @@ static void wait_for_children(t_mshell *obj)
 		if (wpid == obj->pids[obj->pipes_count])
 		{
 			if (WIFEXITED(status))
-			{
 				obj->exit_code = WEXITSTATUS(status);
-			}
 			else if (WIFSIGNALED(status))
 			{
 				if (WTERMSIG(status) == SIGINT)
-				{
-					/* Child died from Ctrl+C */
 					write(STDOUT_FILENO, "\n", 1);
-					obj->exit_code = 130; /* typical for SIGINT */
-				}
-				else if (WTERMSIG(status) == SIGQUIT)
-				{
-					/* Child died from Ctrl+\ */
-					write(STDERR_FILENO, "Quit: (core dumped)\n", 21);
-					obj->exit_code = 131; /* typical for SIGQUIT */
-				}
-				else
-				{
-					//write(STDOUT_FILENO, "\n", 1);
-					obj->exit_code = 128 + WTERMSIG(status);
-				}
+				if (WTERMSIG(status) == SIGQUIT)
+					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
+				obj->exit_code = 128 + WTERMSIG(status);
 			}
 		}
 		obj->exec_cmds--;
@@ -112,8 +98,7 @@ int main(int argc, char **argv, char **envp)
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-
-	init_terminal_settings();
+	disable_echoctl();
 	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 
 	/* Initialize shell data structures (copies envp, fetches PATH, etc.). */
@@ -146,6 +131,7 @@ int main(int argc, char **argv, char **envp)
 			obj.paths = fetch_paths(obj.envp);
 			continue ;
 		}
+		add_history(obj.cmd_line);
 
 		parse(&obj);       /* Tokenize / build AST */
 		if (!obj.ast)
@@ -163,7 +149,6 @@ int main(int argc, char **argv, char **envp)
 			obj.heredoc_interrupted = 0;
 			continue;
 		}
-		add_history(obj.cmd_line);
 
 		free(obj.cmd_line);
 		obj.cmd_line = NULL;
@@ -189,7 +174,5 @@ int main(int argc, char **argv, char **envp)
 	/* Free envp only once */
 	if (obj.envp)
 		ft_free_strs(obj.envp, get_envp_length(obj.envp));
-
-	restore_terminal_settings();
 	return (obj.exit_code);
 }

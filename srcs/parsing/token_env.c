@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_env.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/13 19:13:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/15 16:54:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,15 @@ static char *get_var_name(const char *str, int *i)
 char *get_env_value(const char *var_name, t_mshell *mshell)
 {
 	char *value;
+	char	*temp_var_name;
 
 	if (!var_name)
 		return (NULL);
 	if (ft_strcmp(var_name, "?") == 0)
 		return (ft_itoa(mshell->exit_code));
-	value = get_env_var(mshell->envp, var_name);
+	temp_var_name = ft_strjoin(var_name, "=");
+	value = get_env_var(mshell->envp, temp_var_name);
+	free(temp_var_name);
 	if (!value)
 		return (ft_strdup(""));
 	return (ft_strdup(value));
