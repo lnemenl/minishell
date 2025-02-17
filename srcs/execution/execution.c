@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 15:24:58 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 15:58:23 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -96,7 +96,7 @@ static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
 	if (ft_strcmp(args[0], "echo") == 0)
 		return(echo(args, obj, is_quote_heredoc));
 	else if (ft_strcmp(args[0], "env") == 0)
-	 	return (env(obj));
+	 	return (env(obj, args));
 	else if (ft_strcmp(args[0], "cd") == 0)
 		return (cd(args, obj));
 	else if (ft_strcmp(args[0], "export") == 0)

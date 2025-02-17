@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 10:29:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 17:23:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.redir_check = 0;
 	obj.heredoc_interrupted = 0;
 	obj.stdin_fd = -1;
+	obj.prev_path = get_env_var(obj.envp, "HOME");
 	(void) argv;
 	return (obj);
 }
@@ -170,6 +171,7 @@ int main(int argc, char **argv, char **envp)
 
 	/* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
 	clean_mshell(&obj);
+	free(obj.prev_path);
 
 	/* Free envp only once */
 	if (obj.envp)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 09:07:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 16:56:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -117,6 +117,7 @@ typedef struct	s_mshell
 	int					heredoc_interrupted;
 	struct s_heredoc	*heredoc;
 	int					stdin_fd;
+	char				*prev_path;
 }	t_mshell;
 
 typedef struct s_heredoc
@@ -170,7 +171,7 @@ char					*handle_backslash(char *str);
 int			cd(char **cd_args, t_mshell *obj);
 int			pwd(t_mshell *obj);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(t_mshell *obj);
+int			env(t_mshell *obj, char **args);
 int			echo(char **args, t_mshell *obj, int is_quote);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
