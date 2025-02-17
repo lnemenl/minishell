@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 16:46:18 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 11:58:55 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,27 +87,32 @@ static void	put_env_var(t_mshell *obj, char *new_arg)
 	}
 	obj->envp[pos] = ft_memmove(obj->envp[pos], new_arg, arg_len);
 	obj->envp[pos][arg_len] = '\0';
-	obj->envp[++pos] = NULL;
 }
 
 int	export(char **args, t_mshell *obj)
 {
 	char	*new_arg;
+	int		i;
 
 	if (!args || !args[1] || !*args[1])
 		return (1);
-	new_arg = check_env_arg(args[1]);
-	if (ft_strcmp(new_arg, "fail") == 0)
+	i = 1;
+	while (args[i])
 	{
+		new_arg = check_env_arg(args[i]);
+		if (ft_strcmp(new_arg, "fail") == 0)
+		{
+			free(new_arg);
+			obj->exit_code = 1;
+			ft_fprintf(2, "export: `%s`: not a valid identifier\n", args[i]);
+			return (1);
+		}
+		else if (!new_arg)
+			return (1);
+		put_env_var(obj, new_arg);
 		free(new_arg);
-		obj->exit_code = 1;
-		ft_fprintf(2, "export: `%s`: not a valid identifier\n", args[1]);
-		return (1);
+		i++;
 	}
-	else if (!new_arg)
-		return (1);
-	put_env_var(obj, new_arg);
-	free(new_arg);
 	obj->exit_code = 0;
 	return (1);
 }

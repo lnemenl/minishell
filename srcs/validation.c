@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/01 16:02:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 14:24:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,16 +61,16 @@ static char	*check_paths(char **paths, char **args, size_t *args_move)
 	char	*path;
 	size_t	path_len;
 
-	if (!args || (!args[0][0] && !*(args + 1)[0]))
+	if (!args || !*args || (!**args /*&& !*(*args + 1)*/))
 		return (ft_strdup(""));
-	else if (!args[0][0] && *(args + 2)[0])
+	else if (!**args && *(*args + 2))
 		*args_move = 1;
 	if (!paths || !*paths)
 		return (ft_strdup(args[0]));
 	i = 0;
 	while (paths[i])
 	{
-		path_len = ft_strlen(paths[i]) + ft_strlen(args[0 + *args_move]) + 2;
+		path_len = ft_strlen(paths[i]) + ft_strlen((*args) + *args_move) + 2;
 		path = ft_calloc(path_len, sizeof(char));
 		if (!path)
 		{
@@ -79,7 +79,7 @@ static char	*check_paths(char **paths, char **args, size_t *args_move)
 		}
 		ft_strlcpy(path, paths[i], path_len);
 		ft_strlcat(path, "/", path_len);
-		ft_strlcat(path, args[0 + *args_move], path_len);
+		ft_strlcat(path, (*args) + *args_move, path_len);
 		if (access(path, F_OK) == 0)
 			return (path);
 		free_path(path);
@@ -111,11 +111,17 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 		free(path);
 		exit_child(obj, NULL, 0, 0);
 	}
-	else if (!path || node->args[0 + obj->args_move][0] == '\0')
+	else if (!path || !*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
 	{
 		clean_mshell(obj);
 		if (path)
 			free(path);
+		// if (node->args[0 + obj->args_move][0] == '\0')
+		if (!*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
+		{
+			obj->exit_code = 0;
+			return (NULL);
+		}
 		obj->exit_code = 127;
 		print_exit("command not found\n", node->args[0 + obj->args_move], obj->exit_code);
 	}

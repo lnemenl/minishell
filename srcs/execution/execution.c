@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 11:04:16 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 14:16:19 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,10 +85,9 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	obj->exit_code = exit_code;
 	close_fds(obj);
 	clean_mshell(obj);
-	if (!*arg)
+	if (arg && !*arg)
 		ft_putstr_fd(": ", 2);
-	(void)is_builtin;
-	if (obj->exit_code != 0 && is_builtin == 0)
+	if (arg && obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
 		obj->exit_code = 126;
@@ -192,12 +191,10 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 		setup_exec_signals();
 		apply_redirections(obj, cmd);
 
-		/* Abort command execution if heredoc was interrupted */
 		if (obj->stdin_fd != -1)
 			close(obj->stdin_fd);
 		if (obj->heredoc_interrupted)
 			exit_child(obj, "", 130, 0);
-
 		if (obj->allocated_pipes >= 1)
 			pipe_redirection(obj, cmd);
 		close_fds(obj);
