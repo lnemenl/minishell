@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 11:58:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 15:50:42 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,8 +38,10 @@ static char	*check_env_arg(char *arg)
 	int		name_len;
 
 	if (!arg)
-		return (NULL);
-	if (!ft_isalpha(arg[0]) && arg[0] != '_')
+		return ("fail");
+	if (arg[0] == '-')
+		return(ft_strdup("fail_option"));
+	else if (!ft_isalpha(arg[0]) && arg[0] != '_')
 		return (ft_strdup("fail"));
 	equal = ft_strchr(arg, '=');
 	name_len = equal - arg - 1;
@@ -100,10 +102,13 @@ int	export(char **args, t_mshell *obj)
 	while (args[i])
 	{
 		new_arg = check_env_arg(args[i]);
-		if (ft_strcmp(new_arg, "fail") == 0)
+		if (ft_strncmp(new_arg, "fail", 4) == 0)
 		{
+			if (ft_strcmp(new_arg, "fail_option") == 0)
+				obj->exit_code = 2;
+			else
+				obj->exit_code = 1;
 			free(new_arg);
-			obj->exit_code = 1;
 			ft_fprintf(2, "export: `%s`: not a valid identifier\n", args[i]);
 			return (1);
 		}

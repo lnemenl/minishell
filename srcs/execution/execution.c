@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 14:16:19 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 15:24:58 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,12 +55,7 @@ static void	check_and_handle_exit(char **args, t_mshell *obj)
 			free(obj->envp);
 			exit(obj->exit_code);
 		}
-		obj->exit_code = ft_atoi(args[1]);
-		// if (obj->exit_code == 0)
-		// {
-		// 	// if (obj->exit_code < 0)
-		// 	// 	obj->exit_code = 156;
-		// }
+		obj->exit_code = ft_atol(args[1]);
 		clean_mshell(obj);
 		//free(obj->envp);
 		exit(obj->exit_code);
