@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 17:58:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 09:07:02 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,8 +212,7 @@ void 	setup_exec_signals(void);
 void 	setup_heredoc_signals(void);
 void 	reset_signals(void);
 void	transition_signal_handlers(t_signal_state new_state);
-void	init_terminal_settings(void);
-void	restore_terminal_settings(void);
+void	disable_echoctl(void);
 
 
 #endif

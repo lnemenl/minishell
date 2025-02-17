@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
 /*   Updated: 2025/02/17 14:16:19 by msavelie         ###   ########.fr       */
@@ -189,7 +189,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 	else if (obj->pids[obj->cur_pid] == 0)
 	{
 		setup_exec_signals();
-		restore_terminal_settings();
 		apply_redirections(obj, cmd);
 
 		if (obj->stdin_fd != -1)
@@ -293,13 +292,16 @@ void choose_actions(t_mshell *obj)
 		if (temp->left)
 		{
 			run_heredoc(obj, temp->left);
-			execute_cmd(obj, temp->left);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp->left);
 		}
 		else
 		{
 			run_heredoc(obj, temp);
-			execute_cmd(obj, temp);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp);
 		}
+		obj->heredoc_interrupted = 0;
 		if (obj->stdin_fd != -1)
 		{
 			dup2(obj->stdin_fd, STDIN_FILENO);

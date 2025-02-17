@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 15:03:30 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 11:41:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,10 @@ static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
 	write(STDOUT_FILENO, "> ", 2);
 	doc->str = get_next_line(STDIN_FILENO);
 	if (!doc->str || g_signal_received == SIGINT)
+	{
+		write(STDOUT_FILENO, "\n", 1);
 		return (0);
+	}
 	if (is_heredoc_quoted == 0)
 		doc->expanded = expand_env_vars(doc->str, doc->obj);
 	else
@@ -90,7 +93,6 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	ret_fd = heredoc.pipe_fd[0];
 	if (g_signal_received == SIGINT)
 	{
-		printf("mi tut bleat\n");
 		obj->heredoc_interrupted = 1;
 		g_signal_received = 0;
 		close(heredoc.pipe_fd[0]);
@@ -98,7 +100,6 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 		return (ret_fd);
 	}
 	if (isatty(STDIN_FILENO))
-		restore_terminal_settings();
-	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
+		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	return (ret_fd);
 }

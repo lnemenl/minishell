@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 17:04:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 10:29:34 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,8 @@ static void wait_for_children(t_mshell *obj)
 				obj->exit_code = WEXITSTATUS(status);
 			else if (WIFSIGNALED(status))
 			{
+				if (WTERMSIG(status) == SIGINT)
+					write(STDOUT_FILENO, "\n", 1);
 				if (WTERMSIG(status) == SIGQUIT)
 					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
 				obj->exit_code = 128 + WTERMSIG(status);
@@ -96,8 +98,7 @@ int main(int argc, char **argv, char **envp)
 
 	if (argc != 1)
 		return (error_ret(1, NULL));
-
-	init_terminal_settings();
+	disable_echoctl();
 	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 
 	/* Initialize shell data structures (copies envp, fetches PATH, etc.). */
@@ -173,7 +174,5 @@ int main(int argc, char **argv, char **envp)
 	/* Free envp only once */
 	if (obj.envp)
 		ft_free_strs(obj.envp, get_envp_length(obj.envp));
-
-	restore_terminal_settings();
 	return (obj.exit_code);
 }
