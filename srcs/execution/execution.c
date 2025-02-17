@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 17:59:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 11:04:16 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -87,6 +87,7 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	clean_mshell(obj);
 	if (!*arg)
 		ft_putstr_fd(": ", 2);
+	(void)is_builtin;
 	if (obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
@@ -189,7 +190,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 	else if (obj->pids[obj->cur_pid] == 0)
 	{
 		setup_exec_signals();
-		restore_terminal_settings();
 		apply_redirections(obj, cmd);
 
 		/* Abort command execution if heredoc was interrupted */
@@ -295,13 +295,16 @@ void choose_actions(t_mshell *obj)
 		if (temp->left)
 		{
 			run_heredoc(obj, temp->left);
-			execute_cmd(obj, temp->left);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp->left);
 		}
 		else
 		{
 			run_heredoc(obj, temp);
-			execute_cmd(obj, temp);
+			if (obj->heredoc_interrupted == 0)
+				execute_cmd(obj, temp);
 		}
+		obj->heredoc_interrupted = 0;
 		if (obj->stdin_fd != -1)
 		{
 			dup2(obj->stdin_fd, STDIN_FILENO);

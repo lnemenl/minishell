@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/14 15:13:36 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/17 10:29:20 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,6 @@ static int has_input_redirection(t_ast_node *cmd)
     return (0);
 }
 
-/*
- * A helper to check if a command node declares an output redirection
- * (either TOKEN_REDIRECT_OUT or TOKEN_REDIRECT_APPEND)
- */
 static int has_output_redirection(t_ast_node *cmd)
 {
     int i = 0;
