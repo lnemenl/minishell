@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 15:14:40 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:20:02 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,14 +53,27 @@ static char	**delete_env(char *arg, t_mshell *obj)
 
 int	unset(char **args, t_mshell *obj)
 {
+	int	i;
+
 	obj->exit_code = 0;
 	if (!args || !args[1] || !*args[1])
 		return (1);
-	if (ft_strcmp(args[1], "PATH") == 0)
+	i = 1;
+	while (args[i])
 	{
-		ft_clean_strs(obj->paths);
-		obj->paths = NULL;
+		if (args[i][0] == '-')
+		{
+			obj->exit_code = 2;
+			ft_fprintf(STDERR_FILENO, "minishell: unset: %s: invalid option", args[i]);
+			return (1);
+		}
+		else if (ft_strcmp(args[i], "PATH") == 0)
+		{
+			ft_clean_strs(obj->paths);
+			obj->paths = NULL;
+		}
+		obj->envp = delete_env(args[i], obj);
+		i++;
 	}
-	obj->envp = delete_env(args[1], obj);
 	return (1);
 }
