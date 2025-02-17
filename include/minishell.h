@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 16:56:47 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:46:55 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -175,6 +175,7 @@ int			env(t_mshell *obj, char **args);
 int			echo(char **args, t_mshell *obj, int is_quote);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
+void		check_and_handle_exit(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
 t_ast_node				*create_ast_node(t_token_type type);
