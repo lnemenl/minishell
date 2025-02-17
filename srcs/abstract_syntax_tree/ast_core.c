@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/15 18:14:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 12:37:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -214,7 +214,8 @@ t_ast_node *parse_simple_command(t_token **tokens)
 		}
 		else if ((*tokens)->type == TOKEN_WORD)
 		{
-			cmd_node->is_quote_heredoc = (*tokens)->is_quote_heredoc;
+			if (ft_strncmp((*tokens)->content, "-n", 2) == 0)
+				cmd_node->is_quote_heredoc = (*tokens)->is_quote_heredoc;
 			char *arg = ft_strdup((*tokens)->content);
 			if (!arg)
 			{
