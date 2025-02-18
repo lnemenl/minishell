@@ -44,7 +44,6 @@ static t_mshell	init_shell(char **argv, char **envp)
 
 	obj.allocated_pipes = 0;
 	obj.cmd_line = NULL;
-	obj.cmds = NULL;
 	obj.cur_path = NULL;
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
@@ -169,12 +168,6 @@ int main(int argc, char **argv, char **envp)
 		obj.paths = fetch_paths(obj.envp);
 	}
 
-	/* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
-	clean_mshell(&obj);
-	free(obj.prev_path);
-
-	/* Free envp only once */
-	if (obj.envp)
-		ft_free_strs(obj.envp, get_envp_length(obj.envp));
+	clean_exit(&obj);
 	return (obj.exit_code);
 }

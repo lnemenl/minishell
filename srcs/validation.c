@@ -12,15 +12,7 @@
 
 #include "../include/minishell.h"
 
-static void	free_path(char *path)
-{
-	if (!path || !*path)
-		return ;
-	free(path);
-	path = NULL;
-}
-
-void	print_exit(char *mes, char *cmd, int exit_code)
+void	print_exit(char *mes, char *cmd, t_mshell *obj)
 {
 	char	*full_msg;
 	int		mes_len;
@@ -28,17 +20,17 @@ void	print_exit(char *mes, char *cmd, int exit_code)
 	mes_len = ft_strlen(mes) + ft_strlen(cmd) + 3;
 	full_msg = ft_calloc(mes_len, sizeof(char));
 	if (!full_msg)
-	{
 		ft_putstr_fd("Malloc failed\n", 2);
-		exit (exit_code);
+	else
+	{
+		if (cmd)
+			ft_strlcpy(full_msg, cmd, mes_len);
+		ft_strlcat(full_msg, ": ", mes_len);
+		ft_strlcat(full_msg, mes, mes_len);
+		ft_putstr_fd(full_msg, 2);
+		check_free_str(&full_msg);
 	}
-	if (cmd)
-		ft_strlcpy(full_msg, cmd, mes_len);
-	ft_strlcat(full_msg, ": ", mes_len);
-	ft_strlcat(full_msg, mes, mes_len);
-	ft_putstr_fd(full_msg, 2);
-	free (full_msg);
-	exit (exit_code);
+	clean_exit(obj);
 }
 
 static void	check_is_dir(char *arg, t_mshell *obj)
@@ -49,9 +41,8 @@ static void	check_is_dir(char *arg, t_mshell *obj)
 	if (fd >= 0)
 	{
 		close(fd);
-		clean_mshell(obj);
 		obj->exit_code = 126;
-		print_exit("Is a directory\n", arg, obj->exit_code);
+		print_exit("Is a directory\n", arg, obj);
 	}
 }
 
@@ -61,7 +52,7 @@ static char	*check_paths(char **paths, char **args, size_t *args_move)
 	char	*path;
 	size_t	path_len;
 
-	if (!args || !*args || (!**args /*&& !*(*args + 1)*/))
+	if (!args || !*args || !**args)
 		return (ft_strdup(""));
 	else if (!**args && *(*args + 2))
 		*args_move = 1;
@@ -74,7 +65,7 @@ static char	*check_paths(char **paths, char **args, size_t *args_move)
 		path = ft_calloc(path_len, sizeof(char));
 		if (!path)
 		{
-			ft_putstr_fd("Malloc failed\n", 2);
+			ft_putstr_fd("Malloc failed\n", STDERR_FILENO);
 			return (NULL);
 		}
 		ft_strlcpy(path, paths[i], path_len);
@@ -82,7 +73,7 @@ static char	*check_paths(char **paths, char **args, size_t *args_move)
 		ft_strlcat(path, (*args) + *args_move, path_len);
 		if (access(path, F_OK) == 0)
 			return (path);
-		free_path(path);
+		check_free_str(&path);
 		i++;
 	}
 	return (NULL);
@@ -108,22 +99,20 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 	path = check_paths(paths, node->args, &obj->args_move);
 	if (path && !*path)
 	{
-		free(path);
+		check_free_str(&path);
 		exit_child(obj, NULL, 0, 0);
 	}
 	else if (!path || !*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
 	{
-		clean_mshell(obj);
-		if (path)
-			free(path);
-		// if (node->args[0 + obj->args_move][0] == '\0')
+		check_free_str(&path);
 		if (!*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
 		{
 			obj->exit_code = 0;
+			clean_mshell(obj);
 			return (NULL);
 		}
 		obj->exit_code = 127;
-		print_exit("command not found\n", node->args[0 + obj->args_move], obj->exit_code);
+		print_exit("command not found\n", node->args[0 + obj->args_move], obj);
 	}
 	check_is_dir(path, obj);
 	return (path);

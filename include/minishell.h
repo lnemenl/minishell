@@ -97,7 +97,6 @@ typedef struct s_ast_node
 typedef struct	s_mshell
 {
 	char				*cmd_line;      	// Full input line entered by the user
-	char				**cmds;         	// Array of command strings (split version of cmd_line)
 	char				*cur_path;      	// Current working directory path
 	char				**paths;
 	int					exec_cmds;     		// Total number of executable commands
@@ -130,8 +129,6 @@ typedef struct s_heredoc
 }   t_heredoc;
 
 int						error_ret(int type, char *arg);
-void					clean_mshell(t_mshell *obj);
-void					close_fds(t_mshell *obj);
 
 /* ===== PARSING		 UTILS (parsing_utils.c) ===== */
 int						ft_isspace(int c);
@@ -187,7 +184,7 @@ t_ast_node				*parse_command(t_token **tokens);
 t_ast_node				*parse_pipeline(t_token **tokens);
 
 /* ===== EXECUTION ===== */
-void	print_exit(char *mes, char *cmd, int exit_code);
+void	print_exit(char *mes, char *cmd, t_mshell *obj);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
 void	execute_cmd(t_mshell *obj, t_ast_node *cmd);
 char	**read_alloc(int fd, size_t *i);
@@ -205,7 +202,10 @@ void	pipe_redirection(t_mshell *obj, t_ast_node *cmd);
 int		handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd);
 
 /* =====				 CLEANUP ===== */
-void	clean_strs(char **strs);
+void	clean_exit(t_mshell *obj);
+void	clean_mshell(t_mshell *obj);
+void	close_fds(t_mshell *obj);
+void	check_free_str(char **path);
 
 
 /* ===== SIGNALS ===== */

@@ -29,16 +29,14 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 {
 	obj->exit_code = exit_code;
 	close_fds(obj);
-	clean_mshell(obj);
-	if (obj->envp)
-		free(obj->envp);
 	if (arg && !*arg)
 		ft_putstr_fd(": ", 2);
 	if (arg && obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
 		obj->exit_code = 126;
-	exit(obj->exit_code);
+	clean_exit(obj);
+	//exit(obj->exit_code);
 }
 
 static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
