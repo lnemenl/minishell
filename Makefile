@@ -26,25 +26,30 @@ BROWN = \033[0;33m
 NAME = minishell
 
 SRC_DIR = ./srcs
+PARSE = ./parsing
 BUILTINS = ./builtins
 EXEC = ./execution
+AST = ./abstract_syntax_tree
 
 
 SRCS = \
 	${SRC_DIR}/main.c \
     ${SRC_DIR}/errors.c \
     ${SRC_DIR}/clean.c \
+	${SRC_DIR}/validation.c \
+	${SRC_DIR}/utils.c \
     \
-    ${SRC_DIR}/parsing/parsing_utils.c \
-    ${SRC_DIR}/parsing/parse.c \
-    ${SRC_DIR}/parsing/token_core.c \
-    ${SRC_DIR}/parsing/token_quote.c \
-    ${SRC_DIR}/parsing/token_env.c \
-    ${SRC_DIR}/parsing/token_process.c \
+    ${SRC_DIR}/${PARSE}/parsing_utils.c \
+    ${SRC_DIR}/${PARSE}/parse.c \
+    ${SRC_DIR}/${PARSE}/token_core.c \
+    ${SRC_DIR}/${PARSE}/token_quote.c \
+    ${SRC_DIR}/${PARSE}/token_env.c \
+    ${SRC_DIR}/${PARSE}/token_process.c \
+	${SRC_DIR}/${PARSE}/invalid_cases.c \
     \
-    ${SRC_DIR}/abstract_syntax_tree/ast_core.c \
-    ${SRC_DIR}/abstract_syntax_tree/ast_command.c \
-    ${SRC_DIR}/abstract_syntax_tree/ast_debug.c \
+    ${SRC_DIR}/${AST}/ast_core.c \
+    ${SRC_DIR}/${AST}/ast_command.c \
+    ${SRC_DIR}/${AST}/ast_debug.c \
 	\
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/export.c \
@@ -54,8 +59,6 @@ SRCS = \
 	${SRC_DIR}/${EXEC}/execution.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
 	${SRC_DIR}/${EXEC}/heredoc.c \
-	${SRC_DIR}/validation.c \
-	${SRC_DIR}/utils.c \
 	\
 	${SRC_DIR}/signals/handling_signals.c
 

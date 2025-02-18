@@ -71,6 +71,7 @@ void	clean_mshell(t_mshell *obj)
 	clean_tokens(obj->token);
 	obj->token = NULL;
 	clean_pipes(obj);
+	free_ast(obj->ast);
 	if (obj->pids)
 	{
 		free(obj->pids);

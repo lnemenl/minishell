@@ -35,8 +35,9 @@ t_ast_node	*free_ast_return_null(t_ast_node *node)
 void free_ast(t_ast_node *node)
 {
 	int i;
+
 	if (!node)
-		return;
+		return ;
 	free_ast(node->left);
 	free_ast(node->right);
 	if (node->redirs)

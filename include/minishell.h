@@ -130,64 +130,68 @@ typedef struct s_heredoc
 
 int						error_ret(int type, char *arg);
 
-/* ===== PARSING		 UTILS (parsing_utils.c) ===== */
+/* ===== PARSING UTILS (parsing_utils.c) ===== */
 int						ft_isspace(int c);
 int						is_operator(char c);
 int						is_word_char(char c);
 int						is_quote(char c);
 t_quote_state			get_quote_state(char quote);
 
-/* ===== PARSING		 ===== */
-void					parse(t_mshell *obj);
-t_token					*tokenize(const char *input, t_mshell *mshell);
-void					init_tokenize(t_token **head, t_token **current);
-t_token					*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
-char					**fetch_paths(char **envp);
+/* ===== PARSING ===== */
+void	parse(t_mshell *obj);
+t_token	*tokenize(const char *input, t_mshell *mshell);
+void	init_tokenize(t_token **head, t_token **current);
+t_token	*process_trimmed_input(t_token **head, t_token **current, char *trimmed, t_mshell *mshell);
+char	**fetch_paths(char **envp);
 
-/* ===== TOKEN C		ORE (token_core.c) ===== */
-t_token 				*new_token(t_token_type type, const char *content, size_t len, t_mshell *mshell);
-void					link_token(t_token **head, t_token **current, t_token *new);
-void					clean_tokens(t_token *head);
+/* ===== INVALID CASES =====*/
+int	is_cmd_line_invalid(t_mshell *obj);
+int	is_ast_invalid(t_mshell *obj);
+int	is_main_signaled(t_mshell *obj);
 
-/* ===== ENVIRON		MENT VARIABLES (token_env.c) ===== */
-char					*get_env_value(const char *var_name, t_mshell *mshell);
-char					*expand_env_vars(const char *str, t_mshell *mshell);
+/* ===== TOKEN CORE (token_core.c) ===== */
+t_token	*new_token(t_token_type type, const char *content, size_t len, t_mshell *mshell);
+void	link_token(t_token **head, t_token **current, t_token *new);
+void	clean_tokens(t_token *head);
 
-/* ===== TOKEN P		ROCESS (token_process.c) ===== */
-t_token					*handle_operator(t_token **head, t_token **current, const char *input, int *i);
-t_token					*handle_word(t_token **head, t_token **current, const char *input, int *i);
-t_token					*process_token(t_token **head, t_token **current, const char *input, int *i);
+/* ===== ENVIRONMENT VARIABLES (token_env.c) ===== */
+char	*get_env_value(const char *var_name, t_mshell *mshell);
+char	*expand_env_vars(const char *str, t_mshell *mshell);
 
-/* ===== QUOTE H		ANDLING (token_quote.c) ===== */
-t_token					*handle_single_quotes(const char *input, int *i, t_mshell *mshell);
-t_token					*handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_token_type current_type);
-t_token					*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
-char					*handle_backslash(char *str);
+/* ===== TOKEN PROCESS (token_process.c) ===== */
+t_token	*handle_operator(t_token **head, t_token **current, const char *input, int *i);
+t_token	*handle_word(t_token **head, t_token **current, const char *input, int *i);
+t_token	*process_token(t_token **head, t_token **current, const char *input, int *i);
+
+/* ===== QUOTE HANDLING (token_quote.c) ===== */
+t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell);
+t_token	*handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_token_type current_type);
+t_token	*handle_quotes(t_token **head, t_token **current, const char *input, int *i);
+char	*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
-int			cd(char **cd_args, t_mshell *obj);
-int			pwd(t_mshell *obj);
-void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(t_mshell *obj, char **args);
-int			echo(char **args, t_mshell *obj, int is_quote);
-int			export(char **args, t_mshell *obj);
-int			unset(char **args, t_mshell *obj);
-void		check_and_handle_exit(char **args, t_mshell *obj);
+int		cd(char **cd_args, t_mshell *obj);
+int		pwd(t_mshell *obj);
+void	set_env_args(t_mshell *obj, t_ast_node *node);
+int		env(t_mshell *obj, char **args);
+int		echo(char **args, t_mshell *obj, int is_quote);
+int		export(char **args, t_mshell *obj);
+int		unset(char **args, t_mshell *obj);
+void	check_and_handle_exit(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
-t_ast_node				*create_ast_node(t_token_type type);
-t_ast_node				*free_ast_return_null(t_ast_node *node);
-void					free_ast(t_ast_node *node);
-int						is_redirect_token(t_token_type type);
-t_ast_node				*parse_simple_command(t_token **tokens);
-t_ast_node				*parse_command(t_token **tokens);
-t_ast_node				*parse_pipeline(t_token **tokens);
+t_ast_node	*create_ast_node(t_token_type type);
+t_ast_node	*free_ast_return_null(t_ast_node *node);
+void		free_ast(t_ast_node *node);
+int			is_redirect_token(t_token_type type);
+t_ast_node	*parse_simple_command(t_token **tokens);
+t_ast_node	*parse_command(t_token **tokens);
+t_ast_node	*parse_pipeline(t_token **tokens);
 
 /* ===== EXECUTION ===== */
 void	print_exit(char *mes, char *cmd, t_mshell *obj);
 char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj);
 void	execute_cmd(t_mshell *obj, t_ast_node *cmd);
-char	**read_alloc(int fd, size_t *i);
 void	choose_actions(t_mshell *obj);
 void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin);
 size_t	get_envp_memory_size(char **envp);

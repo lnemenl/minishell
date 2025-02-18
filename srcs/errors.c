@@ -27,18 +27,39 @@
 */
 int	error_ret(int type, char *arg)
 {
-	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	if (type == 1)
-		ft_putstr_fd("Do not provide any arguments\n", 2);
+		ft_putstr_fd("Do not provide any arguments\n", STDERR_FILENO);
 	else if (type == 2)
 		perror(arg);
 	else if (type == 3)
-		ft_putstr_fd("Pipe failed\n", 2);
+		ft_putstr_fd("Pipe failed\n", STDERR_FILENO);
 	else if (type == 4)
-		ft_putstr_fd("Fork failed\n", 2);
+		ft_putstr_fd("Fork failed\n", STDERR_FILENO);
 	else if (type == 5)
-		ft_putstr_fd("Malloc failed\n", 2);
+		ft_putstr_fd("Malloc failed\n", STDERR_FILENO);
 	else if (type == 6)
-		ft_putstr_fd("File handling error\n", 2);
+		ft_putstr_fd("File handling error\n", STDERR_FILENO);
 	exit(1);
+}
+
+void	print_exit(char *mes, char *cmd, t_mshell *obj)
+{
+	char	*full_msg;
+	int		mes_len;
+
+	mes_len = ft_strlen(mes) + ft_strlen(cmd) + 3;
+	full_msg = ft_calloc(mes_len, sizeof(char));
+	if (!full_msg)
+		ft_putstr_fd("Malloc failed\n", 2);
+	else
+	{
+		if (cmd)
+			ft_strlcpy(full_msg, cmd, mes_len);
+		ft_strlcat(full_msg, ": ", mes_len);
+		ft_strlcat(full_msg, mes, mes_len);
+		ft_putstr_fd(full_msg, 2);
+		check_free_str(&full_msg);
+	}
+	clean_exit(obj);
 }

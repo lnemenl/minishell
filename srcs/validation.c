@@ -12,27 +12,6 @@
 
 #include "../include/minishell.h"
 
-void	print_exit(char *mes, char *cmd, t_mshell *obj)
-{
-	char	*full_msg;
-	int		mes_len;
-
-	mes_len = ft_strlen(mes) + ft_strlen(cmd) + 3;
-	full_msg = ft_calloc(mes_len, sizeof(char));
-	if (!full_msg)
-		ft_putstr_fd("Malloc failed\n", 2);
-	else
-	{
-		if (cmd)
-			ft_strlcpy(full_msg, cmd, mes_len);
-		ft_strlcat(full_msg, ": ", mes_len);
-		ft_strlcat(full_msg, mes, mes_len);
-		ft_putstr_fd(full_msg, 2);
-		check_free_str(&full_msg);
-	}
-	clean_exit(obj);
-}
-
 static void	check_is_dir(char *arg, t_mshell *obj)
 {
 	int	fd;
