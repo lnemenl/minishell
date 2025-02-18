@@ -55,6 +55,7 @@ SRCS = \
 	${SRC_DIR}/${BUILTINS}/export.c \
 	${SRC_DIR}/${BUILTINS}/unset.c \
 	${SRC_DIR}/${BUILTINS}/exit.c \
+	${SRC_DIR}/${BUILTINS}/cd.c \
 	\
 	${SRC_DIR}/${EXEC}/execution.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
