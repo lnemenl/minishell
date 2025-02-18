@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 18:46:04 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 18:46:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/18 09:23:42 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ static void	check_exit_code(char *arg, t_mshell *obj, int args_len)
 
 void	check_and_handle_exit(char **args, t_mshell *obj)
 {
-	int	i;
 	int	args_len;
 
 	if (!args || !*args)
@@ -69,7 +68,6 @@ void	check_and_handle_exit(char **args, t_mshell *obj)
 	{
 		if (isatty(STDIN_FILENO))
 			printf("exit\n");
-		i = 0;
 		check_exit_code(args[1], obj, args_len);
 		clean_mshell(obj);
 		//free(obj->envp);

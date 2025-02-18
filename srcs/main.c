@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 17:23:47 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/18 11:56:47 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -108,7 +108,6 @@ int main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		g_signal_received = 0;
-		rl_catch_signals = 0;
 		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 		if (isatty(fileno(stdin)))
 			obj.cmd_line = readline(PROMPT);

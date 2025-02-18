@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 18:46:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/18 13:21:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,6 @@
 # include <signal.h>
 # include <termios.h>
 # include <sys/ioctl.h>
-
-# ifndef TCFLSH
-#  define TCFLSH TCIFLUSH
-# endif
 
 # ifndef PATH_BUFFER_SIZE
 #  define PATH_BUFFER_SIZE 4096
@@ -58,7 +54,6 @@ typedef	enum e_quote_state
 typedef enum e_signal_state
 {
     SIGNAL_STATE_INTERACTIVE,
-    SIGNAL_STATE_EXEC,
     SIGNAL_STATE_HEREDOC,
     SIGNAL_STATE_RESET
 }	t_signal_state;
@@ -212,7 +207,6 @@ void	clean_strs(char **strs);
 void 	setup_interactive_signals(void);
 void 	setup_exec_signals(void);
 void 	setup_heredoc_signals(void);
-void 	reset_signals(void);
 void	transition_signal_handlers(t_signal_state new_state);
 void	disable_echoctl(void);
 
