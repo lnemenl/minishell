@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/18 11:56:47 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/19 10:43:54 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -110,7 +110,12 @@ int main(int argc, char **argv, char **envp)
 		g_signal_received = 0;
 		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 		if (isatty(fileno(stdin)))
+		{
 			obj.cmd_line = readline(PROMPT);
+			char *temp = ft_strdup(obj.cmd_line);
+			free(obj.cmd_line);
+			obj.cmd_line = temp;
+		}
 		else
 		{
 			//ft_putstr_fd(PROMPT, STDOUT_FILENO);
@@ -123,6 +128,7 @@ int main(int argc, char **argv, char **envp)
 		if (!obj.cmd_line)  /* Handling Ctrl+D (EOF) */
 		{
 			write(STDOUT_FILENO, "exit\n", 5);
+			obj.exit_code = 130;
 			break;
 		}
 		if (!*obj.cmd_line)
