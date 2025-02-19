@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/13 10:58:09 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 10:55:07 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,7 +18,7 @@ static void	clean_pipes(t_mshell *obj)
 
 	if (!obj->pipfd)
 		return ;
-	if (!obj->allocated_pipes == 0)
+	if (obj->allocated_pipes == 0)
 	{
 		obj->allocated_pipes = 0;
 		free(obj->pipfd);
@@ -72,6 +72,7 @@ void	clean_mshell(t_mshell *obj)
 	obj->token = NULL;
 	clean_pipes(obj);
 	//free_ast(obj->ast);
+	//obj->ast = NULL;
 	if (obj->pids)
 	{
 		free(obj->pids);

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:47:52 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 16:37:14 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 14:01:43 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -53,7 +53,8 @@ void parse(t_mshell *obj)
     {
         clean_tokens(tokens);
         obj->token = NULL;
-        obj->exit_code = 1;
+        if (obj->exit_code != 2)
+            obj->exit_code = 1;
         return;
     }
 }

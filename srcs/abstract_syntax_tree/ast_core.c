@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/17 12:37:36 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 14:00:04 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -243,6 +243,8 @@ t_ast_node *parse_simple_command(t_token **tokens)
 	{
 		if (cmd_node->redirs)
 		{
+			if ((*cmd_node->redirs)->type == TOKEN_HEREDOC)
+				return (cmd_node);
 			t_ast_node *redir = *cmd_node->redirs;
 			int fd;
 			fd = -1;
@@ -252,11 +254,9 @@ t_ast_node *parse_simple_command(t_token **tokens)
 					fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
 				else if (redir->type == TOKEN_REDIRECT_OUT)
 					fd = open(redir->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-				if (fd == -1)
-				{
+				if ((redir->type == TOKEN_REDIRECT_APPEND
+					|| redir->type == TOKEN_REDIRECT_OUT) && fd == -1)
 					perror(redir->args[0]);
-					
-				}
 			}
 			if (fd != -1)
 				close(fd);
@@ -276,6 +276,7 @@ t_ast_node *parse_command(t_token **tokens)
 		return (NULL);
 	if ((*tokens)->type == TOKEN_PIPE)
 	{
+		(*tokens)->mshell->exit_code = 2;
 		ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
 		return (NULL);
 	}
