@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/17 13:25:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 14:20:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,6 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 {
 	int     start;
 	t_token *token;
-	char    *without_backslashes;
 	char    *word;
 
 	(*i)++;
@@ -32,15 +31,8 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 	word = ft_substr(input, start, (*i) - start);
 	if (!word)
 		return (NULL);
-	without_backslashes = handle_backslash(word);
-	if (!without_backslashes)
-	{
-		free(word);
-		return (NULL);
-	}
+	token = new_token(TOKEN_WORD, word, ft_strlen(word), mshell);
 	free(word);
-	token = new_token(TOKEN_WORD, without_backslashes, ft_strlen(without_backslashes), mshell);
-	free(without_backslashes);
 	if (!token)
 		return (NULL);
 	token->quote_state = QUOTE_SINGLE;
@@ -52,7 +44,6 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_tok
 {
 	int     start;
 	char    *content;
-	char    *without_backslashes;
 	char    *expanded;
 	t_token *token;
 
@@ -73,19 +64,12 @@ t_token *handle_double_quotes(const char *input, int *i, t_mshell *mshell, t_tok
 		mshell->exit_code = 2;
 		return (NULL);
 	}
-	without_backslashes = handle_backslash(content);
-	if (!without_backslashes)
-	{
-		free(content);
-		return (NULL);
-	}
-	free(content);
 	if (current_type == TOKEN_HEREDOC)
-		expanded = without_backslashes;
+		expanded = content;
 	else
 	{
-		expanded = expand_env_vars(without_backslashes, mshell);
-		free(without_backslashes);
+		expanded = expand_env_vars(content, mshell);
+		free(content);
 		if (!expanded)
 			return (NULL);
 	}

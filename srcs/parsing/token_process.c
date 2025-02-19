@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/15 14:09:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 14:20:49 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -91,7 +91,6 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	t_token	*token;
 	char	*expanded;
 	char	*temp;
-	char	*without_backslashes;
 	int		start;
 	char	*joined;
 	
@@ -104,17 +103,10 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 	temp = ft_substr(input, start, (*i) - start);
 	if (!temp)
 		return (NULL);
-	without_backslashes = handle_backslash(temp);
-	if (!without_backslashes)
-	{
-		free(temp);
-		return (NULL);
-	}
-	free (temp);
 	if (*current && (*current)->quote_state != QUOTE_NONE)
 	{
-		expanded = expand_env_vars(without_backslashes, (*current)->mshell);
-		free(without_backslashes);
+		expanded = expand_env_vars(temp, (*current)->mshell);
+		free(temp);
 		if (!expanded)
 			return (NULL);
 		joined = ft_strjoin((*current)->content, expanded);
@@ -126,8 +118,8 @@ t_token *handle_word(t_token **head, t_token **current, const char *input, int *
 		return (*current);
 	}
 	
-	expanded = expand_env_vars(without_backslashes, (*current)->mshell);
-	free(without_backslashes);
+	expanded = expand_env_vars(temp, (*current)->mshell);
+	free(temp);
 	if (!expanded)
 		return (NULL);
 	token = new_token(TOKEN_WORD, expanded, ft_strlen(expanded), (*head)->mshell);
