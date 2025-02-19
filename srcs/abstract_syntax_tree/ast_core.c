@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/19 11:52:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/19 18:19:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,6 +28,8 @@ t_ast_node *create_ast_node(t_token_type type)
 
 t_ast_node	*free_ast_return_null(t_ast_node **node)
 {
+	if (!node || !*node)
+		return (NULL);
 	free_ast(*node);
 	*node = NULL;
 	return (NULL);
@@ -44,17 +46,25 @@ void free_ast(t_ast_node *node)
 	{
 		i = 0;
 		while (node->redirs[i])
-			free_ast(node->redirs[i++]);
+		{
+			free_ast(node->redirs[i]);
+			//node->redirs[i] = NULL;
+			i++;
+		}
 		free(node->redirs);
-		node->redirs = NULL;
+		//node->redirs = NULL;
 	}
 	if (node->args)
 	{
 		i = 0;
 		while (node->args[i])
-			free(node->args[i++]);
+		{
+			free(node->args[i]);
+			//node->args[i] = NULL;
+			i++;
+		}
 		free(node->args);
-		node->args = NULL;
+		//node->args = NULL;
 	}
 	free(node);
 }
