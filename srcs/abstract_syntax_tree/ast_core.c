@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_core.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/17 12:37:36 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 11:52:02 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -26,9 +26,10 @@ t_ast_node *create_ast_node(t_token_type type)
 	return node;
 }
 
-t_ast_node	*free_ast_return_null(t_ast_node *node)
+t_ast_node	*free_ast_return_null(t_ast_node **node)
 {
-	free_ast(node);
+	free_ast(*node);
+	*node = NULL;
 	return (NULL);
 }
 
@@ -43,11 +44,9 @@ void free_ast(t_ast_node *node)
 	{
 		i = 0;
 		while (node->redirs[i])
-		{
-			free_ast(node->redirs[i]);
-			i++;
-		}
+			free_ast(node->redirs[i++]);
 		free(node->redirs);
+		node->redirs = NULL;
 	}
 	if (node->args)
 	{
@@ -55,6 +54,7 @@ void free_ast(t_ast_node *node)
 		while (node->args[i])
 			free(node->args[i++]);
 		free(node->args);
+		node->args = NULL;
 	}
 	free(node);
 }
@@ -92,18 +92,18 @@ static t_ast_node *handle_redirection_node(t_token **tokens)
 	{
 		filename = ft_strdup((*tokens)->content);
 		if (!filename)
-			return (free_ast_return_null(redir));
+			return (free_ast_return_null(&redir));
 		*tokens = (*tokens)->next;
 	}
 	else
 	{
-		return (free_ast_return_null(redir));
+		return (free_ast_return_null(&redir));
 	}
 	redir->args = (char **)ft_calloc(2, sizeof(char *));
 	if (!redir->args)
 	{
 		free(filename);
-		return (free_ast_return_null(redir));
+		return (free_ast_return_null(&redir));
 	}
 
 	redir->args[0] = filename;

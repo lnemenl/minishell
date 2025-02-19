@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/18 13:21:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/19 11:39:11 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,7 +174,7 @@ void		check_and_handle_exit(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
 t_ast_node				*create_ast_node(t_token_type type);
-t_ast_node				*free_ast_return_null(t_ast_node *node);
+t_ast_node				*free_ast_return_null(t_ast_node **node);
 void					free_ast(t_ast_node *node);
 int						is_redirect_token(t_token_type type);
 t_ast_node				*parse_simple_command(t_token **tokens);
