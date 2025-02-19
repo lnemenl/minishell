@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/17 18:47:11 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/19 16:20:55 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -37,7 +37,7 @@ SRCS = \
     ${SRC_DIR}/errors.c \
     ${SRC_DIR}/clean.c \
 	${SRC_DIR}/validation.c \
-	${SRC_DIR}/utils.c \
+	${SRC_DIR}/envp_utils.c \
     \
     ${SRC_DIR}/${PARSE}/parsing_utils.c \
     ${SRC_DIR}/${PARSE}/parse.c \

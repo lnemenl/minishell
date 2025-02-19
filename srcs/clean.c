@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 10:55:07 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 15:29:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,8 +71,6 @@ void	clean_mshell(t_mshell *obj)
 	clean_tokens(obj->token);
 	obj->token = NULL;
 	clean_pipes(obj);
-	//free_ast(obj->ast);
-	//obj->ast = NULL;
 	if (obj->pids)
 	{
 		free(obj->pids);

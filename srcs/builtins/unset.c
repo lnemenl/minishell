@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 18:20:02 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 16:19:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,9 +45,8 @@ static char	**delete_env(char *arg, t_mshell *obj)
 			break ;
 	}
 	new_envp[i] = NULL;
-	//TODO: fix free issue
-	//ft_clean_strs(obj->envp);
-	//obj->envp = NULL;
+	ft_clean_strs(obj->envp);
+	obj->envp = NULL;
 	return (new_envp);
 }
 
