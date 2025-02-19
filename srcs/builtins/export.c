@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 18:11:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 14:45:04 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static char	*check_env_arg(char *arg)
 	return (ft_strdup(arg));
 }
 
-static void	put_env_var(t_mshell *obj, char *new_arg)
+void	put_env_var(t_mshell *obj, char *new_arg)
 {
 	int		pos;
 	size_t	arg_len;
