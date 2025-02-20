@@ -6,11 +6,77 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/20 10:13:36 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 12:18:49 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
+
+static int	print_syntax_error(t_token *token, char *message)
+{
+	token->mshell->exit_code = 2;
+	ft_putstr_fd("syntax error near unexpected token '", 2);
+	ft_putstr_fd(message, 2);
+	ft_putstr_fd("'\n", 2);
+	return (0);
+}
+
+static int	print_newline_error(t_token *token)
+{
+	token->mshell->exit_code = 2;
+	ft_putstr_fd("syntax error near unexpected token 'newline'\n", 2);
+	return (0);
+}
+
+static char	*get_redir_token_str(t_token_type type)
+{
+	if (type == TOKEN_REDIRECT_IN)
+		return ("<");
+	if (type == TOKEN_REDIRECT_OUT)
+		return (">");
+	if (type == TOKEN_HEREDOC)
+		return ("<<");
+	return (">>");
+}
+
+static int	validate_consecutive_redirects(t_token *token)
+{
+	t_token	*temp;
+	int		count;
+	
+	temp = token;
+	count = 0;
+	while (temp && is_redirect_token(temp->type))
+	{
+		count++;
+		if (count > 1)
+			return (print_syntax_error(token, get_redir_token_str(token->type)));
+		temp = temp->next;
+	}
+	return (1);
+}
+
+static int	validate_redirection(t_token *token)
+{
+	if (!validate_consecutive_redirects(token))
+		return (0);
+	if (!token->next || token->next->type != TOKEN_WORD)
+		return (print_newline_error(token));
+	return (1);
+}
+
+static int	validate_pipe(t_token *token)
+{
+    t_token *temp;
+    
+    temp = token->mshell->token;
+    if (temp && temp->type == TOKEN_PIPE)
+        return (print_syntax_error(token, "|"));
+    if (!token->next || token->next->type == TOKEN_PIPE)
+        return (print_syntax_error(token, "|"));
+        
+    return (1);
+}
 
 t_ast_node	*create_ast_node(t_token_type type)
 {
@@ -87,6 +153,8 @@ static t_ast_node	*handle_redirection_node(t_token **tokens)
 	char		*filename;
 
 	if (!tokens || !*tokens)
+		return (NULL);
+	if (!validate_redirection(*tokens))
 		return (NULL);
 	redir = create_ast_node((*tokens)->type);
 	if (!redir)
@@ -256,22 +324,11 @@ t_ast_node *parse_command(t_token **tokens)
 		return (NULL);
 	if ((*tokens)->type == TOKEN_PIPE)
 	{
-		(*tokens)->mshell->exit_code = 2;
-		ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
-		return (NULL);
+		if (!validate_pipe(*tokens))
+			return (NULL);
 	}
 	cmd_node = parse_simple_command(tokens);
 	return cmd_node;
-}
-
-static int	validate_pipe_syntax(t_token *token)
-{
-	if (!token->next || token->next->type == TOKEN_PIPE)
-	{
-		ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
-		return (0);
-	}
-	return (1);
 }
 
 static t_ast_node	*create_pipe_structure(t_ast_node *root, t_token **tokens)
@@ -304,7 +361,7 @@ t_ast_node	*parse_pipeline(t_token **tokens)
 		return (NULL);
 	while (*tokens && (*tokens)->type == TOKEN_PIPE)
 	{
-		if (!validate_pipe_syntax(*tokens))
+		if (!validate_pipe(*tokens))
 		{
 			free_ast(root);
 			return (NULL);
