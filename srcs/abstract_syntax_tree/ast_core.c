@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/20 12:18:49 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 13:31:17 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,7 +36,9 @@ static char	*get_redir_token_str(t_token_type type)
 		return (">");
 	if (type == TOKEN_HEREDOC)
 		return ("<<");
-	return (">>");
+	if (type == TOKEN_REDIRECT_APPEND)
+		return (">>");
+	return (NULL);
 }
 
 static int	validate_consecutive_redirects(t_token *token)
@@ -222,20 +224,24 @@ static t_ast_node	**append_redir(t_ast_node **redirs, t_ast_node *redir)
 	return (new_redirs);
 }
 
-static int	handle_empty_command_redirs(t_ast_node *redir)
+static int handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell)
 {
-	int	fd;
+    int fd;
 
-	fd = -1;
-	if (!redir)
-		return (fd);
-	if (redir->type == TOKEN_REDIRECT_APPEND)
-		fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
-	else if (redir->type == TOKEN_REDIRECT_OUT)
-		fd = open(redir->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	if (fd == -1)
-		perror(redir->args[0]);
-	return (fd);
+    fd = -1;
+    if (!redir)
+        return (fd);
+    if (redir->type == TOKEN_REDIRECT_APPEND)
+        fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+    else if (redir->type == TOKEN_REDIRECT_OUT)
+        fd = open(redir->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+    else if (redir->type == TOKEN_REDIRECT_IN)
+        fd = open(redir->args[0], O_RDONLY);
+    else if (redir->type == TOKEN_HEREDOC)
+		fd = handle_here_doc(mshell, redir, fd);
+    if (fd == -1)
+        perror(redir->args[0]);
+    return (fd);
 }
 
 static t_ast_node	*handle_word_token(t_ast_node *cmd_node, t_token **tokens)
@@ -270,7 +276,7 @@ static t_ast_node	*handle_redir_token(t_ast_node *cmd_node, t_token **tokens)
 	return (cmd_node);
 }
 
-static t_ast_node	*validate_command(t_ast_node *cmd_node)
+static t_ast_node	*validate_command(t_ast_node *cmd_node, t_mshell *mshell)
 {
 	int	fd;
 
@@ -278,7 +284,7 @@ static t_ast_node	*validate_command(t_ast_node *cmd_node)
 	{
 		if (cmd_node->redirs)
 		{
-			fd = handle_empty_command_redirs(*cmd_node->redirs);
+			fd = handle_empty_command_redirs(*cmd_node->redirs, mshell);
 			if (fd != -1)
 				close(fd);
 		}
@@ -290,7 +296,9 @@ static t_ast_node	*validate_command(t_ast_node *cmd_node)
 t_ast_node	*parse_simple_command(t_token **tokens)
 {
 	t_ast_node	*cmd_node;
+	t_mshell	*mshell;
 
+	mshell = (*tokens)->mshell;
 	cmd_node = create_ast_node(TOKEN_WORD);
 	if (!cmd_node)
 		return (NULL);
@@ -313,7 +321,7 @@ t_ast_node	*parse_simple_command(t_token **tokens)
 		else
 			break ;
 	}
-	return (validate_command(cmd_node));
+	return (validate_command(cmd_node, mshell));
 }
 
 t_ast_node *parse_command(t_token **tokens)
