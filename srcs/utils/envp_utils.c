@@ -1,16 +1,16 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   utils.c                                            :+:      :+:    :+:   */
+/*   envp_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:59:06 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 16:20:36 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:41:39 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../include/minishell.h"
+#include "../../include/minishell.h"
 
 size_t	get_envp_memory_size(char **envp)
 {
@@ -63,6 +63,25 @@ char	*get_env_var(char **envp, const char *var_name)
 		i++;
 	}
 	return (NULL);
+}
+
+void	set_env_args(t_mshell *obj, t_ast_node *node)
+{
+	int	i;
+
+	i = 0;
+	while (node->args[i])
+		i++;
+	ft_free_strs(node->args, i);
+	node->args = ft_calloc(3, sizeof(char *));
+	if (!node->args)
+	{
+		clean_mshell(obj);
+		return ;
+	}
+	node->args[0] = ft_strdup("cat");
+	node->args[1] = ft_strdup(".env_temp.txt");
+	node->args[2] = NULL;
 }
 
 char	**copy_envp(char **envp)

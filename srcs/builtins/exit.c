@@ -3,16 +3,17 @@
 /*                                                        :::      ::::::::   */
 /*   exit.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 18:46:04 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/18 09:23:42 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:18:52 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static void	handle_wrong_exit_code(t_mshell *obj, char *arg, char *msg, long exit_code)
+static void	handle_wrong_exit_code(t_mshell *obj, char *arg,
+	char *msg, long exit_code)
 {
 	obj->exit_code = exit_code;
 	if (arg)
