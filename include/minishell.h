@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:16:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:39:56 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -145,6 +145,7 @@ size_t			get_envp_memory_size(char **envp);
 size_t			get_envp_length(char **envp);
 int				is_env_created(char *arg, char **strs);
 char			*get_env_var(char **envp, const char *var_name);
+char			*check_env_arg(char *arg);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);

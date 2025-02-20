@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/20 14:27:46 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/20 14:43:24 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -25,31 +25,33 @@ BROWN = \033[0;33m
 
 NAME = minishell
 
-SRC_DIR = ./srcs
-PARSE = ./parsing
+AST = ./abstract_syntax_tree
 BUILTINS = ./builtins
 EXEC = ./execution
-AST = ./abstract_syntax_tree
+PARSE = ./parsing
+SRC_DIR = ./srcs
+UTILS = ./utils
 
 
 SRCS = \
-    ${SRC_DIR}/clean.c \
-	${SRC_DIR}/envp_utils.c \
-    ${SRC_DIR}/errors.c \
+	${SRC_DIR}/clean.c \
+	${SRC_DIR}/errors.c \
 	${SRC_DIR}/main.c \
 	${SRC_DIR}/validation.c \
-    \
+	\
+	${SRC_DIR}/${UTILS}/envp_utils.c \
+	${SRC_DIR}/${UTILS}/envp_utils_2.c \
+	\
 	${SRC_DIR}/${PARSE}/invalid_cases.c \
-    ${SRC_DIR}/${PARSE}/parse.c \
-    ${SRC_DIR}/${PARSE}/parsing_utils.c \
-    ${SRC_DIR}/${PARSE}/token_core.c \
-    ${SRC_DIR}/${PARSE}/token_env.c \
-    ${SRC_DIR}/${PARSE}/token_process.c \
-    ${SRC_DIR}/${PARSE}/token_quote.c \
-    \
-    ${SRC_DIR}/${AST}/ast_command.c \
-    ${SRC_DIR}/${AST}/ast_core.c \
-    ${SRC_DIR}/${AST}/ast_debug.c \
+	${SRC_DIR}/${PARSE}/parse.c \
+	${SRC_DIR}/${PARSE}/parsing_utils.c \
+	${SRC_DIR}/${PARSE}/token_core.c \
+	${SRC_DIR}/${PARSE}/token_env.c \
+	${SRC_DIR}/${PARSE}/token_process.c \
+	${SRC_DIR}/${PARSE}/token_quote.c \
+	\
+	${SRC_DIR}/${AST}/ast_command.c \
+	${SRC_DIR}/${AST}/ast_core.c \
 	\
 	${SRC_DIR}/${BUILTINS}/cd.c \
 	${SRC_DIR}/${BUILTINS}/echo.c \
