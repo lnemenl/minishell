@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:25:26 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/20 13:31:17 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:13:23 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -295,33 +295,30 @@ static t_ast_node	*validate_command(t_ast_node *cmd_node, t_mshell *mshell)
 
 t_ast_node	*parse_simple_command(t_token **tokens)
 {
-	t_ast_node	*cmd_node;
-	t_mshell	*mshell;
+    t_ast_node	*cmd_node;
+    t_mshell	*mshell;
 
-	mshell = (*tokens)->mshell;
-	cmd_node = create_ast_node(TOKEN_WORD);
-	if (!cmd_node)
-		return (NULL);
-	cmd_node->args = NULL;
-	cmd_node->redirs = NULL;
-	while (*tokens && (*tokens)->type != TOKEN_PIPE)
-	{
-		if (is_redirect_token((*tokens)->type))
-		{
-			cmd_node = handle_redir_token(cmd_node, tokens);
-			if (!cmd_node)
-				return (NULL);
-		}
-		else if ((*tokens)->type == TOKEN_WORD)
-		{
-			cmd_node = handle_word_token(cmd_node, tokens);
-			if (!cmd_node)
-				return (NULL);
-		}
-		else
-			break ;
-	}
-	return (validate_command(cmd_node, mshell));
+    mshell = (*tokens)->mshell;
+    if (!(cmd_node = create_ast_node(TOKEN_WORD)))
+        return (NULL);
+    cmd_node->args = NULL;
+    cmd_node->redirs = NULL;
+    while (*tokens && (*tokens)->type != TOKEN_PIPE)
+    {
+        if (is_redirect_token((*tokens)->type))
+        {
+            if (!(cmd_node = handle_redir_token(cmd_node, tokens)))
+                return (NULL);
+        }
+        else if ((*tokens)->type == TOKEN_WORD)
+        {
+            if (!(cmd_node = handle_word_token(cmd_node, tokens)))
+                return (NULL);
+        }
+        else
+            break ;
+    }
+    return (validate_command(cmd_node, mshell));
 }
 
 t_ast_node *parse_command(t_token **tokens)
