@@ -111,6 +111,15 @@ typedef struct s_mshell
 	char				*prev_path;
 }	t_mshell;
 
+typedef struct s_quote_data
+{
+    const char		*input;
+    int				start;
+    int				*i;
+    t_mshell		*mshell;
+    t_token_type	current_type;
+}   t_quote_data;
+
 typedef struct s_heredoc
 {
 	char		*str;
