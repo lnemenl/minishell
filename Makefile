@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/12 13:05:58 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/17 18:47:11 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -49,6 +49,7 @@ SRCS = \
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/export.c \
 	${SRC_DIR}/${BUILTINS}/unset.c \
+	${SRC_DIR}/${BUILTINS}/exit.c \
 	\
 	${SRC_DIR}/${EXEC}/execution.c \
 	${SRC_DIR}/${EXEC}/redirection.c \

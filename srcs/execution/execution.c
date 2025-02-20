@@ -6,61 +6,11 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 15:24:58 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:46:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-static void	check_and_handle_exit(char **args, t_mshell *obj)
-{
-	int	i;
-	int	args_len;
-
-	if (!args || !*args)
-		return ;
-	args_len = 0;
-	while (args[args_len])
-		args_len++;
-	if (args_len == 1)
-	{
-		if (isatty(STDIN_FILENO))
-			printf("exit\n");
-		clean_mshell(obj);
-		free(obj->envp);
-		exit(obj->exit_code);
-	}
-	else if (args_len >= 2)
-	{
-		if (isatty(STDIN_FILENO))
-			printf("exit\n");
-		i = 0;
-		while (args[1][i])
-		{
-			if (ft_isdigit(args[1][i]) == 0 && args[1][i] != '-' && args[1][i] != '+')
-			{
-				obj->exit_code = 2;
-				ft_fprintf(2, "minishell: exit: %s: numeric argument required\n", args[1]);
-				clean_mshell(obj);
-				free(obj->envp);
-				exit(obj->exit_code);
-			}
-			i++;
-		}
-		if (args_len > 2)
-		{
-			obj->exit_code = 1;
-			ft_fprintf(2, "minishell: exit: too many arguments\n");
-			clean_mshell(obj);
-			free(obj->envp);
-			exit(obj->exit_code);
-		}
-		obj->exit_code = ft_atol(args[1]);
-		clean_mshell(obj);
-		//free(obj->envp);
-		exit(obj->exit_code);
-	}
-}
 
 static int	is_builtin_cmd(char *cmd)
 {
@@ -80,6 +30,8 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	obj->exit_code = exit_code;
 	close_fds(obj);
 	clean_mshell(obj);
+	if (obj->envp)
+		free(obj->envp);
 	if (arg && !*arg)
 		ft_putstr_fd(": ", 2);
 	if (arg && obj->exit_code != 0 && is_builtin == 0)
@@ -96,7 +48,7 @@ static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
 	if (ft_strcmp(args[0], "echo") == 0)
 		return(echo(args, obj, is_quote_heredoc));
 	else if (ft_strcmp(args[0], "env") == 0)
-	 	return (env(obj));
+	 	return (env(obj, args));
 	else if (ft_strcmp(args[0], "cd") == 0)
 		return (cd(args, obj));
 	else if (ft_strcmp(args[0], "export") == 0)

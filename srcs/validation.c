@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 14:24:16 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:44:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,17 +113,18 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 	}
 	else if (!path || !*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
 	{
-		clean_mshell(obj);
 		if (path)
 			free(path);
 		// if (node->args[0 + obj->args_move][0] == '\0')
 		if (!*(node->args) + obj->args_move || !*(*(node->args) + obj->args_move))
 		{
 			obj->exit_code = 0;
+			clean_mshell(obj);
 			return (NULL);
 		}
 		obj->exit_code = 127;
 		print_exit("command not found\n", node->args[0 + obj->args_move], obj->exit_code);
+		clean_mshell(obj);
 	}
 	check_is_dir(path, obj);
 	return (path);

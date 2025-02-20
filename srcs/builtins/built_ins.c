@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/23 14:14:26 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/15 18:20:26 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 17:20:38 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -70,6 +70,15 @@ int	cd(char **cd_args, t_mshell *obj)
 	full_path = handle_cd_path(cd_args[1], buf);
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
+	else if (ft_strcmp(cd_args[1], "-") == 0)
+	{
+		if (chdir(obj->prev_path) == -1)
+		{
+			obj->exit_code = 1;
+			ft_fprintf(2, "minishell: cd: %s: No such file or directory\n", obj->prev_path);
+		}
+		printf("%s\n", obj->prev_path);
+	}
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
@@ -77,6 +86,8 @@ int	cd(char **cd_args, t_mshell *obj)
 	}
 	else
 		obj->exit_code = 0;
+	free(obj->prev_path);
+	obj->prev_path = ft_strdup(buf);
 	if (!getcwd(buf, PATH_BUFFER_SIZE))
 	{
 		perror("getcwd");
@@ -122,12 +133,18 @@ void	set_env_args(t_mshell *obj, t_ast_node *node)
 	node->args[2] = NULL;
 }
 
-int	env(t_mshell *obj)
+int	env(t_mshell *obj, char **args)
 {
 	size_t	i;
 
 	if (!obj || !obj->envp)
 		return (0);
+	if (*(args + 1) != NULL)
+	{
+		ft_fprintf(STDERR_FILENO, "env: %s: too many arguments\n", *(args + 1));
+		obj->exit_code = 1;
+		return (1);
+	}
 	i = 0;
 	while (obj->envp[i])
 	{

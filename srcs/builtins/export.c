@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 15:50:42 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/17 18:11:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,14 @@ static char	*check_env_arg(char *arg)
 	name_len = equal - arg - 1;
 	while (name_len >= 0)
 	{
-		if (arg[name_len] == '-')
+		if (arg[name_len] == '+' && arg[name_len + 1] == '=')
+		{
+			equal--;
+			equal = memmove(&arg[name_len], &arg[name_len + 1], ft_strlen(equal));
+			name_len--;
+			arg[ft_strlen(arg)] = '\0';
+		}
+		if (!ft_isalpha(arg[name_len]) && !ft_isdigit(arg[name_len]) && arg[name_len] != '_')
 			return (ft_strdup("fail"));
 		name_len--;
 	}

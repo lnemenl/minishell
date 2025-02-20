@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 09:07:02 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/19 11:39:11 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,6 @@
 # include <signal.h>
 # include <termios.h>
 # include <sys/ioctl.h>
-
-# ifndef TCFLSH
-#  define TCFLSH TCIFLUSH
-# endif
 
 # ifndef PATH_BUFFER_SIZE
 #  define PATH_BUFFER_SIZE 4096
@@ -58,7 +54,6 @@ typedef	enum e_quote_state
 typedef enum e_signal_state
 {
     SIGNAL_STATE_INTERACTIVE,
-    SIGNAL_STATE_EXEC,
     SIGNAL_STATE_HEREDOC,
     SIGNAL_STATE_RESET
 }	t_signal_state;
@@ -117,6 +112,7 @@ typedef struct	s_mshell
 	int					heredoc_interrupted;
 	struct s_heredoc	*heredoc;
 	int					stdin_fd;
+	char				*prev_path;
 }	t_mshell;
 
 typedef struct s_heredoc
@@ -170,14 +166,15 @@ char					*handle_backslash(char *str);
 int			cd(char **cd_args, t_mshell *obj);
 int			pwd(t_mshell *obj);
 void		set_env_args(t_mshell *obj, t_ast_node *node);
-int			env(t_mshell *obj);
+int			env(t_mshell *obj, char **args);
 int			echo(char **args, t_mshell *obj, int is_quote);
 int			export(char **args, t_mshell *obj);
 int			unset(char **args, t_mshell *obj);
+void		check_and_handle_exit(char **args, t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
 t_ast_node				*create_ast_node(t_token_type type);
-t_ast_node				*free_ast_return_null(t_ast_node *node);
+t_ast_node				*free_ast_return_null(t_ast_node **node);
 void					free_ast(t_ast_node *node);
 int						is_redirect_token(t_token_type type);
 t_ast_node				*parse_simple_command(t_token **tokens);
@@ -210,7 +207,6 @@ void	clean_strs(char **strs);
 void 	setup_interactive_signals(void);
 void 	setup_exec_signals(void);
 void 	setup_heredoc_signals(void);
-void 	reset_signals(void);
 void	transition_signal_handlers(t_signal_state new_state);
 void	disable_echoctl(void);
 

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 10:29:34 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:12:37 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,6 +61,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.redir_check = 0;
 	obj.heredoc_interrupted = 0;
 	obj.stdin_fd = -1;
+	obj.prev_path = get_env_var(obj.envp, "HOME");
 	(void) argv;
 	return (obj);
 }
@@ -107,10 +108,14 @@ int main(int argc, char **argv, char **envp)
 	while (1)
 	{
 		g_signal_received = 0;
-		rl_catch_signals = 0;
 		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 		if (isatty(fileno(stdin)))
+		{
 			obj.cmd_line = readline(PROMPT);
+			char *temp = ft_strdup(obj.cmd_line);
+			free(obj.cmd_line);
+			obj.cmd_line = temp;
+		}
 		else
 		{
 			//ft_putstr_fd(PROMPT, STDOUT_FILENO);
@@ -123,6 +128,7 @@ int main(int argc, char **argv, char **envp)
 		if (!obj.cmd_line)  /* Handling Ctrl+D (EOF) */
 		{
 			write(STDOUT_FILENO, "exit\n", 5);
+			obj.exit_code = 130;
 			break;
 		}
 		if (!*obj.cmd_line)
@@ -144,8 +150,7 @@ int main(int argc, char **argv, char **envp)
 		{
 			free(obj.cmd_line);
 			obj.cmd_line = NULL;
-			free_ast(obj.ast);
-			obj.ast = NULL;
+			free_ast_return_null(&obj.ast);
 			obj.heredoc_interrupted = 0;
 			continue;
 		}
@@ -170,6 +175,7 @@ int main(int argc, char **argv, char **envp)
 
 	/* Cleanup when user types 'exit' or Ctrl+D breaks from loop */
 	clean_mshell(&obj);
+	free(obj.prev_path);
 
 	/* Free envp only once */
 	if (obj.envp)
