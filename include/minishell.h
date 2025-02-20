@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 15:30:49 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:39:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -177,6 +177,8 @@ t_token			*handle_quotes(t_token **head, t_token **current,
 char			*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
+int				is_builtin_cmd(char *cmd);
+int				run_builtins(char **args, t_mshell *obj, int is_quote_heredoc);
 int				cd(char **cd_args, t_mshell *obj);
 int				pwd(t_mshell *obj);
 int				env(t_mshell *obj, char **args);
@@ -210,6 +212,8 @@ void			redirection_input(t_mshell *obj, t_ast_node *node);
 void			redirection_output(t_mshell *obj, t_ast_node *node);
 void			pipe_redirection(t_mshell *obj, t_ast_node *cmd);
 int				handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd);
+void			check_redirections(t_mshell *obj);
+void			apply_redirections(t_mshell *obj, t_ast_node *cmd);
 
 /* ===== CLEANUP ===== */
 void			clean_exit(t_mshell *obj);

@@ -6,62 +6,11 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:05:52 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:43:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-static int	is_builtin_cmd(char *cmd)
-{
-	if (ft_strcmp(cmd, "echo") == 0 
-		|| ft_strcmp(cmd, "env") == 0
-		|| ft_strcmp(cmd, "cd") == 0
-		|| ft_strcmp(cmd, "export") == 0
-		|| ft_strcmp(cmd, "unset") == 0
-		|| ft_strcmp(cmd, "pwd") == 0
-		|| ft_strcmp(cmd, "exit") == 0)
-		return (1);
-	return (0);
-}
-
-void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
-{
-	obj->exit_code = exit_code;
-	close_fds(obj);
-	if (arg && !*arg)
-		ft_putstr_fd(": ", 2);
-	if (arg && obj->exit_code != 0 && is_builtin == 0)
-		perror(arg);
-	if (errno == EACCES && obj->exit_code != 1)
-		obj->exit_code = 126;
-	clean_exit(obj);
-	//exit(obj->exit_code);
-}
-
-static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
-{
-	if (!args || !*args)
-		return (0);
-	if (ft_strcmp(args[0], "echo") == 0)
-		return(echo(args, obj, is_quote_heredoc));
-	else if (ft_strcmp(args[0], "env") == 0)
-	 	return (env(obj, args));
-	else if (ft_strcmp(args[0], "cd") == 0)
-		return (cd(args, obj));
-	else if (ft_strcmp(args[0], "export") == 0)
-		return (export(args, obj));
-	else if (ft_strcmp(args[0], "unset") == 0)
-		return (unset(args, obj));
-	else if (ft_strcmp(args[0], "pwd") == 0)
-		return(pwd(obj));
-	else if (ft_strcmp(args[0], "exit") == 0)
-	{
-		check_and_handle_exit(args, obj);
-		return (1);
-	}
-	return (0);
-}
 
 void	alloc_pipes(t_mshell *obj)
 {
@@ -81,6 +30,7 @@ void	alloc_pipes(t_mshell *obj)
 		obj->pipfd[i] = ft_calloc(2, sizeof(int));
 		if (!obj->pipfd[i])
 		{
+			// TODO: add free on fail case.
 			clean_mshell(obj);
 			error_ret(5, NULL);
 		}
@@ -92,25 +42,6 @@ void	alloc_pipes(t_mshell *obj)
 			error_ret(3, NULL);
 		}
 		obj->allocated_pipes++;
-		i++;
-	}
-}
-
-static void apply_redirections(t_mshell *obj, t_ast_node *cmd)
-{
-	int i;
-
-	if (!cmd || !cmd->redirs)
-		return;
-	i = 0;
-	while (cmd->redirs[i])
-	{
-		if (cmd->redirs[i]->type == TOKEN_HEREDOC
-			|| cmd->redirs[i]->type == TOKEN_REDIRECT_IN)
-			redirection_input(obj, cmd->redirs[i]);
-		else if (cmd->redirs[i]->type == TOKEN_REDIRECT_OUT ||
-				cmd->redirs[i]->type == TOKEN_REDIRECT_APPEND)
-			redirection_output(obj, cmd->redirs[i]);
 		i++;
 	}
 }
@@ -135,7 +66,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 	{
 		setup_exec_signals();
 		apply_redirections(obj, cmd);
-
 		if (obj->stdin_fd != -1)
 			close(obj->stdin_fd);
 		if (obj->heredoc_interrupted)
@@ -143,7 +73,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 		if (obj->allocated_pipes >= 1)
 			pipe_redirection(obj, cmd);
 		close_fds(obj);
-		/* Execute builtins or external command */
 		if (is_builtin_cmd(cmd->args[0]) == 1)
 		{
 			run_builtins(cmd->args, obj, cmd->is_quote_heredoc);
@@ -155,26 +84,6 @@ void execute_cmd(t_mshell *obj, t_ast_node *cmd)
 			execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
 			exit_child(obj, cmd->args[0], 127, 0);
 		}
-	}
-}
-
-static void	check_redirections(t_mshell *obj)
-{
-	t_token	*temp;
-
-	temp = obj->token;
-	obj->redir_check = 0;
-	while (temp)
-	{
-		if (temp->type == TOKEN_HEREDOC
-			|| temp->type == TOKEN_REDIRECT_IN
-			|| temp->type == TOKEN_REDIRECT_OUT
-			|| temp->type == TOKEN_REDIRECT_APPEND)
-		{
-			obj->redir_check = 1;
-			return ;
-		}
-		temp = temp->next;
 	}
 }
 

@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/20 15:31:32 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/20 15:38:40 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -42,6 +42,7 @@ SRCS = \
 	\
 	${SRC_DIR}/${UTILS}/envp_utils.c \
 	${SRC_DIR}/${UTILS}/envp_utils_2.c \
+	${SRC_DIR}/${UTILS}/redirection_utils.c \
 	\
 	${SRC_DIR}/${PARSE}/invalid_cases.c \
 	${SRC_DIR}/${PARSE}/parse.c \
@@ -54,6 +55,7 @@ SRCS = \
 	${SRC_DIR}/${AST}/ast_command.c \
 	${SRC_DIR}/${AST}/ast_core.c \
 	\
+	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/cd.c \
 	${SRC_DIR}/${BUILTINS}/echo.c \
 	${SRC_DIR}/${BUILTINS}/env.c \
