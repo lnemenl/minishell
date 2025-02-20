@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 15:13:04 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:17:34 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -77,7 +77,8 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 	return (0);
 }
 
-static void	change_path(t_mshell *obj, char **cd_args, char *buf, char *full_path)
+static void	change_path(t_mshell *obj, char **cd_args,
+	char *buf, char *full_path)
 {
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
@@ -86,14 +87,16 @@ static void	change_path(t_mshell *obj, char **cd_args, char *buf, char *full_pat
 		if (chdir(obj->prev_path) == -1)
 		{
 			obj->exit_code = 1;
-			ft_fprintf(2, "minishell: cd: %s: No such file or directory\n", obj->prev_path);
+			ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
+				obj->prev_path);
 		}
 		printf("%s\n", obj->prev_path);
 	}
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
-		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n", cd_args[1]);
+		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
+			cd_args[1]);
 	}
 	else
 		obj->exit_code = 0;
@@ -104,11 +107,7 @@ int	cd(char **cd_args, t_mshell *obj)
 	char	buf[PATH_BUFFER_SIZE];
 	char	*full_path;
 
-	if (!getcwd(buf, PATH_BUFFER_SIZE))
-	{
-		perror("getcwd");
-		obj->exit_code = 1;
-	}
+	getcwd_and_check(obj, buf);
 	if (check_cd_args(cd_args, obj, buf) == 1)
 		return (1);
 	full_path = handle_cd_path(cd_args[1], buf, obj);
@@ -118,11 +117,7 @@ int	cd(char **cd_args, t_mshell *obj)
 	free(obj->prev_path);
 	obj->prev_path = ft_strdup(buf);
 	update_pwd(obj, buf, "OLD_PWD=");
-	if (!getcwd(buf, PATH_BUFFER_SIZE))
-	{
-		perror("getcwd");
-		obj->exit_code = 1;
-	}
+	getcwd_and_check(obj, buf);
 	update_pwd(obj, buf, "PWD=");
 	if (ft_strcmp(full_path, cd_args[1]) != 0)
 		free(full_path);

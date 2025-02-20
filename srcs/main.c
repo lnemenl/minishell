@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   main.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 10:12:37 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:05:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -35,6 +35,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.heredoc_interrupted = 0;
 	obj.stdin_fd = -1;
 	obj.prev_path = get_env_var(obj.envp, "HOME");
+	obj.ast = NULL;
 	(void) argv;
 	return (obj);
 }

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   token_process.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/19 17:58:05 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 11:38:58 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -103,17 +103,14 @@ static char	*extract_word(const char *input, int *i)
 
 static char	*process_word(char *temp, t_mshell *mshell)
 {
-	char	*without_backslashes;
 	char	*expanded;
 	
 	if (!temp || !mshell)
 		return (NULL);
-	without_backslashes = handle_backslash(temp);
+	expanded = expand_env_vars(temp, mshell);
 	free(temp);
-	if (!without_backslashes)
-		return (NULL);
-	expanded = expand_env_vars(without_backslashes, mshell);
-	free(without_backslashes);
+	if (!expanded)
+		print_exit("Malloc error\n", NULL, mshell);
 	return (expanded);
 }
 

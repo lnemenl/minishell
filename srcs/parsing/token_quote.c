@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/19 14:20:25 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 14:02:19 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -106,7 +106,8 @@ t_token	*handle_quotes(t_token **head, t_token **current, const char *input, int
 		token = handle_single_quotes(input, i, (*current)->mshell);
 	if (!token)
 	{
-		(*current)->mshell->exit_code = 1;
+		if ((*current)->mshell->exit_code != 2)
+			(*current)->mshell->exit_code = 1;
 		return (NULL);
 	}
 	if ((*current)->type == TOKEN_HEREDOC)
