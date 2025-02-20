@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 15:29:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:40:29 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,6 +76,7 @@ void	clean_mshell(t_mshell *obj)
 		free(obj->pids);
 		obj->pids = NULL;
 	}
+	free_ast_return_null(&obj->ast);
 	obj->exec_cmds = 0;
 	obj->cur_pid = 0;
 	obj->pipes_count = 0;

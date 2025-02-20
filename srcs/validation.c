@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 15:36:31 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:44:57 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
