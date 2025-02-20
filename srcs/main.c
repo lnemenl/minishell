@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/19 10:43:54 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 10:12:37 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -150,8 +150,7 @@ int main(int argc, char **argv, char **envp)
 		{
 			free(obj.cmd_line);
 			obj.cmd_line = NULL;
-			free_ast(obj.ast);
-			obj.ast = NULL;
+			free_ast_return_null(&obj.ast);
 			obj.heredoc_interrupted = 0;
 			continue;
 		}
