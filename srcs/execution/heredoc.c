@@ -24,8 +24,10 @@ static t_heredoc	init_heredoc(t_mshell *obj)
 	heredoc_obj.pipe_fd[1] = -1;
 	if (pipe(heredoc_obj.pipe_fd) == -1)
 	{
-		clean_mshell(obj);
+		// clean_mshell(obj);
 		error_ret(3, NULL);
+		obj->exit_code = 1;
+		clean_exit(obj);
 	}
 	return (heredoc_obj);
 }

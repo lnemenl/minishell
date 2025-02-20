@@ -18,7 +18,7 @@ static void	clean_pipes(t_mshell *obj)
 
 	if (!obj->pipfd)
 		return ;
-	if (obj->pipfd && !*obj->pipfd)
+	if (obj->allocated_pipes == 0)
 	{
 		obj->allocated_pipes = 0;
 		free(obj->pipfd);
@@ -28,7 +28,8 @@ static void	clean_pipes(t_mshell *obj)
 	i = 0;
 	while (i < obj->allocated_pipes)
 	{
-		free(obj->pipfd[i]);
+		if (obj->pipfd[i])
+			free(obj->pipfd[i]);
 		obj->pipfd[i] = NULL;
 		i++;
 	}
@@ -79,4 +80,21 @@ void	clean_mshell(t_mshell *obj)
 	obj->exec_cmds = 0;
 	obj->cur_pid = 0;
 	obj->pipes_count = 0;
+}
+
+void	clean_exit(t_mshell *obj)
+{
+	clean_mshell(obj);
+	if (obj->envp)
+		ft_free_strs(obj->envp, get_envp_length(obj->envp));
+	check_free_str(&obj->prev_path);
+	exit(obj->exit_code);
+}
+
+void	check_free_str(char **path)
+{
+	if (!path || !*path)
+		return ;
+	free(*path);
+	*path = NULL;
 }

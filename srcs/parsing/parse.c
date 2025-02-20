@@ -48,14 +48,15 @@ void parse(t_mshell *obj)
 			obj->pipes_count++;
 		temp = temp->next;
 	}
-	obj->ast = parse_pipeline(&tokens);
-	if (!obj->ast)
-	{
-		clean_tokens(tokens);
-		obj->token = NULL;
-		obj->exit_code = 1;
-		return;
-	}
+    obj->ast = parse_pipeline(&tokens);
+    if (!obj->ast)
+    {
+        clean_tokens(tokens);
+        obj->token = NULL;
+        if (obj->exit_code != 2)
+            obj->exit_code = 1;
+        return;
+    }
 }
 
 void    init_tokenize(t_token **head, t_token **current)

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 18:46:27 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/19 15:33:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,16 +29,14 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 {
 	obj->exit_code = exit_code;
 	close_fds(obj);
-	clean_mshell(obj);
-	if (obj->envp)
-		free(obj->envp);
 	if (arg && !*arg)
 		ft_putstr_fd(": ", 2);
 	if (arg && obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
 		obj->exit_code = 126;
-	exit(obj->exit_code);
+	clean_exit(obj);
+	//exit(obj->exit_code);
 }
 
 static int	run_builtins(char **args, t_mshell *obj, int is_quote_heredoc)
@@ -257,5 +255,30 @@ void choose_actions(t_mshell *obj)
 		}
 		temp = temp->right;
 		obj->cur_pid++;
+	}
+}
+
+void	wait_for_children(t_mshell *obj)
+{
+	int		status;
+	pid_t	wpid;
+
+	while (obj->exec_cmds > 0)
+	{
+		wpid = wait(&status);
+		if (wpid == obj->pids[obj->pipes_count])
+		{
+			if (WIFEXITED(status))
+				obj->exit_code = WEXITSTATUS(status);
+			else if (WIFSIGNALED(status))
+			{
+				if (WTERMSIG(status) == SIGINT)
+					write(STDOUT_FILENO, "\n", 1);
+				if (WTERMSIG(status) == SIGQUIT)
+					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
+				obj->exit_code = 128 + WTERMSIG(status);
+			}
+		}
+		obj->exec_cmds--;
 	}
 }

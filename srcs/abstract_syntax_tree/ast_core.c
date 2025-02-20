@@ -256,6 +256,7 @@ t_ast_node *parse_command(t_token **tokens)
 		return (NULL);
 	if ((*tokens)->type == TOKEN_PIPE)
 	{
+		(*tokens)->mshell->exit_code = 2;
 		ft_putstr_fd("syntax error near unexpected token `|'\n", 2);
 		return (NULL);
 	}
