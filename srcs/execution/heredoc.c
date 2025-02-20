@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 11:41:08 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:29:52 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,10 +24,8 @@ static t_heredoc	init_heredoc(t_mshell *obj)
 	heredoc_obj.pipe_fd[1] = -1;
 	if (pipe(heredoc_obj.pipe_fd) == -1)
 	{
-		// clean_mshell(obj);
-		error_ret(3, NULL);
 		obj->exit_code = 1;
-		clean_exit(obj);
+		print_exit("Pipe error\n", NULL, obj);
 	}
 	return (heredoc_obj);
 }
@@ -84,23 +82,16 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
 	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
 	{
-		if (!ft_strcmp(node->args[0], heredoc.trimmed) || 
-			!ft_strcmp(node->args[0], heredoc.expanded))
-			break;
+		if (!ft_strcmp(node->args[0], heredoc.trimmed)
+			|| !ft_strcmp(node->args[0], heredoc.expanded))
+			break ;
 		write_heredoc_line(&heredoc);
 		cleanup_heredoc(&heredoc);
 	}
 	cleanup_heredoc(&heredoc);
 	close(heredoc.pipe_fd[1]);
 	ret_fd = heredoc.pipe_fd[0];
-	if (g_signal_received == SIGINT)
-	{
-		obj->heredoc_interrupted = 1;
-		g_signal_received = 0;
-		close(heredoc.pipe_fd[0]);
-		ret_fd = -1;
-		return (ret_fd);
-	}
+	ret_fd = handle_heredoc_sigint(obj, ret_fd, &heredoc);
 	if (isatty(STDIN_FILENO))
 		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	return (ret_fd);

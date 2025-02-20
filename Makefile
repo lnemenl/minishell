@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/20 14:43:24 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/20 15:31:32 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,7 @@ AST = ./abstract_syntax_tree
 BUILTINS = ./builtins
 EXEC = ./execution
 PARSE = ./parsing
+SIG = ./signals
 SRC_DIR = ./srcs
 UTILS = ./utils
 
@@ -65,7 +66,8 @@ SRCS = \
 	${SRC_DIR}/${EXEC}/heredoc.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
 	\
-	${SRC_DIR}/signals/handling_signals.c
+	${SRC_DIR}/${SIG}/handling_signals.c \
+	${SRC_DIR}/${SIG}/heredoc_signals.c
 
 OBJS = ${SRCS:.c=.o}
 

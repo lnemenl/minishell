@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:39:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:30:49 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -223,5 +223,7 @@ void			setup_exec_signals(void);
 void			setup_heredoc_signals(void);
 void			transition_signal_handlers(t_signal_state new_state);
 void			disable_echoctl(void);
+int				handle_heredoc_sigint(t_mshell *obj, int ret_fd,
+					t_heredoc *heredoc);
 
 #endif
