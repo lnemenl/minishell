@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 14:39:05 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 15:11:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:05:15 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -75,25 +75,33 @@ char	*check_env_arg(char *arg)
 	return (ft_strdup(arg));
 }
 
+static void	create_new_var(t_mshell *obj, char *new_arg)
+{
+	size_t	envp_len;
+	size_t	envp_mem_size;
+
+	envp_len = get_envp_length(obj->envp);
+	envp_mem_size = (envp_len + 1) * sizeof(char *);
+	obj->envp = ft_realloc(obj->envp, envp_mem_size,
+			envp_mem_size + sizeof(char *));
+	if (!obj->envp)
+		print_exit("Realloc error\n", NULL, obj);
+	obj->envp[envp_len] = ft_strdup(new_arg);
+	if (!obj->envp[envp_len])
+		print_exit("Malloc_error\n", NULL, obj);
+	obj->envp[++envp_len] = NULL;
+}
+
 void	put_env_var(t_mshell *obj, char *new_arg)
 {
 	int		pos;
 	size_t	arg_len;
-	size_t	envp_len;
-	size_t	envp_mem_size;
 
 	arg_len = ft_strlen(new_arg);
-	envp_len = get_envp_length(obj->envp);
-	envp_mem_size = get_envp_memory_size(obj->envp);
 	pos = is_env_created(new_arg, obj->envp);
 	if (pos == -1)
 	{
-		obj->envp = ft_realloc(obj->envp, envp_mem_size,
-				envp_mem_size + 2 * sizeof(char *));
-		obj->envp[envp_len] = ft_strdup(new_arg);
-		if (!obj->envp[envp_len])
-			print_exit("Malloc_error\n", NULL, obj);
-		obj->envp[++envp_len] = NULL;
+		create_new_var(obj, new_arg);
 		return ;
 	}
 	obj->envp[pos] = ft_realloc(obj->envp[pos], ft_strlen(obj->envp[pos]),
