@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:15:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 16:09:56 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 16:37:13 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,7 @@ t_token	*join_word_token(t_token *prev_token, t_token *token)
 	return (prev_token);
 }
 
-t_token	*handle_word_t(t_token **head, t_token **current,
+t_token	*process_word_token(t_token **head, t_token **current,
 	t_token *token, int in_word)
 {
 	t_token	*prev_token;

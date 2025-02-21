@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:18:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 16:37:26 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,7 +80,7 @@ t_token	*handle_quotes(t_token **head, t_token **current, const char *input,
 	token = process_quote_token(current, input, i, quote);
 	if (!token)
 		return (NULL);
-	return (handle_word_t(head, current, token, in_word));
+	return (process_word_token(head, current, token, in_word));
 }
 
 t_token	*process_quoted_content(t_quote_data *data)

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 14:44:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 16:37:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -212,7 +212,7 @@ char			*process_content(char *content, t_token_type type, t_mshell *mshell);
 t_token			*create_quoted_token(char *expanded, const char *input,
 					int start, t_mshell *mshell);
 t_token			*join_word_token(t_token *prev_token, t_token *token);
-t_token			*handle_word_t(t_token **head, t_token **current,
+t_token			*process_word_token(t_token **head, t_token **current,
 						t_token *token, int in_word);
 
 /* ===== BUILT-INS ===== */
