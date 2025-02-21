@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/17 11:41:08 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 11:46:17 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -79,8 +79,9 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 
 	if (node->type != TOKEN_HEREDOC)
 		return (last_fd);
+	if (g_signal_received == SIGINT)
+		return (last_fd);
 	heredoc = init_heredoc(obj);
-	g_signal_received = 0;
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
 	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
 	{
@@ -96,7 +97,6 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	if (g_signal_received == SIGINT)
 	{
 		obj->heredoc_interrupted = 1;
-		g_signal_received = 0;
 		close(heredoc.pipe_fd[0]);
 		ret_fd = -1;
 		return (ret_fd);
