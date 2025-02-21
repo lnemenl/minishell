@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_command.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:28:31 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 14:44:20 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 18:09:55 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -83,6 +83,7 @@ int	handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell)
 	fd = -1;
 	if (!redir)
 		return (fd);
+	// TODO: ADD WHILE LOOP
 	if (redir->type == TOKEN_REDIRECT_APPEND)
 		fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
 	else if (redir->type == TOKEN_REDIRECT_OUT)
@@ -90,7 +91,12 @@ int	handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell)
 	else if (redir->type == TOKEN_REDIRECT_IN)
 		fd = open(redir->args[0], O_RDONLY);
 	else if (redir->type == TOKEN_HEREDOC)
+	{
 		fd = handle_here_doc(mshell, redir, fd);
+		if (fd != -1)
+			close(fd);
+		fd = -1;
+	}
 	if (fd == -1)
 		perror(redir->args[0]);
 	return (fd);

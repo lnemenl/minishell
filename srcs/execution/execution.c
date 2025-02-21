@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 11:31:48 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 18:14:14 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,6 +23,9 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 	if (obj->allocated_pipes >= 1)
 		pipe_redirection(obj, cmd);
 	close_fds(obj);
+	// TODO: add skipping if no cmd provided.
+	// if (!cmd_args)
+	// 	exit_child(obj, )
 	if (is_builtin_cmd(cmd->args[0]) == 1)
 	{
 		run_builtins(cmd->args, obj, cmd->is_quote_heredoc);
@@ -90,10 +93,10 @@ void	choose_actions(t_mshell *obj)
 	temp = obj->ast;
 	while (temp)
 	{
-		if (obj->heredoc_interrupted || g_signal_received)
+		if (obj->heredoc_interrupted == 1
+			|| g_signal_received != 0)
 			break ;
 		execute_ast(obj, temp);
-		obj->heredoc_interrupted = 0;
 		reset_stdin(obj);
 		temp = temp->right;
 		obj->cur_pid++;

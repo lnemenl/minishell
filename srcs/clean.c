@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   clean.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 10:40:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:50:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -80,6 +80,7 @@ void	clean_mshell(t_mshell *obj)
 	obj->exec_cmds = 0;
 	obj->cur_pid = 0;
 	obj->pipes_count = 0;
+	obj->heredoc_interrupted = 0;
 }
 
 void	clean_exit(t_mshell *obj)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals_handling.c                                 :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/13 16:18:33 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:17:36 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:36:54 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

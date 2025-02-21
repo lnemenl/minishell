@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:11:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:55:12 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -134,7 +134,7 @@ int				ft_isspace(int c);
 int				is_operator(char c);
 int				is_word_char(char c);
 int				is_quote(char c);
-t_quote_state	get_quote_state(char quote); 
+t_quote_state	get_quote_state(char quote);
 
 /* ===== PARSING ===== */
 char			**fetch_paths(char **envp);
@@ -147,7 +147,6 @@ t_token			*init_and_process(t_token **head, t_token **current,
 					char *trimmed_input, t_mshell *mshell);
 t_token			*process_trimmed_input(t_token **head, t_token **current,
 					char *trimmed, t_mshell *mshell);
-
 
 /* ===== ENV FUNCTIONS ===== */
 char			**copy_envp(char **envp);
@@ -207,12 +206,13 @@ t_token			*process_quoted_content(t_quote_data *data);
 t_token			*process_quote_token(t_token **current, const char *input,
 					int *i, char quote);
 char			*extract_quoted_content(const char *input, int start, int end);
-char			*process_content(char *content, t_token_type type, t_mshell *mshell);
+char			*process_content(char *content, t_token_type type,
+					t_mshell *mshell);
 t_token			*create_quoted_token(char *expanded, const char *input,
 					int start, t_mshell *mshell);
 t_token			*join_word_token(t_token *prev_token, t_token *token);
 t_token			*process_word_token(t_token **head, t_token **current,
-						t_token *token, int in_word);
+					t_token *token, int in_word);
 
 /* ===== BUILT-INS ===== */
 int				is_builtin_cmd(char *cmd);
@@ -241,7 +241,8 @@ t_ast_node		*validate_command(t_ast_node *cmd_node, t_mshell *mshell);
 t_ast_node		*free_ast_return_null(t_ast_node **node);
 t_ast_node		*create_ast_node(t_token_type type);
 
-int				handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell);
+int				handle_empty_command_redirs(t_ast_node *redir,
+					t_mshell *mshell);
 int				is_redirect_token(t_token_type type);
 int				print_syntax_error(t_token *token, char *message);
 int				print_newline_error(t_token *token);
@@ -251,7 +252,6 @@ int				validate_pipe(t_token *token);
 char			**append_arg(char **args, char *new_arg);
 char			*get_redir_token_str(t_token_type type);
 void			free_ast(t_ast_node *node);
-
 
 /* ===== EXECUTION ===== */
 void			print_exit(char *mes, char *cmd, t_mshell *obj);

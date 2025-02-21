@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   signals_heredoc.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 15:30:12 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 15:17:27 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:52:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
