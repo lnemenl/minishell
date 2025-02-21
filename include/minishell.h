@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 11:08:00 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 11:25:59 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -207,6 +207,7 @@ void			exit_child(t_mshell *obj, char *arg, int exit_code,
 					int is_builtin);
 void			wait_for_children(t_mshell *obj);
 void			alloc_pipes(t_mshell *obj);
+void			reset_stdin(t_mshell *obj);
 
 /* ===== HEREDOC ===== */
 void			run_heredoc(t_mshell *obj, t_ast_node *node);
