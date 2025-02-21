@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parsing_utils.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:05:13 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/11 12:39:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 15:18:33 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,14 +27,14 @@ int	is_word_char(char c)
 	return (ft_isalnum(c) || c == '-' || c == '_');
 }
 
-int is_quote(char c)
+int	is_quote(char c)
 {
 	return (c == '\'' || c == '"');
 }
 
 t_quote_state	get_quote_state(char quote)
 {
-    if (quote == '"')
-        return (QUOTE_DOUBLE);
-    return (QUOTE_SINGLE);
+	if (quote == '"')
+		return (QUOTE_DOUBLE);
+	return (QUOTE_SINGLE);
 }

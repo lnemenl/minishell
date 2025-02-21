@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 11:25:59 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 14:44:43 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,21 +59,21 @@ typedef enum e_signal_state
 
 typedef struct s_quote_context
 {
-	char			*buffer;
-	size_t			capacity;
-	size_t			length;
-	char			quote_type;
-	t_quote_state	state;
+	char				*buffer;
+	size_t				capacity;
+	size_t				length;
+	char				quote_type;
+	t_quote_state		state;
 }	t_quote_context;
 
 typedef struct s_token
 {
-	t_token_type	type;
-	char			*content;
-	t_quote_state	quote_state;
-	struct s_token	*next;
-	struct s_mshell	*mshell;
-	int				is_quote_heredoc;
+	t_token_type		type;
+	char				*content;
+	t_quote_state		quote_state;
+	struct s_token		*next;
+	struct s_mshell		*mshell;
+	int					is_quote_heredoc;
 }	t_token;
 
 typedef struct s_ast_node
@@ -113,20 +113,20 @@ typedef struct s_mshell
 
 typedef struct s_quote_data
 {
-    const char		*input;
-    int				start;
-    int				*i;
-    t_mshell		*mshell;
-    t_token_type	current_type;
-}   t_quote_data;
+	const char			*input;
+	int					start;
+	int					*i;
+	t_mshell			*mshell;
+	t_token_type		current_type;
+}	t_quote_data;
 
 typedef struct s_heredoc
 {
-	char		*str;
-	char		*trimmed;
-	char		*expanded;
-	int			pipe_fd[2];
-	t_mshell	*obj;
+	char				*str;
+	char				*trimmed;
+	char				*expanded;
+	int					pipe_fd[2];
+	t_mshell			*obj;
 }	t_heredoc;
 
 /* ===== PARSING UTILS (parsing_utils.c) ===== */
@@ -134,19 +134,32 @@ int				ft_isspace(int c);
 int				is_operator(char c);
 int				is_word_char(char c);
 int				is_quote(char c);
-t_quote_state	get_quote_state(char quote);
+t_quote_state	get_quote_state(char quote); 
 
 /* ===== PARSING ===== */
-void			parse(t_mshell *obj);
-t_token			*tokenize(const char *input, t_mshell *mshell);
+char			**fetch_paths(char **envp);
+void			tokenize_and_count_pipes(t_mshell *obj);
 void			init_tokenize(t_token **head, t_token **current);
+t_token			*tokenize(const char *input, t_mshell *mshell);
+void			parse(t_mshell *obj);
+void			construct_parse_tree(t_mshell *obj);
+t_token			*init_and_process(t_token **head, t_token **current,
+					char *trimmed_input, t_mshell *mshell);
 t_token			*process_trimmed_input(t_token **head, t_token **current,
 					char *trimmed, t_mshell *mshell);
-char			**fetch_paths(char **envp);
+
 
 /* ===== ENV FUNCTIONS ===== */
 char			**copy_envp(char **envp);
+char			*get_var_name(const char *str, int *i);
 char			*get_env_value(const char *var_name, t_mshell *mshell);
+char			*join_and_free(char *s1, char *s2);
+char			*extract_quoted_var_name(const char *str, int *i);
+char			*handle_quoted_var(char *buffer, const char *input, int *i);
+char			*handle_regular_var(char *buffer,
+					const char *input, int *i, t_mshell *mshell);
+char			*handle_dollar_expansion(char *buffer,
+					const char *input, int *i, t_mshell *mshell);
 char			*expand_env_vars(const char *str, t_mshell *mshell);
 void			put_env_var(t_mshell *obj, char *new_arg);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
@@ -155,6 +168,9 @@ size_t			get_envp_length(char **envp);
 int				is_env_created(char *arg, char **strs);
 char			*get_env_var(char **envp, const char *var_name);
 char			*check_env_arg(char *arg);
+char			*remove_quotes(const char *str);
+char			*append_until_dollar(char *buffer, const char *input, int *i);
+char			*handle_pid_expansion(char *buffer, t_mshell *mshell, int *i);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);
@@ -175,6 +191,11 @@ t_token			*handle_word(t_token **head, t_token **current,
 					const char *input, int *i);
 t_token			*process_token(t_token **head, t_token **current,
 					const char *input, int *i);
+t_token			*handle_quoted_word(t_token *current, char *expanded);
+char			*handle_backslash(char *str);
+t_token_type	get_operator_type(const char *input, int *i);
+char			*extract_word(const char *input, int *i);
+char			*process_word(char *temp, t_mshell *mshell);
 
 /* ===== QUOTE HANDLING (token_quote.c) ===== */
 t_token			*handle_single_quotes(const char *input, int *i,
@@ -183,7 +204,16 @@ t_token			*handle_double_quotes(const char *input, int *i,
 					t_mshell *mshell, t_token_type current_type);
 t_token			*handle_quotes(t_token **head, t_token **current,
 					const char *input, int *i);
-char			*handle_backslash(char *str);
+t_token			*process_quoted_content(t_quote_data *data);
+t_token			*process_quote_token(t_token **current, const char *input,
+					int *i, char quote);
+char			*extract_quoted_content(const char *input, int start, int end);
+char			*process_content(char *content, t_token_type type, t_mshell *mshell);
+t_token			*create_quoted_token(char *expanded, const char *input,
+					int start, t_mshell *mshell);
+t_token			*join_word_token(t_token *prev_token, t_token *token);
+t_token			*handle_word_t(t_token **head, t_token **current,
+						t_token *token, int in_word);
 
 /* ===== BUILT-INS ===== */
 int				is_builtin_cmd(char *cmd);
@@ -198,13 +228,31 @@ void			check_and_handle_exit(char **args, t_mshell *obj);
 void			getcwd_and_check(t_mshell *obj, char *buf);
 
 /* ===== AST CORE (ast_core.c) ===== */
-t_ast_node		*create_ast_node(t_token_type type);
-t_ast_node		*free_ast_return_null(t_ast_node **node);
-void			free_ast(t_ast_node *node);
-int				is_redirect_token(t_token_type type);
+
+t_ast_node		*create_redir_args(t_ast_node *redir, char *filename);
+t_ast_node		*handle_redirection_node(t_token **tokens);
+t_ast_node		**append_redir(t_ast_node **redirs, t_ast_node *redir);
+t_ast_node		*handle_redir_token(t_ast_node *cmd_node, t_token **tokens);
 t_ast_node		*parse_simple_command(t_token **tokens);
 t_ast_node		*parse_command(t_token **tokens);
 t_ast_node		*parse_pipeline(t_token **tokens);
+t_ast_node		*handle_word_token(t_ast_node *cmd_node, t_token **tokens);
+t_ast_node		*create_pipe_structure(t_ast_node *root, t_token **tokens);
+t_ast_node		*validate_command(t_ast_node *cmd_node, t_mshell *mshell);
+t_ast_node		*free_ast_return_null(t_ast_node **node);
+t_ast_node		*create_ast_node(t_token_type type);
+
+int				handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell);
+int				is_redirect_token(t_token_type type);
+int				print_syntax_error(t_token *token, char *message);
+int				print_newline_error(t_token *token);
+int				validate_consecutive_redirects(t_token *token);
+int				validate_redirection(t_token *token);
+int				validate_pipe(t_token *token);
+char			**append_arg(char **args, char *new_arg);
+char			*get_redir_token_str(t_token_type type);
+void			free_ast(t_ast_node *node);
+
 
 /* ===== EXECUTION ===== */
 void			print_exit(char *mes, char *cmd, t_mshell *obj);
@@ -246,5 +294,8 @@ void			transition_signal_handlers(t_signal_state new_state);
 void			disable_echoctl(void);
 int				handle_heredoc_sigint(t_mshell *obj, int ret_fd,
 					t_heredoc *heredoc);
+void			interactive_sigint_handler(int signum);
+void			heredoc_sigint_handler(int signum);
+void			set_sigaction(int signum, void (*handler)(int), int flags);
 
 #endif
