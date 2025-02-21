@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/21 11:30:33 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/21 15:19:16 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -47,16 +47,25 @@ SRCS = \
 	${SRC_DIR}/${UTILS}/pipes_allocation.c \
 	${SRC_DIR}/${UTILS}/redirection_utils.c \
 	\
-	${SRC_DIR}/${PARSE}/invalid_cases.c \
+	${SRC_DIR}/${PARSE}/parse_construction.c \
+	${SRC_DIR}/${PARSE}/parse_env_expansion.c \
+	${SRC_DIR}/${PARSE}/parse_env_string_utils.c \
+	${SRC_DIR}/${PARSE}/parse_invalid_cases.c \
+	${SRC_DIR}/${PARSE}/parse_operator_and_word.c \
+	${SRC_DIR}/${PARSE}/parse_token_core.c \
+	${SRC_DIR}/${PARSE}/parse_token_env.c \
+	${SRC_DIR}/${PARSE}/parse_token_process.c \
+	${SRC_DIR}/${PARSE}/parse_token_quote.c \
+	${SRC_DIR}/${PARSE}/parse_token_utils.c \
 	${SRC_DIR}/${PARSE}/parse.c \
 	${SRC_DIR}/${PARSE}/parsing_utils.c \
-	${SRC_DIR}/${PARSE}/token_core.c \
-	${SRC_DIR}/${PARSE}/token_env.c \
-	${SRC_DIR}/${PARSE}/token_process.c \
-	${SRC_DIR}/${PARSE}/token_quote.c \
 	\
 	${SRC_DIR}/${AST}/ast_command.c \
 	${SRC_DIR}/${AST}/ast_core.c \
+	${SRC_DIR}/${AST}/ast_cleaning.c \
+	${SRC_DIR}/${AST}/ast_redirs.c \
+	${SRC_DIR}/${AST}/ast_syntax_errors.c \
+	${SRC_DIR}/${AST}/ast_validating.c \
 	\
 	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/cd.c \
@@ -71,8 +80,9 @@ SRCS = \
 	${SRC_DIR}/${EXEC}/heredoc.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
 	\
-	${SRC_DIR}/${SIG}/handling_signals.c \
-	${SRC_DIR}/${SIG}/heredoc_signals.c
+	${SRC_DIR}/${SIG}/signals_handling.c \
+	${SRC_DIR}/${SIG}/signals_heredoc.c \
+	${SRC_DIR}/${SIG}/signals_settingup.c \
 
 OBJS = ${SRCS:.c=.o}
 
