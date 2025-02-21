@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/20 14:43:24 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/21 11:30:33 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -29,6 +29,7 @@ AST = ./abstract_syntax_tree
 BUILTINS = ./builtins
 EXEC = ./execution
 PARSE = ./parsing
+SIG = ./signals
 SRC_DIR = ./srcs
 UTILS = ./utils
 
@@ -41,6 +42,10 @@ SRCS = \
 	\
 	${SRC_DIR}/${UTILS}/envp_utils.c \
 	${SRC_DIR}/${UTILS}/envp_utils_2.c \
+	${SRC_DIR}/${UTILS}/execution_utils.c \
+	${SRC_DIR}/${UTILS}/heredoc_utils.c \
+	${SRC_DIR}/${UTILS}/pipes_allocation.c \
+	${SRC_DIR}/${UTILS}/redirection_utils.c \
 	\
 	${SRC_DIR}/${PARSE}/invalid_cases.c \
 	${SRC_DIR}/${PARSE}/parse.c \
@@ -53,6 +58,7 @@ SRCS = \
 	${SRC_DIR}/${AST}/ast_command.c \
 	${SRC_DIR}/${AST}/ast_core.c \
 	\
+	${SRC_DIR}/${BUILTINS}/built_ins.c \
 	${SRC_DIR}/${BUILTINS}/cd.c \
 	${SRC_DIR}/${BUILTINS}/echo.c \
 	${SRC_DIR}/${BUILTINS}/env.c \
@@ -65,7 +71,8 @@ SRCS = \
 	${SRC_DIR}/${EXEC}/heredoc.c \
 	${SRC_DIR}/${EXEC}/redirection.c \
 	\
-	${SRC_DIR}/signals/handling_signals.c
+	${SRC_DIR}/${SIG}/handling_signals.c \
+	${SRC_DIR}/${SIG}/heredoc_signals.c
 
 OBJS = ${SRCS:.c=.o}
 

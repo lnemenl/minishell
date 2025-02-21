@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2024/12/30 11:57:14 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:37:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,5 +61,18 @@ void	print_exit(char *mes, char *cmd, t_mshell *obj)
 		ft_putstr_fd(full_msg, 2);
 		check_free_str(&full_msg);
 	}
+	clean_exit(obj);
+}
+
+void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
+{
+	obj->exit_code = exit_code;
+	close_fds(obj);
+	if (arg && !*arg)
+		ft_putstr_fd(": ", 2);
+	if (arg && obj->exit_code != 0 && is_builtin == 0)
+		perror(arg);
+	if (errno == EACCES && obj->exit_code != 1)
+		obj->exit_code = 126;
 	clean_exit(obj);
 }
