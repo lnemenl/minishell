@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:48:11 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:09:20 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,13 +27,58 @@ static int	handle_fail_arg(t_mshell *obj, char *new_arg, char *arg)
 	return (0);
 }
 
+static void	sort_envp(char **envp)
+{
+	size_t	len;
+	size_t	i;
+	size_t	j;
+	char	*temp;
+
+	len = get_envp_length(envp);
+	i = 0;
+	while (i < len - 1)
+	{
+		j = 0;
+		while (j < len - i - 1)
+		{
+			if (ft_strcmp(envp[j], envp[j + 1]) > 0)
+			{
+				temp = envp[j];
+				envp[j] = envp[j + 1];
+				envp[j + 1] = temp;
+			}
+			j++;
+		}
+		i++;
+	}
+}
+
+static void	export_no_args(t_mshell *obj)
+{
+	char	**temp;
+	size_t	i;
+
+	temp = copy_envp(obj->envp);
+	sort_envp(temp);
+	i = 0;
+	while (temp[i])
+	{
+		printf("declare -x %s\n", temp[i]);
+		i++;
+	}
+	ft_free_strs(temp, get_envp_length(temp));
+}
+
 int	export(char **args, t_mshell *obj)
 {
 	char	*new_arg;
 	int		i;
 
-	if (!args || !args[1] || !*args[1])
+	if (!args[1] || !*args[1])
+	{
+		export_no_args(obj);
 		return (1);
+	}
 	i = 1;
 	while (args[i])
 	{
