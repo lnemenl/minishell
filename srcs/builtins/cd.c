@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:17:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 14:54:51 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,6 +66,8 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 		home_path = get_env_var(obj->envp, "HOME=");
 		chdir(home_path);
 		update_pwd(obj, home_path, "PWD=");
+		if (home_path)
+			free(home_path);
 		return (1);
 	}
 	else if (cd_args[2] && *cd_args[2])

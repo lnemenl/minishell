@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 13:46:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 16:09:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 16:58:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,10 +56,10 @@ int	echo(char **args, t_mshell *obj, int is_quote)
 	int		i;
 	size_t	no_nl_len;
 
-	if (!args || !*args)
+	if (!args[1])
 	{
 		printf("\n");
-		return (0);
+		return (1);
 	}
 	i = 1;
 	no_nl_len = check_no_nl(args, &i, is_quote);

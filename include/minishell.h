@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 16:37:43 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 17:11:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -113,11 +113,11 @@ typedef struct s_mshell
 
 typedef struct s_quote_data
 {
-	const char			*input;
-	int					start;
-	int					*i;
-	t_mshell			*mshell;
-	t_token_type		current_type;
+	const char		*input;
+	int				start;
+	int				*i;
+	t_mshell		*mshell;
+	t_token_type	current_type;
 }	t_quote_data;
 
 typedef struct s_heredoc
@@ -163,7 +163,6 @@ char			*handle_dollar_expansion(char *buffer,
 char			*expand_env_vars(const char *str, t_mshell *mshell);
 void			put_env_var(t_mshell *obj, char *new_arg);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
-size_t			get_envp_memory_size(char **envp);
 size_t			get_envp_length(char **envp);
 int				is_env_created(char *arg, char **strs);
 char			*get_env_var(char **envp, const char *var_name);

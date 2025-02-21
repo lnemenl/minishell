@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 12:44:29 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/21 16:38:59 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -88,8 +88,8 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
 	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
 	{
-		if (!ft_strcmp(node->args[0], heredoc.trimmed)
-			|| !ft_strcmp(node->args[0], heredoc.expanded))
+		if (ft_strcmp(node->args[0], heredoc.trimmed) == 0
+			|| ft_strcmp(node->args[0], heredoc.expanded) == 0)
 			break ;
 		write_heredoc_line(&heredoc);
 		cleanup_heredoc(&heredoc);
