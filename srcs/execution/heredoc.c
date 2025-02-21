@@ -3,7 +3,7 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
 /*   Updated: 2025/02/21 11:46:17 by rkhakimu         ###   ########.fr       */
@@ -11,41 +11,6 @@
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-static t_heredoc	init_heredoc(t_mshell *obj)
-{
-	t_heredoc	heredoc_obj;
-
-	heredoc_obj.str = NULL;
-	heredoc_obj.trimmed = NULL;
-	heredoc_obj.expanded = NULL;
-	heredoc_obj.obj = obj;
-	heredoc_obj.pipe_fd[0] = -1;
-	heredoc_obj.pipe_fd[1] = -1;
-	if (pipe(heredoc_obj.pipe_fd) == -1)
-	{
-		// clean_mshell(obj);
-		error_ret(3, NULL);
-		obj->exit_code = 1;
-		clean_exit(obj);
-	}
-	return (heredoc_obj);
-}
-
-static void	cleanup_heredoc(t_heredoc *doc)
-{
-	if (!doc)
-		return ;
-	if (doc->str)
-		free(doc->str);
-	doc->str = NULL;
-	if (doc->trimmed)
-		free(doc->trimmed);
-	doc->trimmed = NULL;
-	if (doc->expanded)
-		free(doc->expanded);
-	doc->expanded = NULL;
-}
 
 static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
 {
@@ -64,12 +29,50 @@ static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
 	return (1);
 }
 
-static void	write_heredoc_line(t_heredoc *doc)
+static int	handle_multiple_heredocs(t_mshell *obj, t_ast_node *node,
+	int *is_last_heredoc, int *last_fd)
 {
-	if (doc->str[0] == '$')
-		ft_fprintf(doc->pipe_fd[1], "%s", doc->expanded);
-	else
-		ft_fprintf(doc->pipe_fd[1], "%s", doc->str);
+	int	i;
+
+	i = 0;
+	while (node->redirs[i])
+	{
+		if (*last_fd != -1
+			&& (node->redirs[i]->type == TOKEN_REDIRECT_IN
+				|| node->redirs[i]->type == TOKEN_HEREDOC))
+		{
+			close(*last_fd);
+			*last_fd = -1;
+		}
+		if (node->redirs[i]->type == TOKEN_REDIRECT_IN)
+			*is_last_heredoc = 0;
+		else if (node->redirs[i]->type == TOKEN_HEREDOC)
+			*is_last_heredoc = 1;
+		*last_fd = handle_here_doc(obj, node->redirs[i], *last_fd);
+		i++;
+	}
+	return (i);
+}
+
+void	run_heredoc(t_mshell *obj, t_ast_node *node)
+{
+	int	last_fd;
+	int	is_last_heredoc;
+	int	i;
+
+	if (!node || !node->redirs || !*node->redirs)
+		return ;
+	obj->stdin_fd = dup(STDIN_FILENO);
+	is_last_heredoc = 0;
+	last_fd = -1;
+	i = handle_multiple_heredocs(obj, node, &is_last_heredoc, &last_fd);
+	if (last_fd != -1 && i > 0 && is_last_heredoc == 1)
+	{
+		dup2(last_fd, STDIN_FILENO);
+		close(last_fd);
+	}
+	else if (last_fd != -1)
+		close(last_fd);
 }
 
 int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
@@ -85,22 +88,16 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
 	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
 	{
-		if (!ft_strcmp(node->args[0], heredoc.trimmed) || 
-			!ft_strcmp(node->args[0], heredoc.expanded))
-			break;
+		if (!ft_strcmp(node->args[0], heredoc.trimmed)
+			|| !ft_strcmp(node->args[0], heredoc.expanded))
+			break ;
 		write_heredoc_line(&heredoc);
 		cleanup_heredoc(&heredoc);
 	}
 	cleanup_heredoc(&heredoc);
 	close(heredoc.pipe_fd[1]);
 	ret_fd = heredoc.pipe_fd[0];
-	if (g_signal_received == SIGINT)
-	{
-		obj->heredoc_interrupted = 1;
-		close(heredoc.pipe_fd[0]);
-		ret_fd = -1;
-		return (ret_fd);
-	}
+	ret_fd = handle_heredoc_sigint(obj, ret_fd, &heredoc);
 	if (isatty(STDIN_FILENO))
 		transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
 	return (ret_fd);

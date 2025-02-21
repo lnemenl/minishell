@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:39:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/21 11:25:59 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -186,6 +186,8 @@ t_token			*handle_quotes(t_token **head, t_token **current,
 char			*handle_backslash(char *str);
 
 /* ===== BUILT-INS ===== */
+int				is_builtin_cmd(char *cmd);
+int				run_builtins(char **args, t_mshell *obj, int is_quote_heredoc);
 int				cd(char **cd_args, t_mshell *obj);
 int				pwd(t_mshell *obj);
 int				env(t_mshell *obj, char **args);
@@ -213,12 +215,22 @@ void			choose_actions(t_mshell *obj);
 void			exit_child(t_mshell *obj, char *arg, int exit_code,
 					int is_builtin);
 void			wait_for_children(t_mshell *obj);
+void			alloc_pipes(t_mshell *obj);
+void			reset_stdin(t_mshell *obj);
+
+/* ===== HEREDOC ===== */
+void			run_heredoc(t_mshell *obj, t_ast_node *node);
+void			write_heredoc_line(t_heredoc *doc);
+t_heredoc		init_heredoc(t_mshell *obj);
+void			cleanup_heredoc(t_heredoc *doc);
 
 /* ===== REDIRECTION ===== */
 void			redirection_input(t_mshell *obj, t_ast_node *node);
 void			redirection_output(t_mshell *obj, t_ast_node *node);
 void			pipe_redirection(t_mshell *obj, t_ast_node *cmd);
 int				handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd);
+void			check_redirections(t_mshell *obj);
+void			apply_redirections(t_mshell *obj, t_ast_node *cmd);
 
 /* ===== CLEANUP ===== */
 void			clean_exit(t_mshell *obj);
@@ -232,5 +244,7 @@ void			setup_exec_signals(void);
 void			setup_heredoc_signals(void);
 void			transition_signal_handlers(t_signal_state new_state);
 void			disable_echoctl(void);
+int				handle_heredoc_sigint(t_mshell *obj, int ret_fd,
+					t_heredoc *heredoc);
 
 #endif

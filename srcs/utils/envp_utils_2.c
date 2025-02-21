@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 14:39:05 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:41:41 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/20 15:11:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,32 +32,42 @@ int	is_env_created(char *arg, char **strs)
 	return (-1);
 }
 
-char	*check_env_arg(char *arg)
+static int	arg_name_invalid(char *equal, char *arg)
 {
-	char 	*equal;
-	int		name_len;
+	int	name_len;
 
-	if (!arg)
-		return ("fail");
-	if (arg[0] == '-')
-		return(ft_strdup("fail_option"));
-	else if (!ft_isalpha(arg[0]) && arg[0] != '_')
-		return (ft_strdup("fail"));
-	equal = ft_strchr(arg, '=');
 	name_len = equal - arg - 1;
 	while (name_len >= 0)
 	{
 		if (arg[name_len] == '+' && arg[name_len + 1] == '=')
 		{
 			equal--;
-			equal = memmove(&arg[name_len], &arg[name_len + 1], ft_strlen(equal));
+			equal = memmove(&arg[name_len], &arg[name_len + 1],
+					ft_strlen(equal));
 			name_len--;
 			arg[ft_strlen(arg)] = '\0';
 		}
-		if (!ft_isalpha(arg[name_len]) && !ft_isdigit(arg[name_len]) && arg[name_len] != '_')
-			return (ft_strdup("fail"));
+		if (!ft_isalpha(arg[name_len]) && !ft_isdigit(arg[name_len])
+			&& arg[name_len] != '_')
+			return (1);
 		name_len--;
 	}
+	return (0);
+}
+
+char	*check_env_arg(char *arg)
+{
+	char	*equal;
+
+	if (!arg)
+		return ("fail");
+	if (arg[0] == '-')
+		return (ft_strdup("fail_option"));
+	else if (!ft_isalpha(arg[0]) && arg[0] != '_')
+		return (ft_strdup("fail"));
+	equal = ft_strchr(arg, '=');
+	if (arg_name_invalid(equal, arg) == 1)
+		return (ft_strdup("fail"));
 	if (!equal && ft_strchr(arg, '-'))
 		return (ft_strdup("fail"));
 	else if (!equal || (equal && (equal[1] == '=' || equal[1] == '\0')))
@@ -78,14 +88,16 @@ void	put_env_var(t_mshell *obj, char *new_arg)
 	pos = is_env_created(new_arg, obj->envp);
 	if (pos == -1)
 	{
-		obj->envp = ft_realloc(obj->envp, envp_mem_size, envp_mem_size + 2 * sizeof(char *));
+		obj->envp = ft_realloc(obj->envp, envp_mem_size,
+				envp_mem_size + 2 * sizeof(char *));
 		obj->envp[envp_len] = ft_strdup(new_arg);
 		if (!obj->envp[envp_len])
 			print_exit("Malloc_error\n", NULL, obj);
 		obj->envp[++envp_len] = NULL;
 		return ;
 	}
-	obj->envp[pos] = ft_realloc(obj->envp[pos], ft_strlen(obj->envp[pos]), arg_len + 1);
+	obj->envp[pos] = ft_realloc(obj->envp[pos], ft_strlen(obj->envp[pos]),
+			arg_len + 1);
 	if (!obj->envp[pos])
 		print_exit("Malloc_error\n", NULL, obj);
 	obj->envp[pos] = ft_memmove(obj->envp[pos], new_arg, arg_len);
