@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 10:00:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 14:56:59 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -236,12 +236,9 @@ t_ast_node		*parse_command(t_token **tokens);
 t_ast_node		*parse_pipeline(t_token **tokens);
 t_ast_node		*handle_word_token(t_ast_node *cmd_node, t_token **tokens);
 t_ast_node		*create_pipe_structure(t_ast_node *root, t_token **tokens);
-t_ast_node		*validate_command(t_ast_node *cmd_node, t_mshell *mshell);
 t_ast_node		*free_ast_return_null(t_ast_node **node);
 t_ast_node		*create_ast_node(t_token_type type);
 
-int				handle_empty_command_redirs(t_ast_node **redirs,
-					t_mshell *mshell);
 int				is_redirect_token(t_token_type type);
 int				print_syntax_error(t_token *token, char *message);
 int				print_newline_error(t_token *token);
