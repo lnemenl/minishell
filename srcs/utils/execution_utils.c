@@ -3,24 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   execution_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:24:28 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 13:46:01 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 17:25:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
-
-void	reset_stdin(t_mshell *obj)
-{
-	if (obj->stdin_fd != -1)
-	{
-		dup2(obj->stdin_fd, STDIN_FILENO);
-		close(obj->stdin_fd);
-		obj->stdin_fd = -1;
-	}
-}
 
 void	wait_for_children(t_mshell *obj)
 {
@@ -41,7 +31,8 @@ void	wait_for_children(t_mshell *obj)
 				if (WTERMSIG(status) == SIGQUIT)
 					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
 				if (WTERMSIG(status) == SIGSEGV)
-					ft_putendl_fd("Segmentation fault (core dumped)", STDERR_FILENO);
+					ft_putendl_fd("Segmentation fault (core dumped)",
+						STDERR_FILENO);
 				obj->exit_code = 128 + WTERMSIG(status);
 			}
 		}

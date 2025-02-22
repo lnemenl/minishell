@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/21 15:19:16 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/02/22 17:23:32 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -35,6 +35,7 @@ UTILS = ./utils
 
 
 SRCS = \
+	${SRC_DIR}/clean_fds.c \
 	${SRC_DIR}/clean.c \
 	${SRC_DIR}/errors.c \
 	${SRC_DIR}/main.c \
