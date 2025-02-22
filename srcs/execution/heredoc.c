@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 18:02:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 15:21:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,17 +62,21 @@ void	run_heredoc(t_mshell *obj, t_ast_node *node)
 
 	if (!node || !node->redirs || !*node->redirs)
 		return ;
-	obj->stdin_fd = dup(STDIN_FILENO);
+	//obj->stdin_fd = dup(STDIN_FILENO);
 	is_last_heredoc = 0;
 	last_fd = -1;
 	i = handle_multiple_heredocs(obj, node, &is_last_heredoc, &last_fd);
 	if (last_fd != -1 && i > 0 && is_last_heredoc == 1)
 	{
-		dup2(last_fd, STDIN_FILENO);
-		close(last_fd);
+		obj->heredoc_fds[obj->current_heredoc] = last_fd;
+		obj->current_heredoc++;
 	}
-	else if (last_fd != -1)
-		close(last_fd);
+	// {
+	// 	dup2(last_fd, STDIN_FILENO);
+	// 	close(last_fd);
+	// }
+	// else if (last_fd != -1)
+	// 	close(last_fd);
 }
 
 int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)

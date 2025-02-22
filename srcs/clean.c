@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:50:27 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 16:44:50 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -38,6 +38,28 @@ static void	clean_pipes(t_mshell *obj)
 	obj->pipfd = NULL;
 }
 
+void	close_heredoc_fds(t_mshell *obj)
+{
+	int	i;
+
+	if (!obj || !obj->heredoc_fds)
+		return ;
+	i = 0;
+	while (i < obj->heredocs_count)
+	{
+		if (obj->heredoc_fds[i] != -1)
+		{
+			close(obj->heredoc_fds[i]);
+			obj->heredoc_fds[i] = -1;
+		}
+		i++;
+	}
+	free(obj->heredoc_fds);
+	obj->heredoc_fds = NULL;
+	obj->heredocs_count = 0;
+	obj->current_heredoc = 0;
+}
+
 void	close_fds(t_mshell *obj)
 {
 	int	i;
@@ -61,6 +83,7 @@ void	close_fds(t_mshell *obj)
 	if (obj->fd_out != -1)
 		close(obj->fd_out);
 	obj->fd_out = -1;
+	close_heredoc_fds(obj);
 }
 
 void	clean_mshell(t_mshell *obj)

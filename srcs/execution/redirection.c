@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 15:41:46 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 15:24:14 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 16:26:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,7 +52,8 @@ void	redirection_input(t_mshell *obj, t_ast_node *node)
 	{
 		if (obj->heredoc_interrupted)
 			return ;
-		obj->fd_in = -1;
+		obj->fd_in = obj->heredoc_fds[obj->current_heredoc];
+		obj->heredoc_fds[obj->current_heredoc] = -1;
 	}
 	if (obj->fd_in > 0)
 	{
