@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 13:45:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 14:02:50 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 10:36:30 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,16 +15,16 @@
 int	print_syntax_error(t_token *token, char *message)
 {
 	token->mshell->exit_code = 2;
-	ft_putstr_fd("syntax error near unexpected token '", 2);
-	ft_putstr_fd(message, 2);
-	ft_putstr_fd("'\n", 2);
+	ft_putstr_fd("syntax error near unexpected token '", STDERR_FILENO);
+	ft_putstr_fd(message, STDERR_FILENO);
+	ft_putstr_fd("'\n", STDERR_FILENO);
 	return (0);
 }
 
 int	print_newline_error(t_token *token)
 {
 	token->mshell->exit_code = 2;
-	ft_putstr_fd("syntax error near unexpected token 'newline'\n", 2);
+	ft_putstr_fd("syntax error near unexpected token 'newline'\n", STDERR_FILENO);
 	return (0);
 }
 

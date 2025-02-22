@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_validating.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 13:47:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 18:10:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 09:59:30 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -59,7 +59,7 @@ t_ast_node	*validate_command(t_ast_node *cmd_node, t_mshell *mshell)
 	{
 		if (cmd_node->redirs)
 		{
-			fd = handle_empty_command_redirs(*cmd_node->redirs, mshell);
+			fd = handle_empty_command_redirs(cmd_node->redirs, mshell);
 			// CLOSE IT IN THE FUNCTION ABOVE
 			if (fd != -1)
 				close(fd);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:55:12 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 10:00:15 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -190,7 +190,6 @@ t_token			*handle_word(t_token **head, t_token **current,
 t_token			*process_token(t_token **head, t_token **current,
 					const char *input, int *i);
 t_token			*handle_quoted_word(t_token *current, char *expanded);
-char			*handle_backslash(char *str);
 t_token_type	get_operator_type(const char *input, int *i);
 char			*extract_word(const char *input, int *i);
 char			*process_word(char *temp, t_mshell *mshell);
@@ -241,7 +240,7 @@ t_ast_node		*validate_command(t_ast_node *cmd_node, t_mshell *mshell);
 t_ast_node		*free_ast_return_null(t_ast_node **node);
 t_ast_node		*create_ast_node(t_token_type type);
 
-int				handle_empty_command_redirs(t_ast_node *redir,
+int				handle_empty_command_redirs(t_ast_node **redirs,
 					t_mshell *mshell);
 int				is_redirect_token(t_token_type type);
 int				print_syntax_error(t_token *token, char *message);

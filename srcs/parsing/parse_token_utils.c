@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:15:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 16:37:13 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 10:37:04 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,7 @@ char	*extract_quoted_content(const char *input, int start, int end)
 	content = ft_substr(input, start, end - start);
 	if (!content)
 	{
-		ft_putstr_fd("syntax error: unclosed double quote\n", 2);
+		ft_putstr_fd("syntax error: unclosed double quote\n", STDERR_FILENO);
 		return (NULL);
 	}
 	return (content);

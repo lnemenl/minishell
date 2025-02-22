@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 16:37:26 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 10:36:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,7 @@ t_token	*handle_single_quotes(const char *input, int *i, t_mshell *mshell)
 		(*i)++;
 	if (!input[*i])
 	{
-		ft_putstr_fd("syntax error: unclosed single quote\n", 2);
+		ft_putstr_fd("syntax error: unclosed single quote\n", STDERR_FILENO);
 		mshell->exit_code = 2;
 		return (NULL);
 	}
@@ -57,7 +57,7 @@ t_token	*handle_double_quotes(const char *input, int *i,
 		(*i)++;
 	if (!input[*i])
 	{
-		ft_putstr_fd("syntax error: unclosed double quote\n", 2);
+		ft_putstr_fd("syntax error: unclosed double quote\n", STDERR_FILENO);
 		mshell->exit_code = 2;
 		return (NULL);
 	}

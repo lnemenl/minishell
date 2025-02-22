@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 15:37:08 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 10:36:06 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,7 @@ void	print_exit(char *mes, char *cmd, t_mshell *obj)
 			ft_strlcpy(full_msg, cmd, mes_len);
 		ft_strlcat(full_msg, ": ", mes_len);
 		ft_strlcat(full_msg, mes, mes_len);
-		ft_putstr_fd(full_msg, 2);
+		ft_putstr_fd(full_msg, STDERR_FILENO);
 		check_free_str(&full_msg);
 	}
 	clean_exit(obj);
@@ -69,7 +69,7 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 	obj->exit_code = exit_code;
 	close_fds(obj);
 	if (arg && !*arg)
-		ft_putstr_fd(": ", 2);
+		ft_putstr_fd(": ", STDERR_FILENO);
 	if (arg && obj->exit_code != 0 && is_builtin == 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_command.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 16:28:31 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 18:09:55 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 13:47:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,8 @@
 t_ast_node	*create_command_node(t_token **tokens)
 {
 	t_ast_node	*cmd_node;
-	t_mshell	*mshell;
 
-	mshell = (*tokens)->mshell;
+	(void)tokens;
 	cmd_node = create_ast_node(TOKEN_WORD);
 	if (!cmd_node)
 		return (NULL);
@@ -76,28 +75,28 @@ t_ast_node	*parse_command(t_token **tokens)
 	return (cmd_node);
 }
 
-int	handle_empty_command_redirs(t_ast_node *redir, t_mshell *mshell)
+int	handle_empty_command_redirs(t_ast_node **redirs, t_mshell *mshell)
 {
 	int	fd;
 
 	fd = -1;
-	if (!redir)
+	if (!redirs)
 		return (fd);
 	// TODO: ADD WHILE LOOP
-	if (redir->type == TOKEN_REDIRECT_APPEND)
-		fd = open(redir->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
-	else if (redir->type == TOKEN_REDIRECT_OUT)
-		fd = open(redir->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
-	else if (redir->type == TOKEN_REDIRECT_IN)
-		fd = open(redir->args[0], O_RDONLY);
-	else if (redir->type == TOKEN_HEREDOC)
+	if ((*redirs)->type == TOKEN_REDIRECT_APPEND)
+		fd = open((*redirs)->args[0], O_WRONLY | O_CREAT | O_APPEND, 0644);
+	else if ((*redirs)->type == TOKEN_REDIRECT_OUT)
+		fd = open((*redirs)->args[0], O_WRONLY | O_CREAT | O_TRUNC, 0644);
+	else if ((*redirs)->type == TOKEN_REDIRECT_IN)
+		fd = open((*redirs)->args[0], O_RDONLY);
+	else if ((*redirs)->type == TOKEN_HEREDOC)
 	{
-		fd = handle_here_doc(mshell, redir, fd);
+		fd = handle_here_doc(mshell, (*redirs), fd);
 		if (fd != -1)
 			close(fd);
 		fd = -1;
 	}
 	if (fd == -1)
-		perror(redir->args[0]);
+		perror((*redirs)->args[0]);
 	return (fd);
 }

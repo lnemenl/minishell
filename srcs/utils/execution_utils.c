@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   execution_utils.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:24:28 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 11:29:01 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 13:46:01 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -40,6 +40,8 @@ void	wait_for_children(t_mshell *obj)
 					write(STDOUT_FILENO, "\n", 1);
 				if (WTERMSIG(status) == SIGQUIT)
 					ft_putendl_fd("Quit: (core dumped)", STDERR_FILENO);
+				if (WTERMSIG(status) == SIGSEGV)
+					ft_putendl_fd("Segmentation fault (core dumped)", STDERR_FILENO);
 				obj->exit_code = 128 + WTERMSIG(status);
 			}
 		}
