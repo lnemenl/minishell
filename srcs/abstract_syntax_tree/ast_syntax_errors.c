@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_syntax_errors.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 13:45:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/22 10:36:30 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 17:24:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,7 +24,8 @@ int	print_syntax_error(t_token *token, char *message)
 int	print_newline_error(t_token *token)
 {
 	token->mshell->exit_code = 2;
-	ft_putstr_fd("syntax error near unexpected token 'newline'\n", STDERR_FILENO);
+	ft_putstr_fd("syntax error near unexpected token 'newline'\n",
+		STDERR_FILENO);
 	return (0);
 }
 

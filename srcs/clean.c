@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:50:27 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 17:22:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,31 +36,6 @@ static void	clean_pipes(t_mshell *obj)
 	obj->allocated_pipes = 0;
 	free(obj->pipfd);
 	obj->pipfd = NULL;
-}
-
-void	close_fds(t_mshell *obj)
-{
-	int	i;
-
-	if (!obj)
-		return ;
-	i = 0;
-	while (obj->pipfd && i < obj->allocated_pipes)
-	{
-		if (obj->pipfd[i][0] != -1)
-			close(obj->pipfd[i][0]);
-		obj->pipfd[i][0] = -1;
-		if (obj->pipfd[i][1] != -1)
-			close(obj->pipfd[i][1]);
-		obj->pipfd[i][1] = -1;
-		i++;
-	}
-	if (obj->fd_in != -1)
-		close(obj->fd_in);
-	obj->fd_in = -1;
-	if (obj->fd_out != -1)
-		close(obj->fd_out);
-	obj->fd_out = -1;
 }
 
 void	clean_mshell(t_mshell *obj)

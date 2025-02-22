@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 10:00:15 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 17:28:27 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -109,15 +109,18 @@ typedef struct s_mshell
 	struct s_heredoc	*heredoc;
 	int					stdin_fd;
 	char				*prev_path;
+	int					*heredoc_fds;
+	int					heredocs_count;
+	int					current_heredoc;
 }	t_mshell;
 
 typedef struct s_quote_data
 {
-	const char		*input;
-	int				start;
-	int				*i;
-	t_mshell		*mshell;
-	t_token_type	current_type;
+	const char			*input;
+	int					start;
+	int					*i;
+	t_mshell			*mshell;
+	t_token_type		current_type;
 }	t_quote_data;
 
 typedef struct s_heredoc
@@ -236,12 +239,9 @@ t_ast_node		*parse_command(t_token **tokens);
 t_ast_node		*parse_pipeline(t_token **tokens);
 t_ast_node		*handle_word_token(t_ast_node *cmd_node, t_token **tokens);
 t_ast_node		*create_pipe_structure(t_ast_node *root, t_token **tokens);
-t_ast_node		*validate_command(t_ast_node *cmd_node, t_mshell *mshell);
 t_ast_node		*free_ast_return_null(t_ast_node **node);
 t_ast_node		*create_ast_node(t_token_type type);
 
-int				handle_empty_command_redirs(t_ast_node **redirs,
-					t_mshell *mshell);
 int				is_redirect_token(t_token_type type);
 int				print_syntax_error(t_token *token, char *message);
 int				print_newline_error(t_token *token);
@@ -262,13 +262,14 @@ void			exit_child(t_mshell *obj, char *arg, int exit_code,
 					int is_builtin);
 void			wait_for_children(t_mshell *obj);
 void			alloc_pipes(t_mshell *obj);
-void			reset_stdin(t_mshell *obj);
 
 /* ===== HEREDOC ===== */
 void			run_heredoc(t_mshell *obj, t_ast_node *node);
 void			write_heredoc_line(t_heredoc *doc);
 t_heredoc		init_heredoc(t_mshell *obj);
 void			cleanup_heredoc(t_heredoc *doc);
+void			choose_heredoc_cmd(t_mshell *obj, t_ast_node *node);
+void			alloc_run_heredoc(t_mshell *obj, t_ast_node *node);
 
 /* ===== REDIRECTION ===== */
 void			redirection_input(t_mshell *obj, t_ast_node *node);
@@ -283,6 +284,7 @@ void			clean_exit(t_mshell *obj);
 void			clean_mshell(t_mshell *obj);
 void			close_fds(t_mshell *obj);
 void			check_free_str(char **path);
+void			close_heredoc_fds(t_mshell *obj);
 
 /* ===== SIGNALS ===== */
 void			setup_interactive_signals(void);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ast_validating.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 13:47:07 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/22 09:59:30 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/22 15:20:29 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,22 +49,4 @@ int	validate_pipe(t_token *token)
 	if (!token->next || token->next->type == TOKEN_PIPE)
 		return (print_syntax_error(token, "|"));
 	return (1);
-}
-
-t_ast_node	*validate_command(t_ast_node *cmd_node, t_mshell *mshell)
-{
-	int	fd;
-
-	if (!cmd_node->args || !cmd_node->args[0])
-	{
-		if (cmd_node->redirs)
-		{
-			fd = handle_empty_command_redirs(cmd_node->redirs, mshell);
-			// CLOSE IT IN THE FUNCTION ABOVE
-			if (fd != -1)
-				close(fd);
-		}
-		return (free_ast_return_null(&cmd_node));
-	}
-	return (cmd_node);
 }

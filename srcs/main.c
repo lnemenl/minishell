@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:52:32 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 15:05:39 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,6 +36,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.stdin_fd = -1;
 	obj.prev_path = get_env_var(obj.envp, "HOME");
 	obj.ast = NULL;
+	obj.heredoc_fds = NULL;
 	(void) argv;
 	return (obj);
 }

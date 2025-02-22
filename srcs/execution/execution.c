@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 18:14:14 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/22 17:32:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,10 +23,9 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 	if (obj->allocated_pipes >= 1)
 		pipe_redirection(obj, cmd);
 	close_fds(obj);
-	// TODO: add skipping if no cmd provided.
-	// if (!cmd_args)
-	// 	exit_child(obj, )
-	if (is_builtin_cmd(cmd->args[0]) == 1)
+	if (!cmd->args || !*cmd->args)
+		exit_child(obj, *(*cmd->redirs)->args, obj->exit_code, 0);
+	else if (is_builtin_cmd(cmd->args[0]) == 1)
 	{
 		run_builtins(cmd->args, obj, cmd->is_quote_heredoc);
 		exit_child(obj, cmd->args[0], obj->exit_code, 1);
@@ -41,7 +40,7 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 
 void	execute_cmd(t_mshell *obj, t_ast_node *cmd)
 {
-	if (!cmd || !cmd->args || !cmd->args[0])
+	if (!cmd)
 		return ;
 	if (obj->allocated_pipes == 0 && obj->redir_check == 0
 		&& run_builtins(cmd->args, obj, cmd->is_quote_heredoc) == 1)
@@ -64,16 +63,24 @@ static void	execute_ast(t_mshell *obj, t_ast_node *temp)
 {
 	if (temp->left)
 	{
-		run_heredoc(obj, temp->left);
-		if (obj->heredoc_interrupted == 0)
-			execute_cmd(obj, temp->left);
+		execute_cmd(obj, temp->left);
+		if (temp->left->redirs && (*temp->left->redirs)->type == TOKEN_HEREDOC)
+			obj->current_heredoc++;
 	}
 	else
 	{
-		run_heredoc(obj, temp);
-		if (obj->heredoc_interrupted == 0)
-			execute_cmd(obj, temp);
+		execute_cmd(obj, temp);
+		if (temp->redirs && (*temp->redirs)->type == TOKEN_HEREDOC)
+			obj->current_heredoc++;
 	}
+}
+
+void	choose_heredoc_cmd(t_mshell *obj, t_ast_node *node)
+{
+	if (node->left)
+		run_heredoc(obj, node->left);
+	else
+		run_heredoc(obj, node);
 }
 
 void	choose_actions(t_mshell *obj)
@@ -91,13 +98,13 @@ void	choose_actions(t_mshell *obj)
 		error_ret(5, NULL);
 	}
 	temp = obj->ast;
-	while (temp)
+	alloc_run_heredoc(obj, temp);
+	obj->current_heredoc = 0;
+	while (temp && obj->heredoc_interrupted == 0)
 	{
-		if (obj->heredoc_interrupted == 1
-			|| g_signal_received != 0)
+		if (g_signal_received != 0)
 			break ;
 		execute_ast(obj, temp);
-		reset_stdin(obj);
 		temp = temp->right;
 		obj->cur_pid++;
 	}
