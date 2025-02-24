@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 14:39:05 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:05:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 11:14:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ static int	arg_name_invalid(char *equal, char *arg)
 		if (arg[name_len] == '+' && arg[name_len + 1] == '=')
 		{
 			equal--;
-			equal = memmove(&arg[name_len], &arg[name_len + 1],
+			equal = ft_memmove(&arg[name_len], &arg[name_len + 1],
 					ft_strlen(equal));
 			name_len--;
 			arg[ft_strlen(arg)] = '\0';
