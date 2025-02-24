@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 14:54:51 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:38:00 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -62,8 +62,14 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 		if (obj->prev_path)
 			free(obj->prev_path);
 		obj->prev_path = ft_strdup(buf);
-		update_pwd(obj, buf, "OLD_PWD=");
+		update_pwd(obj, buf, "OLDPWD=");
 		home_path = get_env_var(obj->envp, "HOME=");
+		if (!home_path)
+		{
+			obj->exit_code = 1;
+			ft_fprintf(STDERR_FILENO, "minishell: cd: HOME not set\n");
+			return (1);
+		}
 		chdir(home_path);
 		update_pwd(obj, home_path, "PWD=");
 		if (home_path)
@@ -79,21 +85,33 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 	return (0);
 }
 
+static void	handle_prev_path(t_mshell *obj)
+{
+	if (obj->prev_path)
+		free(obj->prev_path);
+	obj->prev_path = get_env_var(obj->envp, "OLDPWD=");
+	if (!obj->prev_path)
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: OLDPWD not set\n");
+		return ;
+	}
+	if (chdir(obj->prev_path) == -1)
+	{
+		obj->exit_code = 1;
+		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
+			obj->prev_path);
+	}
+	printf("%s\n", obj->prev_path);
+}
+
 static void	change_path(t_mshell *obj, char **cd_args,
 	char *buf, char *full_path)
 {
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
 	else if (ft_strcmp(cd_args[1], "-") == 0)
-	{
-		if (chdir(obj->prev_path) == -1)
-		{
-			obj->exit_code = 1;
-			ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
-				obj->prev_path);
-		}
-		printf("%s\n", obj->prev_path);
-	}
+		handle_prev_path(obj);
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
@@ -116,9 +134,10 @@ int	cd(char **cd_args, t_mshell *obj)
 	if (!full_path)
 		return (1);
 	change_path(obj, cd_args, buf, full_path);
-	free(obj->prev_path);
+	if (obj->prev_path)
+		free(obj->prev_path);
 	obj->prev_path = ft_strdup(buf);
-	update_pwd(obj, buf, "OLD_PWD=");
+	update_pwd(obj, buf, "OLDPWD=");
 	getcwd_and_check(obj, buf);
 	update_pwd(obj, buf, "PWD=");
 	if (ft_strcmp(full_path, cd_args[1]) != 0)

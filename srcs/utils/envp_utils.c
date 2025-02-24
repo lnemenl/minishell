@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:59:06 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 15:25:48 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:09:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,8 +72,15 @@ char	**copy_envp(char **envp)
 	size_t	envp_len;
 
 	if (!envp)
-		return (NULL);
+	{
+		new_envp = ft_calloc(3, sizeof(char *));
+		if (!new_envp)
+			return (NULL);
+		return (new_envp);
+	}
 	envp_len = get_envp_length(envp);
+	if (envp_len == 0)
+		return (NULL);
 	new_envp = ft_calloc(envp_len + 1, sizeof(char *));
 	if (!new_envp)
 		return (NULL);

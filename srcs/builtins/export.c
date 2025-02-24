@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/21 17:09:20 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 13:01:21 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -58,7 +58,11 @@ static void	export_no_args(t_mshell *obj)
 	char	**temp;
 	size_t	i;
 
+	if (!obj->envp)
+		return ;
 	temp = copy_envp(obj->envp);
+	if (!temp)
+		return ;
 	sort_envp(temp);
 	i = 0;
 	while (temp[i])

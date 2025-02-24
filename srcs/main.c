@@ -6,11 +6,42 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 10:55:43 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:24:20 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
+
+void	join_put_env(t_mshell *obj, char *name, char *value)
+{
+	char	*joined;
+
+	joined = ft_strjoin(name, value);
+	if (!joined)
+		return ;
+	put_env_var(obj, joined);
+	free(joined);
+}
+
+static void	set_pwds(t_mshell *obj)
+{
+	char	*temp;
+	char	buf[PATH_BUFFER_SIZE];
+	
+	getcwd_and_check(obj, buf);
+	join_put_env(obj, "PWD=", buf);
+	temp = get_env_var(obj->envp, "OLDPWD=");
+	if (!temp)
+	{
+		temp = get_env_var(obj->envp, "HOME=");
+		if (!temp)
+			return ;
+		join_put_env(obj, "HOME=", temp);
+		free(temp);
+	}
+	else
+		free(temp);
+}
 
 static t_mshell	init_shell(char **argv, char **envp)
 {
@@ -22,6 +53,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
 	obj.envp = copy_envp(envp);
+	set_pwds(&obj);
 	obj.paths = fetch_paths(obj.envp);
 	obj.pipes_count = 0;
 	obj.token = NULL;
@@ -33,7 +65,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.args_move = 0;
 	obj.redir_check = 0;
 	obj.heredoc_interrupted = 0;
-	obj.prev_path = get_env_var(obj.envp, "HOME");
+	obj.prev_path = get_env_var(obj.envp, "HOME=");
 	obj.ast = NULL;
 	obj.heredoc_fds = NULL;
 	(void) argv;
