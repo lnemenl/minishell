@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 17:28:27 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 10:55:50 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -107,7 +107,6 @@ typedef struct s_mshell
 	int					redir_check;
 	int					heredoc_interrupted;
 	struct s_heredoc	*heredoc;
-	int					stdin_fd;
 	char				*prev_path;
 	int					*heredoc_fds;
 	int					heredocs_count;

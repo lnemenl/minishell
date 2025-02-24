@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 17:32:47 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 10:55:47 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,8 +16,6 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 {
 	setup_exec_signals();
 	apply_redirections(obj, cmd);
-	if (obj->stdin_fd != -1)
-		close(obj->stdin_fd);
 	if (obj->heredoc_interrupted)
 		exit_child(obj, "", 130, 0);
 	if (obj->allocated_pipes >= 1)
