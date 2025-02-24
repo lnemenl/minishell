@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_construction.c                               :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:09:37 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:17:47 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/24 12:33:06 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,7 @@ void	construct_parse_tree(t_mshell *obj)
 	obj->ast = parse_pipeline(&tokens);
 	if (!obj->ast)
 	{
-		clean_tokens(tokens);
+		clean_tokens(obj->token);
 		obj->token = NULL;
 		if (obj->exit_code != 2)
 			obj->exit_code = 1;

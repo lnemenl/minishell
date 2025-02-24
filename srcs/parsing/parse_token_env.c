@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_token_env.c                                  :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:11:55 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:18:08 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/24 12:39:40 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,7 +47,7 @@ char	*get_env_value(const char *var_name, t_mshell *mshell)
 	free(temp_var_name);
 	if (!value)
 		return (ft_strdup(""));
-	return (ft_strdup(value));
+	return (value);
 }
 
 char	*join_and_free(char *s1, char *s2)
