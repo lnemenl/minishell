@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 14:38:00 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 15:06:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -30,7 +30,7 @@ static char	*handle_cd_path(char *provided_path, char *buf, t_mshell *obj)
 }
 
 /* `var` must be provided with `=` */
-static void	update_pwd(t_mshell *obj, char *pwd, char *var)
+void	update_pwd(t_mshell *obj, char *pwd, char *var)
 {
 	char	*joined_pwd;
 	size_t	var_len;
@@ -54,26 +54,9 @@ static void	update_pwd(t_mshell *obj, char *pwd, char *var)
 
 static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 {
-	char	*home_path;
-
 	if (!cd_args[1] || !*cd_args[1])
 	{
-		obj->exit_code = 0;
-		if (obj->prev_path)
-			free(obj->prev_path);
-		obj->prev_path = ft_strdup(buf);
-		update_pwd(obj, buf, "OLDPWD=");
-		home_path = get_env_var(obj->envp, "HOME=");
-		if (!home_path)
-		{
-			obj->exit_code = 1;
-			ft_fprintf(STDERR_FILENO, "minishell: cd: HOME not set\n");
-			return (1);
-		}
-		chdir(home_path);
-		update_pwd(obj, home_path, "PWD=");
-		if (home_path)
-			free(home_path);
+		handle_empty_cd(obj, buf);
 		return (1);
 	}
 	else if (cd_args[2] && *cd_args[2])
@@ -83,26 +66,6 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 		return (1);
 	}
 	return (0);
-}
-
-static void	handle_prev_path(t_mshell *obj)
-{
-	if (obj->prev_path)
-		free(obj->prev_path);
-	obj->prev_path = get_env_var(obj->envp, "OLDPWD=");
-	if (!obj->prev_path)
-	{
-		obj->exit_code = 1;
-		ft_fprintf(2, "minishell: cd: OLDPWD not set\n");
-		return ;
-	}
-	if (chdir(obj->prev_path) == -1)
-	{
-		obj->exit_code = 1;
-		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
-			obj->prev_path);
-	}
-	printf("%s\n", obj->prev_path);
 }
 
 static void	change_path(t_mshell *obj, char **cd_args,

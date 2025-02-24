@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:59:06 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 14:09:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 14:59:23 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -24,46 +24,23 @@ size_t	get_envp_length(char **envp)
 	return (len);
 }
 
-/* `var_name` should be provided with `=` character */
-char	*get_env_var(char **envp, const char *var_name)
+static int	set_env_to_copy(char **envp, char **new_envp)
 {
-	size_t	i;
-	size_t	var_name_len;
-	char	*trimmed_str;
+	size_t	envp_len;
 
-	if (!envp || !*envp || !var_name)
-		return (NULL);
-	i = 0;
-	var_name_len = ft_strlen(var_name);
-	while (envp[i])
+	envp_len = 0;
+	while (envp[envp_len])
 	{
-		if (ft_strncmp(envp[i], var_name, var_name_len) == 0)
+		new_envp[envp_len] = ft_strdup(envp[envp_len]);
+		if (!new_envp[envp_len])
 		{
-			trimmed_str = ft_strtrim(envp[i] + var_name_len, "=");
-			return (trimmed_str);
+			ft_free_strs(new_envp, envp_len);
+			return (0);
 		}
-		i++;
+		envp_len++;
 	}
-	return (NULL);
-}
-
-void	set_env_args(t_mshell *obj, t_ast_node *node)
-{
-	int	i;
-
-	i = 0;
-	while (node->args[i])
-		i++;
-	ft_free_strs(node->args, i);
-	node->args = ft_calloc(3, sizeof(char *));
-	if (!node->args)
-	{
-		clean_mshell(obj);
-		return ;
-	}
-	node->args[0] = ft_strdup("cat");
-	node->args[1] = ft_strdup(".env_temp.txt");
-	node->args[2] = NULL;
+	new_envp[envp_len] = NULL;
+	return (1);
 }
 
 char	**copy_envp(char **envp)
@@ -84,17 +61,7 @@ char	**copy_envp(char **envp)
 	new_envp = ft_calloc(envp_len + 1, sizeof(char *));
 	if (!new_envp)
 		return (NULL);
-	envp_len = 0;
-	while (envp[envp_len])
-	{
-		new_envp[envp_len] = ft_strdup(envp[envp_len]);
-		if (!new_envp[envp_len])
-		{
-			ft_free_strs(new_envp, envp_len);
-			return (NULL);
-		}
-		envp_len++;
-	}
-	new_envp[envp_len] = NULL;
+	if (set_env_to_copy(envp, new_envp) == 0)
+		return (NULL);
 	return (new_envp);
 }

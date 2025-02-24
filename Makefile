@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/22 17:23:32 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/24 15:05:16 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,8 +41,10 @@ SRCS = \
 	${SRC_DIR}/main.c \
 	${SRC_DIR}/validation.c \
 	\
+	${SRC_DIR}/${UTILS}/cd_utils.c \
 	${SRC_DIR}/${UTILS}/envp_utils.c \
 	${SRC_DIR}/${UTILS}/envp_utils_2.c \
+	${SRC_DIR}/${UTILS}/envp_utils_3.c \
 	${SRC_DIR}/${UTILS}/execution_utils.c \
 	${SRC_DIR}/${UTILS}/heredoc_utils.c \
 	${SRC_DIR}/${UTILS}/pipes_allocation.c \
