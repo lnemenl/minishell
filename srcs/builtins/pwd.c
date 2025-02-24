@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 13:46:02 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:17:40 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/24 11:43:39 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,10 +27,7 @@ int	pwd(t_mshell *obj)
 	static char	*error_args[] = {"cd", NULL};
 
 	if (!getcwd(buf, PATH_BUFFER_SIZE))
-	{
-		perror("getcwd");
 		cd(error_args, obj);
-	}
 	else
 		printf("%s\n", buf);
 	obj->exit_code = 0;
