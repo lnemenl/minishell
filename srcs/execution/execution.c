@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 10:55:47 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 11:59:34 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -32,6 +32,8 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 	{
 		obj->cur_path = check_paths_access(obj->paths, cmd, obj);
 		execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
+		if (obj->cur_path)
+			free(obj->cur_path);
 		exit_child(obj, cmd->args[0], 127, 0);
 	}
 }
