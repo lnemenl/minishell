@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/20 14:39:05 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 16:12:51 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:50:17 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -94,7 +94,7 @@ static void	create_new_var(t_mshell *obj, char *new_arg, char ***dest)
 	(*dest)[++envp_len] = NULL;
 }
 
-static void	add_env_to_end(t_mshell *obj, char *new_arg, char** dest, int pos)
+static void	replace_env(t_mshell *obj, char *new_arg, char** dest, int pos)
 {
 	size_t	arg_len;
 
@@ -114,14 +114,12 @@ void	put_env_var(t_mshell *obj, char *new_arg, char *hint)
 	pos = is_env_created(new_arg, obj->envp);
 	if (pos == -1)
 	{
+		create_new_var(obj, new_arg, &obj->exp_args);
 		if (ft_strcmp(hint, "envp") == 0)
 			create_new_var(obj, new_arg, &obj->envp);
-		else
-			create_new_var(obj, new_arg, &obj->exp_args);
 		return ;
 	}
+	replace_env(obj, new_arg, obj->exp_args, pos);
 	if (ft_strcmp(hint, "envp") == 0)
-		add_env_to_end(obj, new_arg, obj->envp, pos);
-	else
-		add_env_to_end(obj, new_arg, obj->exp_args, pos);
+		replace_env(obj, new_arg, obj->envp, pos);
 }

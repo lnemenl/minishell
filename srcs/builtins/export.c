@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 16:17:01 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 17:20:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -66,7 +66,7 @@ static void	copy_print(char *arg, t_mshell *obj)
 		printf("declare -x %s\n", arg);
 	else
 	{
-		name_len = equal - arg - 1;
+		name_len = equal - arg;
 		name = ft_calloc(name_len + 1, sizeof(char));
 		if (!name)
 			print_exit("Malloc error\n", NULL, obj);

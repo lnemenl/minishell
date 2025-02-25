@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 16:14:58 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 17:22:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 17:22:23 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,6 +43,7 @@ void	clean_mshell(t_mshell *obj)
 	if (!obj)
 		return ;
 	ft_clean_strs(obj->paths);
+	obj->paths = NULL;
 	clean_tokens(obj->token);
 	obj->token = NULL;
 	clean_pipes(obj);
@@ -63,6 +64,8 @@ void	clean_exit(t_mshell *obj)
 	clean_mshell(obj);
 	if (obj->envp)
 		ft_free_strs(obj->envp, get_envp_length(obj->envp));
+	if (obj->exp_args)
+		ft_free_strs(obj->exp_args, get_envp_length(obj->exp_args));
 	check_free_str(&obj->prev_path);
 	exit(obj->exit_code);
 }
