@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/24 14:53:10 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 15:18:53 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:00:15 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -19,7 +19,8 @@ void	join_put_env(t_mshell *obj, char *name, char *value)
 	joined = ft_strjoin(name, value);
 	if (!joined)
 		return ;
-	put_env_var(obj, joined);
+	put_env_var(obj, joined, "envp");
+	put_env_var(obj, joined, "export");
 	free(joined);
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 10:36:06 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/25 15:37:15 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	error_ret(int type, char *arg)
 {
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	if (type == 1)
-		ft_putstr_fd("Do not provide any arguments\n", STDERR_FILENO);
+		ft_fprintf(2, "Do not provide any arguments: %s\n", arg);
 	else if (type == 2)
 		perror(arg);
 	else if (type == 3)

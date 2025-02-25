@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 15:06:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:00:09 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -48,7 +48,8 @@ void	update_pwd(t_mshell *obj, char *pwd, char *var)
 	joined_pwd = ft_memmove(joined_pwd, var, var_len);
 	ft_strlcat(joined_pwd, pwd, total_len);
 	joined_pwd[total_len - 1] = '\0';
-	put_env_var(obj, joined_pwd);
+	put_env_var(obj, joined_pwd, "envp");
+	put_env_var(obj, joined_pwd, "export");
 	free(joined_pwd);
 }
 

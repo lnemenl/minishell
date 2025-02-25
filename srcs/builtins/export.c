@@ -6,21 +6,23 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 13:01:21 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:17:01 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static int	handle_fail_arg(t_mshell *obj, char *new_arg, char *arg)
+static int	handle_fail_arg(t_mshell *obj, char **new_arg, char *arg)
 {
-	if (ft_strncmp(new_arg, "fail", 4) == 0)
+	if (ft_strncmp(*new_arg, "fail", 4) == 0)
 	{
-		if (ft_strcmp(new_arg, "fail_option") == 0)
+		if (ft_strcmp(*new_arg, "fail_option") == 0)
 			obj->exit_code = 2;
 		else
 			obj->exit_code = 1;
-		free(new_arg);
+		if (*new_arg)
+			free(*new_arg);
+		*new_arg = NULL;
 		ft_fprintf(2, "export: `%s`: not a valid identifier\n", arg);
 		return (1);
 	}
@@ -53,6 +55,27 @@ static void	sort_envp(char **envp)
 	}
 }
 
+static void	copy_print(char *arg, t_mshell *obj)
+{
+	char	*equal;
+	char	*name;
+	size_t	name_len;
+
+	equal = ft_strchr(arg, '=');
+	if (!equal)
+		printf("declare -x %s\n", arg);
+	else
+	{
+		name_len = equal - arg - 1;
+		name = ft_calloc(name_len + 1, sizeof(char));
+		if (!name)
+			print_exit("Malloc error\n", NULL, obj);
+		name = ft_memmove(name, arg, name_len);
+		printf("declare -x %s=\"%s\"\n", name, equal + 1);
+		free(name);
+	}
+}
+
 static void	export_no_args(t_mshell *obj)
 {
 	char	**temp;
@@ -60,14 +83,14 @@ static void	export_no_args(t_mshell *obj)
 
 	if (!obj->envp)
 		return ;
-	temp = copy_envp(obj->envp);
+	temp = copy_envp(obj->exp_args);
 	if (!temp)
 		return ;
 	sort_envp(temp);
 	i = 0;
 	while (temp[i])
 	{
-		printf("declare -x %s\n", temp[i]);
+		copy_print(temp[i], obj);
 		i++;
 	}
 	ft_free_strs(temp, get_envp_length(temp));
@@ -78,23 +101,26 @@ int	export(char **args, t_mshell *obj)
 	char	*new_arg;
 	int		i;
 
+	obj->exit_code = 0;
 	if (!args[1] || !*args[1])
 	{
 		export_no_args(obj);
 		return (1);
 	}
-	i = 1;
-	while (args[i])
+	i = 0;
+	while (args[++i])
 	{
 		new_arg = check_env_arg(args[i]);
 		if (!new_arg)
-			return (1);
-		if (handle_fail_arg(obj, new_arg, args[i]) == 1)
-			return (1);
-		put_env_var(obj, new_arg);
+			continue ;
+		if (handle_fail_arg(obj, &new_arg, args[i]) == 1)
+			continue ;
+		if (ft_strcmp(new_arg, "export") == 0)
+			put_env_var(obj, args[i], "exp");
+		else
+			put_env_var(obj, new_arg, "envp");
 		free(new_arg);
-		i++;
+		new_arg = NULL;
 	}
-	obj->exit_code = 0;
 	return (1);
 }

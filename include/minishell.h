@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 15:06:11 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 13:49:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ typedef struct s_mshell
 	int					*heredoc_fds;
 	int					heredocs_count;
 	int					current_heredoc;
+	char				**exp_args;
 }	t_mshell;
 
 typedef struct s_quote_data
@@ -162,7 +163,7 @@ char			*handle_regular_var(char *buffer,
 char			*handle_dollar_expansion(char *buffer,
 					const char *input, int *i, t_mshell *mshell);
 char			*expand_env_vars(const char *str, t_mshell *mshell);
-void			put_env_var(t_mshell *obj, char *new_arg);
+void			put_env_var(t_mshell *obj, char *new_arg, char *hint);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
 size_t			get_envp_length(char **envp);
 int				is_env_created(char *arg, char **strs);
