@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 12:10:02 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 14:08:44 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -166,7 +166,7 @@ char			*expand_env_vars(const char *str, t_mshell *mshell);
 void			put_env_var(t_mshell *obj, char *new_arg, char *hint);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
 size_t			get_envp_length(char **envp);
-int				is_env_created(char *arg, char **strs);
+int				is_env_created(char *arg, char **strs, char *hint);
 char			*get_env_var(char **envp, const char *var_name);
 char			*check_env_arg(char *arg);
 char			*remove_quotes(const char *str);

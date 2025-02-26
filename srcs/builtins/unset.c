@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 13:15:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 14:09:10 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -50,7 +50,7 @@ static char	**delete_env(char *arg, t_mshell *obj)
 
 	if (!arg)
 		return (obj->envp);
-	if (is_env_created(arg, obj->envp) == -1)
+	if (is_env_created(arg, obj->envp, "envp") == -1)
 		return (obj->envp);
 	envp_len = get_envp_length(obj->envp);
 	new_envp = ft_calloc(envp_len + 1, sizeof(char *));
