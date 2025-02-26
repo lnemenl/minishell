@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:04:25 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 12:22:06 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 12:58:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ static void	run_child_process(t_mshell *obj, t_ast_node *cmd)
 		execve(obj->cur_path, cmd->args + obj->args_move, obj->paths);
 		if (obj->cur_path)
 			free(obj->cur_path);
+		if (errno == ENOTDIR)
+			exit_child(obj, cmd->args[0], 126, 0);
 		exit_child(obj, cmd->args[0], 127, 0);
 	}
 }
