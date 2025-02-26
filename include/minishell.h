@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 15:06:11 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:25:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -111,6 +111,7 @@ typedef struct s_mshell
 	int					*heredoc_fds;
 	int					heredocs_count;
 	int					current_heredoc;
+	char				**exp_args;
 }	t_mshell;
 
 typedef struct s_quote_data
@@ -162,10 +163,10 @@ char			*handle_regular_var(char *buffer,
 char			*handle_dollar_expansion(char *buffer,
 					const char *input, int *i, t_mshell *mshell);
 char			*expand_env_vars(const char *str, t_mshell *mshell);
-void			put_env_var(t_mshell *obj, char *new_arg);
+void			put_env_var(t_mshell *obj, char *new_arg, char *hint);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
 size_t			get_envp_length(char **envp);
-int				is_env_created(char *arg, char **strs);
+int				is_env_created(char *arg, char **strs, char *hint);
 char			*get_env_var(char **envp, const char *var_name);
 char			*check_env_arg(char *arg);
 char			*remove_quotes(const char *str);
@@ -173,6 +174,8 @@ char			*append_until_dollar(char *buffer, const char *input, int *i);
 char			*handle_pid_expansion(char *buffer, t_mshell *mshell, int *i);
 void			join_put_env(t_mshell *obj, char *name, char *value);
 void			set_pwds(t_mshell *obj);
+void			create_new_var(t_mshell *obj, char *new_arg, char ***dest);
+void			replace_env(t_mshell *obj, char *new_arg, char **dest, int pos);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);
@@ -230,7 +233,7 @@ void			check_and_handle_exit(char **args, t_mshell *obj);
 void			getcwd_and_check(t_mshell *obj, char *buf);
 void			update_pwd(t_mshell *obj, char *pwd, char *var);
 void			handle_empty_cd(t_mshell *obj, char *buf);
-void			handle_prev_path(t_mshell *obj);
+int				handle_prev_path(t_mshell *obj);
 
 /* ===== AST CORE (ast_core.c) ===== */
 

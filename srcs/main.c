@@ -6,13 +6,13 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 14:53:41 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/25 16:02:44 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../include/minishell.h"
 
-static t_mshell	init_shell(char **argv, char **envp)
+static t_mshell	init_shell(char **envp)
 {
 	t_mshell	obj;
 
@@ -22,6 +22,7 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.pipfd = NULL;
 	obj.exec_cmds = 0;
 	obj.envp = copy_envp(envp);
+	obj.exp_args = copy_envp(obj.envp);
 	set_pwds(&obj);
 	obj.paths = fetch_paths(obj.envp);
 	obj.pipes_count = 0;
@@ -37,7 +38,6 @@ static t_mshell	init_shell(char **argv, char **envp)
 	obj.prev_path = get_env_var(obj.envp, "HOME=");
 	obj.ast = NULL;
 	obj.heredoc_fds = NULL;
-	(void) argv;
 	return (obj);
 }
 
@@ -92,10 +92,10 @@ int	main(int argc, char **argv, char **envp)
 	t_mshell	obj;
 
 	if (argc != 1)
-		return (error_ret(1, NULL));
+		return (error_ret(1, argv[1]));
 	disable_echoctl();
 	transition_signal_handlers(SIGNAL_STATE_INTERACTIVE);
-	obj = init_shell(argv, envp);
+	obj = init_shell(envp);
 	listen_and_proceed_input(&obj);
 	clean_exit(&obj);
 }

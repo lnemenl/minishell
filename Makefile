@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/24 15:05:16 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/25 12:06:37 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -89,7 +89,7 @@ SRCS = \
 
 OBJS = ${SRCS:.c=.o}
 
-CFLAGS = -g -Wall -Werror -Wextra -I/opt/homebrew/opt/readline/include
+CFLAGS = -g -Wall -Werror -Wextra
 INCLUDES = -I/usr/local/include
 LDFLAGS = -L/opt/homebrew/opt/readline/lib -lreadline
 

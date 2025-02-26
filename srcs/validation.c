@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 10:44:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:21:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ static void	check_is_dir(char *arg, t_mshell *obj)
 {
 	int	fd;
 
+	if (!ft_strchr(arg, '/'))
+		return ;
 	fd = open(arg, O_DIRECTORY);
 	if (fd >= 0)
 	{
@@ -63,21 +65,17 @@ static char	*search_paths(char **paths, char **args, size_t *args_move)
 		check_free_str(&path);
 		i++;
 	}
-	return (NULL);
+	return (ft_strdup(*args + *args_move));
 }
 
 static char	*check_path(char *path, char *node_arg,
 	t_mshell *obj, t_ast_node *node)
 {
-	if (path && !*path)
+	if (!path || (path && !ft_strchr(node->args[0], '/')
+			&& access(path, X_OK) != 0) || !node_arg || !*node_arg)
 	{
 		check_free_str(&path);
-		exit_child(obj, NULL, 0, 0);
-	}
-	else if (!path || !node_arg || !*node_arg)
-	{
-		check_free_str(&path);
-		if (!node_arg || !*node_arg)
+		if (!node_arg)
 		{
 			obj->exit_code = 0;
 			clean_mshell(obj);
@@ -104,6 +102,7 @@ char	*check_paths_access(char **paths, t_ast_node *node, t_mshell *obj)
 	path = search_paths(paths, node->args, &obj->args_move);
 	if (!check_path(path, *(node->args) + obj->args_move, obj, node))
 		return (NULL);
-	check_is_dir(path, obj);
+	if (ft_strchr(node->args[0], '/'))
+		check_is_dir(path, obj);
 	return (path);
 }
