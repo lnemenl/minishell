@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 16:00:09 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 12:11:02 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,21 +69,26 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 	return (0);
 }
 
-static void	change_path(t_mshell *obj, char **cd_args,
+static int	change_path(t_mshell *obj, char **cd_args,
 	char *buf, char *full_path)
 {
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
 	else if (ft_strcmp(cd_args[1], "-") == 0)
-		handle_prev_path(obj);
+	{
+		if (handle_prev_path(obj) == 0)
+			return (0);
+	}
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
 		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
 			cd_args[1]);
+		return (0);
 	}
 	else
 		obj->exit_code = 0;
+	return (1);
 }
 
 int	cd(char **cd_args, t_mshell *obj)
@@ -97,11 +102,13 @@ int	cd(char **cd_args, t_mshell *obj)
 	full_path = handle_cd_path(cd_args[1], buf, obj);
 	if (!full_path)
 		return (1);
-	change_path(obj, cd_args, buf, full_path);
-	if (obj->prev_path)
-		free(obj->prev_path);
-	obj->prev_path = ft_strdup(buf);
-	update_pwd(obj, buf, "OLDPWD=");
+	if (change_path(obj, cd_args, buf, full_path) == 1)
+	{
+		if (obj->prev_path)
+			free(obj->prev_path);
+		obj->prev_path = ft_strdup(buf);
+		update_pwd(obj, buf, "OLDPWD=");
+	}
 	getcwd_and_check(obj, buf);
 	update_pwd(obj, buf, "PWD=");
 	if (ft_strcmp(full_path, cd_args[1]) != 0)
