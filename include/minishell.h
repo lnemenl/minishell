@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 14:08:44 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:25:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -174,6 +174,8 @@ char			*append_until_dollar(char *buffer, const char *input, int *i);
 char			*handle_pid_expansion(char *buffer, t_mshell *mshell, int *i);
 void			join_put_env(t_mshell *obj, char *name, char *value);
 void			set_pwds(t_mshell *obj);
+void			create_new_var(t_mshell *obj, char *new_arg, char ***dest);
+void			replace_env(t_mshell *obj, char *new_arg, char **dest, int pos);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);

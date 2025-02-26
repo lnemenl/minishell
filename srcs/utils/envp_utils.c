@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:59:06 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/24 14:59:23 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 16:25:21 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -64,4 +64,34 @@ char	**copy_envp(char **envp)
 	if (set_env_to_copy(envp, new_envp) == 0)
 		return (NULL);
 	return (new_envp);
+}
+
+void	create_new_var(t_mshell *obj, char *new_arg, char ***dest)
+{
+	size_t	envp_len;
+	size_t	envp_mem_size;
+
+	envp_len = get_envp_length(*dest);
+	envp_mem_size = (envp_len + 1) * sizeof(char *);
+	*dest = ft_realloc(*dest, envp_mem_size,
+			envp_mem_size + sizeof(char *));
+	if (!*dest)
+		print_exit("Realloc error\n", NULL, obj);
+	(*dest)[envp_len] = ft_strdup(new_arg);
+	if (!(*dest)[envp_len])
+		print_exit("Malloc_error\n", NULL, obj);
+	(*dest)[++envp_len] = NULL;
+}
+
+void	replace_env(t_mshell *obj, char *new_arg, char **dest, int pos)
+{
+	size_t	arg_len;
+
+	arg_len = ft_strlen(new_arg);
+	dest[pos] = ft_realloc(dest[pos], ft_strlen(dest[pos]),
+			arg_len + 1);
+	if (!dest[pos])
+		print_exit("Malloc_error\n", NULL, obj);
+	dest[pos] = ft_memmove(dest[pos], new_arg, arg_len);
+	dest[pos][arg_len] = '\0';
 }
