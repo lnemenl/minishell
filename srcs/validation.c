@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   validation.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 10:44:57 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/26 12:22:38 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,15 +69,10 @@ static char	*search_paths(char **paths, char **args, size_t *args_move)
 static char	*check_path(char *path, char *node_arg,
 	t_mshell *obj, t_ast_node *node)
 {
-	if (path && !*path)
+	if (!path || !node_arg || !*node_arg)
 	{
 		check_free_str(&path);
-		exit_child(obj, NULL, 0, 0);
-	}
-	else if (!path || !node_arg || !*node_arg)
-	{
-		check_free_str(&path);
-		if (!node_arg || !*node_arg)
+		if (!node_arg)
 		{
 			obj->exit_code = 0;
 			clean_mshell(obj);
