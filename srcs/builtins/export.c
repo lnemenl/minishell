@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/30 15:34:32 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 17:20:24 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 14:27:59 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -23,7 +23,7 @@ static int	handle_fail_arg(t_mshell *obj, char **new_arg, char *arg)
 		if (*new_arg)
 			free(*new_arg);
 		*new_arg = NULL;
-		ft_fprintf(2, "export: `%s`: not a valid identifier\n", arg);
+		ft_fprintf(2, "export: `%s': not a valid identifier\n", arg);
 		return (1);
 	}
 	return (0);
@@ -102,7 +102,7 @@ int	export(char **args, t_mshell *obj)
 	int		i;
 
 	obj->exit_code = 0;
-	if (!args[1] || !*args[1])
+	if (!args[1])
 	{
 		export_no_args(obj);
 		return (1);

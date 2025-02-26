@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 12:34:54 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/26 15:26:44 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -65,7 +65,7 @@ static char	*search_paths(char **paths, char **args, size_t *args_move)
 		check_free_str(&path);
 		i++;
 	}
-	return (NULL);
+	return (ft_strdup(*args + *args_move));
 }
 
 static char	*check_path(char *path, char *node_arg,
