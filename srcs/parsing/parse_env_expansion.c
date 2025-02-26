@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:34:17 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:17:50 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:40:53 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,6 +49,7 @@ char	*handle_dollar_expansion(char *buffer,
 	if (input[*i] == '$')
 		buffer = handle_pid_expansion(buffer, mshell, i);
 	else if (is_quote(input[*i]))
+		//buffer = handle_regular_var(buffer, input, i, mshell);
 		buffer = handle_quoted_var(buffer, input, i);
 	else
 		buffer = handle_regular_var(buffer, input, i, mshell);

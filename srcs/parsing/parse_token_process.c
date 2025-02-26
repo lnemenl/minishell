@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/03 11:31:38 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/22 10:00:06 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/26 17:08:23 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -39,9 +39,11 @@ t_token	*process_token(t_token **head,
 		(*i)++;
 		return (*current);
 	}
+	if (input[*i] == '$' && input[*i + 1] && is_quote(input[*i + 1]))
+		*i += 1;
 	if (is_quote(input[*i]))
 		return (handle_quotes(head, current, input, i));
-	if (is_operator(input[*i]))
+	else if (is_operator(input[*i]))
 		return (handle_operator(head, current, input, i));
 	return (handle_word(head, current, input, i));
 }
