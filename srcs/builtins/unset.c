@@ -6,13 +6,13 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 14:09:10 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:24:10 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static char	**fill_new_envp(t_mshell *obj, char *arg,
+static char	**fill_new_envp(char **dest, char *arg,
 	char **new_envp, size_t arg_len)
 {
 	size_t	i;
@@ -20,13 +20,14 @@ static char	**fill_new_envp(t_mshell *obj, char *arg,
 
 	i = 0;
 	skip = 0;
-	while (obj->envp[i])
+	while (dest[i])
 	{
-		if (ft_strncmp(obj->envp[i], arg, arg_len) == 0)
+		if (ft_strncmp(dest[i], arg, arg_len) == 0
+			&& (!dest[i][arg_len] || dest[i][arg_len] == '='))
 			skip = 1;
-		if (obj->envp[i + skip])
+		if (dest[i + skip])
 		{
-			new_envp[i] = ft_strdup(obj->envp[i + skip]);
+			new_envp[i] = ft_strdup(dest[i + skip]);
 			if (!new_envp)
 			{
 				ft_free_strs(new_envp, i);
@@ -42,24 +43,24 @@ static char	**fill_new_envp(t_mshell *obj, char *arg,
 	return (new_envp);
 }
 
-static char	**delete_env(char *arg, t_mshell *obj)
+static char	**delete_env(char *arg, char ***dest, char *hint)
 {
 	size_t	envp_len;
 	size_t	arg_len;
 	char	**new_envp;
 
 	if (!arg)
-		return (obj->envp);
-	if (is_env_created(arg, obj->envp, "envp") == -1)
-		return (obj->envp);
-	envp_len = get_envp_length(obj->envp);
+		return (*dest);
+	if (is_env_created(arg, *dest, hint) == -1)
+		return (*dest);
+	envp_len = get_envp_length(*dest);
 	new_envp = ft_calloc(envp_len + 1, sizeof(char *));
 	if (!new_envp)
-		return (obj->envp);
+		return (*dest);
 	arg_len = ft_strlen(arg);
-	new_envp = fill_new_envp(obj, arg, new_envp, arg_len);
-	ft_clean_strs(obj->envp);
-	obj->envp = NULL;
+	new_envp = fill_new_envp(*dest, arg, new_envp, arg_len);
+	ft_clean_strs(*dest);
+	*dest = NULL;
 	return (new_envp);
 }
 
@@ -85,7 +86,8 @@ int	unset(char **args, t_mshell *obj)
 			ft_clean_strs(obj->paths);
 			obj->paths = NULL;
 		}
-		obj->envp = delete_env(args[i], obj);
+		obj->envp = delete_env(args[i], &obj->envp, "envp");
+		obj->exp_args = delete_env(args[i], &obj->exp_args, "exp");
 		i++;
 	}
 	return (1);
