@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 18:46:04 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/20 14:18:52 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 17:26:13 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,7 +20,8 @@ static void	handle_wrong_exit_code(t_mshell *obj, char *arg,
 		ft_fprintf(2, "minishell: exit: %s%s\n", arg, msg);
 	else
 		ft_fprintf(2, "minishell: exit: %s\n", msg);
-	clean_exit(obj);
+	if (arg)
+		clean_exit(obj);
 }
 
 static void	check_exit_code(char *arg, t_mshell *obj, int args_len)
@@ -66,6 +67,9 @@ void	check_and_handle_exit(char **args, t_mshell *obj)
 		if (isatty(STDIN_FILENO))
 			printf("exit\n");
 		check_exit_code(args[1], obj, args_len);
-		clean_exit(obj);
+		if (args_len == 2)
+			clean_exit(obj);
+		else
+			obj->exit_code = 1;
 	}
 }
