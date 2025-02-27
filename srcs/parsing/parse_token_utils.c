@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:15:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/26 17:37:59 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 12:21:10 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	*process_content(char *content, t_token_type type, t_mshell *mshell)
 
 	if (type == TOKEN_HEREDOC)
 		return (content);
-	expanded = expand_env_vars(content, mshell);
+	expanded = expand_env_vars(content, mshell, 0);
 	free(content);
 	return (expanded);
 }

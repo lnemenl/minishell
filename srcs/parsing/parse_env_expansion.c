@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:34:17 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/26 17:40:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 12:51:48 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,7 +56,7 @@ char	*handle_dollar_expansion(char *buffer,
 	return (buffer);
 }
 
-char	*expand_env_vars(const char *input, t_mshell *mshell)
+char	*expand_env_vars(const char *input, t_mshell *mshell, int clean)
 {
 	char	*buffer;
 	int		i;
@@ -72,7 +72,9 @@ char	*expand_env_vars(const char *input, t_mshell *mshell)
 		else
 			buffer = handle_dollar_expansion(buffer, input, &i, mshell);
 	}
-	if (!buffer)
+	if (!buffer || (!*buffer && clean == 0))
 		return (ft_strdup(""));
+	else if (buffer && !*buffer)
+		return (NULL);
 	return (buffer);
 }
