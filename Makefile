@@ -6,7 +6,7 @@
 #    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/25 12:06:37 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/27 15:37:21 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -32,7 +32,6 @@ PARSE = ./parsing
 SIG = ./signals
 SRC_DIR = ./srcs
 UTILS = ./utils
-
 
 SRCS = \
 	${SRC_DIR}/clean_fds.c \
@@ -85,7 +84,7 @@ SRCS = \
 	\
 	${SRC_DIR}/${SIG}/signals_handling.c \
 	${SRC_DIR}/${SIG}/signals_heredoc.c \
-	${SRC_DIR}/${SIG}/signals_settingup.c \
+	${SRC_DIR}/${SIG}/signals_settingup.c
 
 OBJS = ${SRCS:.c=.o}
 
@@ -98,7 +97,7 @@ LIBFT_DIR = ./libft_updated
 
 RM = rm -rf
 
-.PHONY = all clean fclean re bonus
+.PHONY = all clean fclean re
 
 all: ${LIBFT_NAME} ${NAME}
 
@@ -118,7 +117,6 @@ ${NAME}: ${OBJS}
 clean:
 	@echo "$(YELLOW)🚽 Deleting object files... 🚽$(DEF_COLOR)"
 	@${RM} ${OBJS}
-	@${RM} ${BONUS_OBJS}
 	@make clean -C ${LIBFT_DIR} --no-print-directory
 
 fclean: clean
@@ -127,6 +125,5 @@ fclean: clean
 	@echo "$(RED)🪦 Deleting minishell... 🪦$(DEF_COLOR)"
 	@${RM} ${NAME}
 	@echo "$(RED)☣️  CLEAR ☣️$(DEF_COLOR)"
-	@${RM} .bonus
 
 re: fclean all
