@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 16:21:25 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:53:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -71,9 +71,15 @@ static char	*search_paths(char **paths, char **args, size_t *args_move)
 static char	*check_path(char *path, char *node_arg,
 	t_mshell *obj, t_ast_node *node)
 {
+	int	fd;
+
+	fd = -1;
+	fd = open(path, O_DIRECTORY);
 	if (!path || (path && !ft_strchr(node->args[0], '/')
-			&& access(path, X_OK) != 0) || !node_arg || !*node_arg)
+			&& (fd != -1 || access(path, X_OK) != 0))
+		|| !node_arg || !*node_arg)
 	{
+		close(fd);
 		check_free_str(&path);
 		if (!node_arg)
 		{
@@ -84,6 +90,8 @@ static char	*check_path(char *path, char *node_arg,
 		obj->exit_code = 127;
 		print_exit("command not found\n", node->args[0 + obj->args_move], obj);
 	}
+	if (fd != -1)
+		close(fd);
 	return (path);
 }
 

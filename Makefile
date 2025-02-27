@@ -33,7 +33,6 @@ SIG = ./signals
 SRC_DIR = ./srcs
 UTILS = ./utils
 
-
 SRCS = \
 	${SRC_DIR}/clean_fds.c \
 	${SRC_DIR}/clean.c \
@@ -85,7 +84,7 @@ SRCS = \
 	\
 	${SRC_DIR}/${SIG}/signals_handling.c \
 	${SRC_DIR}/${SIG}/signals_heredoc.c \
-	${SRC_DIR}/${SIG}/signals_settingup.c \
+	${SRC_DIR}/${SIG}/signals_settingup.c
 
 OBJS = ${SRCS:.c=.o}
 
@@ -126,6 +125,5 @@ fclean: clean
 	@echo "$(RED)🪦 Deleting minishell... 🪦$(DEF_COLOR)"
 	@${RM} ${NAME}
 	@echo "$(RED)☣️  CLEAR ☣️$(DEF_COLOR)"
-	@${RM} .bonus
 
 re: fclean all
