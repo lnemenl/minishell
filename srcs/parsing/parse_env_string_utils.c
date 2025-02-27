@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:32:58 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:17:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:15:20 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -47,9 +47,25 @@ char	*handle_pid_expansion(char *buffer, t_mshell *mshell, int *i)
 	(*i)++;
 	pid_path = get_env_var(mshell->envp, "SESSION_MANAGER=");
 	if (pid_path)
+	{
 		buffer = join_and_free(buffer,
 				ft_strdup(ft_strrchr(pid_path, '/') + 1));
+		free(pid_path);
+	}
 	else
 		buffer = join_and_free(buffer, ft_strdup(""));
 	return (buffer);
+}
+
+char	*choose_expand_type(const char *input, t_token *current, char *temp)
+{
+	char	*expanded;
+
+	if (!ft_strchr(input, '\'') && !ft_strchr(input, '"')
+		&& (current && (!current->content
+				|| (current->content && !*current->content))))
+		expanded = process_word(temp, current->mshell, 1);
+	else
+		expanded = process_word(temp, current->mshell, 0);
+	return (expanded);
 }

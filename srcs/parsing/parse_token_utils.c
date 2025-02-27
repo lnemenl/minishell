@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:15:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/22 10:37:04 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:43:47 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ char	*process_content(char *content, t_token_type type, t_mshell *mshell)
 
 	if (type == TOKEN_HEREDOC)
 		return (content);
-	expanded = expand_env_vars(content, mshell);
+	expanded = expand_env_vars(content, mshell, 0);
 	free(content);
 	return (expanded);
 }
@@ -54,15 +54,6 @@ t_token	*join_word_token(t_token *prev_token, t_token *token)
 {
 	char	*joined;
 
-	if (ft_strcmp(prev_token->content, "$") == 0)
-	{
-		free(prev_token->content);
-		prev_token->content = ft_strdup(token->content);
-		prev_token->quote_state = token->quote_state;
-		free(token->content);
-		free(token);
-		return (prev_token);
-	}
 	joined = ft_strjoin(prev_token->content, token->content);
 	if (!joined)
 		return (NULL);
