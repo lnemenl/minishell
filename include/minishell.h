@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 12:22:52 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:42:19 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -162,7 +162,8 @@ char			*handle_regular_var(char *buffer,
 					const char *input, int *i, t_mshell *mshell);
 char			*handle_dollar_expansion(char *buffer,
 					const char *input, int *i, t_mshell *mshell);
-char			*expand_env_vars(const char *input, t_mshell *mshell, int clean);
+char			*expand_env_vars(const char *input,
+					t_mshell *mshell, int clean);
 void			put_env_var(t_mshell *obj, char *new_arg, char *hint);
 void			set_env_args(t_mshell *obj, t_ast_node *node);
 size_t			get_envp_length(char **envp);
@@ -176,6 +177,8 @@ void			join_put_env(t_mshell *obj, char *name, char *value);
 void			set_pwds(t_mshell *obj);
 void			create_new_var(t_mshell *obj, char *new_arg, char ***dest);
 void			replace_env(t_mshell *obj, char *new_arg, char **dest, int pos);
+char			*choose_expand_type(const char *input,
+					t_token *current, char *temp);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);

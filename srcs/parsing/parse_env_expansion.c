@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:34:17 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/27 12:51:48 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:43:12 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -49,7 +49,6 @@ char	*handle_dollar_expansion(char *buffer,
 	if (input[*i] == '$')
 		buffer = handle_pid_expansion(buffer, mshell, i);
 	else if (is_quote(input[*i]))
-		//buffer = handle_regular_var(buffer, input, i, mshell);
 		buffer = handle_quoted_var(buffer, input, i);
 	else
 		buffer = handle_regular_var(buffer, input, i, mshell);
@@ -77,4 +76,17 @@ char	*expand_env_vars(const char *input, t_mshell *mshell, int clean)
 	else if (buffer && !*buffer)
 		return (NULL);
 	return (buffer);
+}
+
+char	*choose_expand_type(const char *input, t_token *current, char *temp)
+{
+	char	*expanded;
+
+	if (!ft_strchr(input, '\'') && !ft_strchr(input, '"')
+		&& (current && (!current->content
+				|| (current->content && !*current->content))))
+		expanded = process_word(temp, current->mshell, 1);
+	else
+		expanded = process_word(temp, current->mshell, 0);
+	return (expanded);
 }
