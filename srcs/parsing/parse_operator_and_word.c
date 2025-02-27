@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:26:16 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/21 15:18:01 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:56:40 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,16 +74,14 @@ char	*extract_word(const char *input, int *i)
 	return (temp);
 }
 
-char	*process_word(char *temp, t_mshell *mshell)
+char	*process_word(char *temp, t_mshell *mshell, int clean)
 {
 	char	*expanded;
 
 	if (!temp || !mshell)
 		return (NULL);
-	expanded = expand_env_vars(temp, mshell);
+	expanded = expand_env_vars(temp, mshell, clean);
 	free(temp);
-	if (!expanded)
-		print_exit("Malloc error\n", NULL, mshell);
 	return (expanded);
 }
 
@@ -99,7 +97,7 @@ t_token	*handle_word(t_token **head,
 	temp = extract_word(input, i);
 	if (!temp)
 		return (NULL);
-	expanded = process_word(temp, (*current)->mshell);
+	expanded = choose_expand_type(input, *current, temp);
 	if (!expanded)
 		return (NULL);
 	if (*current && (*current)->quote_state != QUOTE_NONE)

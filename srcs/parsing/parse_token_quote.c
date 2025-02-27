@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/01 15:08:24 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/22 10:36:53 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:12:59 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,7 +74,9 @@ t_token	*handle_quotes(t_token **head, t_token **current, const char *input,
 	if (!input[*i])
 		return (NULL);
 	in_word = 0;
-	if (*i > 0 && !ft_isspace(input[*i - 1]))
+	if ((*i > 0 && !ft_isspace(input[*i - 1]) && input[*i - 1] != '$')
+		|| (*i > 0 && input[*i - 1] == '$'
+			&& (*current)->quote_state != QUOTE_NONE))
 		in_word = 1;
 	quote = input[*i];
 	token = process_quote_token(current, input, i, quote);
@@ -117,7 +119,8 @@ t_token	*process_quote_token(t_token **current, const char *input,
 		token = handle_single_quotes(input, i, (*current)->mshell);
 	if (!token)
 	{
-		(*current)->mshell->exit_code = 1;
+		if ((*current)->mshell->exit_code != 2)
+			(*current)->mshell->exit_code = 1;
 		return (NULL);
 	}
 	if ((*current)->type == TOKEN_HEREDOC)

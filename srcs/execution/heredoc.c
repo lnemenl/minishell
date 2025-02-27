@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 17:24:41 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 12:21:23 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,7 +22,7 @@ static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
 		return (0);
 	}
 	if (is_heredoc_quoted == 0)
-		doc->expanded = expand_env_vars(doc->str, doc->obj);
+		doc->expanded = expand_env_vars(doc->str, doc->obj, 0);
 	else
 		doc->expanded = ft_strdup(doc->str);
 	doc->trimmed = ft_strtrim(doc->expanded, "\n");
