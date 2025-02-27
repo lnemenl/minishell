@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 15:37:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 13:51:24 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -68,9 +68,9 @@ void	exit_child(t_mshell *obj, char *arg, int exit_code, int is_builtin)
 {
 	obj->exit_code = exit_code;
 	close_fds(obj);
-	if (arg && !*arg)
+	if (arg && !*arg && errno != 0)
 		ft_putstr_fd(": ", STDERR_FILENO);
-	if (arg && obj->exit_code != 0 && is_builtin == 0)
+	if (arg && obj->exit_code != 0 && is_builtin == 0 && errno != 0)
 		perror(arg);
 	if (errno == EACCES && obj->exit_code != 1)
 		obj->exit_code = 126;

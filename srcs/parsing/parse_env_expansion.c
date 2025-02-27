@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:34:17 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/27 13:43:12 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 14:02:56 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -72,9 +72,16 @@ char	*expand_env_vars(const char *input, t_mshell *mshell, int clean)
 			buffer = handle_dollar_expansion(buffer, input, &i, mshell);
 	}
 	if (!buffer || (!*buffer && clean == 0))
+	{
+		if (buffer)
+			free(buffer);
 		return (ft_strdup(""));
+	}
 	else if (buffer && !*buffer)
+	{
+		free(buffer);
 		return (NULL);
+	}
 	return (buffer);
 }
 
