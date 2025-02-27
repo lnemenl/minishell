@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:34:17 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/27 14:02:56 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:03:08 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,6 +55,22 @@ char	*handle_dollar_expansion(char *buffer,
 	return (buffer);
 }
 
+char	*process_expansion_buffer(char *buffer, int clean)
+{
+	if (!buffer || (!*buffer && clean == 0))
+	{
+		if (buffer)
+			free(buffer);
+		return (ft_strdup(""));
+	}
+	else if (buffer && !*buffer)
+	{
+		free(buffer);
+		return (NULL);
+	}
+	return (buffer);
+}
+
 char	*expand_env_vars(const char *input, t_mshell *mshell, int clean)
 {
 	char	*buffer;
@@ -71,29 +87,5 @@ char	*expand_env_vars(const char *input, t_mshell *mshell, int clean)
 		else
 			buffer = handle_dollar_expansion(buffer, input, &i, mshell);
 	}
-	if (!buffer || (!*buffer && clean == 0))
-	{
-		if (buffer)
-			free(buffer);
-		return (ft_strdup(""));
-	}
-	else if (buffer && !*buffer)
-	{
-		free(buffer);
-		return (NULL);
-	}
-	return (buffer);
-}
-
-char	*choose_expand_type(const char *input, t_token *current, char *temp)
-{
-	char	*expanded;
-
-	if (!ft_strchr(input, '\'') && !ft_strchr(input, '"')
-		&& (current && (!current->content
-				|| (current->content && !*current->content))))
-		expanded = process_word(temp, current->mshell, 1);
-	else
-		expanded = process_word(temp, current->mshell, 0);
-	return (expanded);
+	return (process_expansion_buffer(buffer, clean));
 }

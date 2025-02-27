@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/25 12:06:37 by msavelie         ###   ########.fr        #
+#    Updated: 2025/02/27 15:43:53 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -98,7 +98,7 @@ LIBFT_DIR = ./libft_updated
 
 RM = rm -rf
 
-.PHONY = all clean fclean re bonus
+.PHONY = all clean fclean re
 
 all: ${LIBFT_NAME} ${NAME}
 
@@ -118,7 +118,6 @@ ${NAME}: ${OBJS}
 clean:
 	@echo "$(YELLOW)🚽 Deleting object files... 🚽$(DEF_COLOR)"
 	@${RM} ${OBJS}
-	@${RM} ${BONUS_OBJS}
 	@make clean -C ${LIBFT_DIR} --no-print-directory
 
 fclean: clean

@@ -6,7 +6,7 @@
 /*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 13:42:19 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 16:02:39 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -112,6 +112,7 @@ typedef struct s_mshell
 	int					heredocs_count;
 	int					current_heredoc;
 	char				**exp_args;
+	int					parse_success;
 }	t_mshell;
 
 typedef struct s_quote_data
@@ -179,6 +180,7 @@ void			create_new_var(t_mshell *obj, char *new_arg, char ***dest);
 void			replace_env(t_mshell *obj, char *new_arg, char **dest, int pos);
 char			*choose_expand_type(const char *input,
 					t_token *current, char *temp);
+char			*process_expansion_buffer(char *buffer, int clean);
 
 /* ===== INVALID CASES ===== */
 int				is_cmd_line_invalid(t_mshell *obj);
