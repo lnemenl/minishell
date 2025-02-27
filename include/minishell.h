@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 16:02:39 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/27 17:16:30 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,12 +18,10 @@
 # include <fcntl.h>
 # include <readline/readline.h>
 # include <readline/history.h>
-# include <sys/types.h>
 # include <errno.h>
 # include <sys/wait.h>
 # include <signal.h>
 # include <termios.h>
-# include <sys/ioctl.h>
 
 # ifndef PATH_BUFFER_SIZE
 #  define PATH_BUFFER_SIZE 4096
