@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 15:24:10 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:56:15 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -18,9 +18,9 @@ static char	**fill_new_envp(char **dest, char *arg,
 	size_t	i;
 	size_t	skip;
 
-	i = 0;
+	i = -1;
 	skip = 0;
-	while (dest[i])
+	while (dest[++i])
 	{
 		if (ft_strncmp(dest[i], arg, arg_len) == 0
 			&& (!dest[i][arg_len] || dest[i][arg_len] == '='))
@@ -34,10 +34,7 @@ static char	**fill_new_envp(char **dest, char *arg,
 				ft_putendl_fd("Malloc error\n", 2);
 				return (NULL);
 			}
-			i++;
 		}
-		else
-			break ;
 	}
 	new_envp[i] = NULL;
 	return (new_envp);

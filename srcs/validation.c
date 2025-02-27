@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/27 14:06:50 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 15:50:34 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/27 15:53:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -76,7 +76,8 @@ static char	*check_path(char *path, char *node_arg,
 	fd = -1;
 	fd = open(path, O_DIRECTORY);
 	if (!path || (path && !ft_strchr(node->args[0], '/')
-			&& (fd != -1 || access(path, X_OK) != 0)) || !node_arg || !*node_arg)
+			&& (fd != -1 || access(path, X_OK) != 0))
+		|| !node_arg || !*node_arg)
 	{
 		close(fd);
 		check_free_str(&path);
