@@ -3,22 +3,26 @@
 /*                                                        :::      ::::::::   */
 /*   heredoc.c                                          :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 12:21:23 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/02/28 16:54:39 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../../include/minishell.h"
 
-static int	process_heredoc_line(t_heredoc *doc, int is_heredoc_quoted)
+static int	process_heredoc_line(t_heredoc *doc,
+	int is_heredoc_quoted, char *del)
 {
 	write(STDOUT_FILENO, "> ", 2);
 	doc->str = get_next_line(STDIN_FILENO);
 	if (!doc->str || g_signal_received == SIGINT)
 	{
 		write(STDOUT_FILENO, "\n", 1);
+		if (!doc->str && g_signal_received != SIGINT)
+			printf("minishell: warning: here-document \
+delimited by end-of-file (wanted `%s')\n", del);
 		return (0);
 	}
 	if (is_heredoc_quoted == 0)
@@ -49,6 +53,15 @@ static int	handle_multiple_heredocs(t_mshell *obj, t_ast_node *node,
 		else if (node->redirs[i]->type == TOKEN_HEREDOC)
 			*is_last_heredoc = 1;
 		*last_fd = handle_here_doc(obj, node->redirs[i], *last_fd);
+		if (obj->heredoc_interrupted == 1)
+		{
+			if (*last_fd != -1)
+			{
+				close(*last_fd);
+				*last_fd = -1;
+			}
+			break ;
+		}
 		i++;
 	}
 	return (i);
@@ -83,7 +96,8 @@ int	handle_here_doc(t_mshell *obj, t_ast_node *node, int last_fd)
 		return (last_fd);
 	heredoc = init_heredoc(obj);
 	transition_signal_handlers(SIGNAL_STATE_HEREDOC);
-	while (process_heredoc_line(&heredoc, node->is_quote_heredoc))
+	while (process_heredoc_line(&heredoc,
+			node->is_quote_heredoc, node->args[0]))
 	{
 		if (ft_strcmp(node->args[0], heredoc.trimmed) == 0
 			|| ft_strcmp(node->args[0], heredoc.expanded) == 0)
