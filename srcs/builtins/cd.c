@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/26 12:11:02 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:02:17 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -82,8 +82,8 @@ static int	change_path(t_mshell *obj, char **cd_args,
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
-		ft_fprintf(2, "minishell: cd: %s: No such file or directory\n",
-			cd_args[1]);
+		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
+		perror(cd_args[1]);
 		return (0);
 	}
 	else
