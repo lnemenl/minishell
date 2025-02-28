@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:06:53 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/22 17:33:56 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/28 16:30:36 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -56,14 +56,22 @@ void	cleanup_heredoc(t_heredoc *doc)
 static void	count_heredocs(t_mshell *obj, t_ast_node *node)
 {
 	t_ast_node	*temp;
+	int			i;
 
 	temp = node;
 	while (temp)
 	{
-		if ((temp->redirs && (*temp->redirs)->type == TOKEN_HEREDOC)
-			|| (temp->left && temp->left->redirs
-				&& (*temp->left->redirs)->type == TOKEN_HEREDOC))
-			obj->heredocs_count++;
+		i = 0;
+		while ((temp->redirs && temp->redirs[i])
+			|| (temp->left && temp->left->redirs && temp->left->redirs[i]))
+		{
+			if ((temp->redirs && temp->redirs[i]
+					&& temp->redirs[i]->type == TOKEN_HEREDOC)
+				|| (temp->left && temp->left->redirs && temp->left->redirs[i]
+					&& temp->left->redirs[i]->type == TOKEN_HEREDOC))
+				obj->heredocs_count++;
+			i++;
+		}
 		temp = temp->right;
 	}
 }
