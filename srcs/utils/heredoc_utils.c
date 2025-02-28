@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:06:53 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/28 16:45:05 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:18:07 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -85,13 +85,8 @@ void	alloc_run_heredoc(t_mshell *obj, t_ast_node *node)
 	obj->heredocs_count = 0;
 	obj->current_heredoc = 0;
 	count_heredocs(obj, node);
-	if (obj->heredocs_count == 0)
+	if (check_heredoc_count(obj) == 0)
 		return ;
-	else if (obj->heredocs_count > 16)
-	{
-		obj->exit_code = 2;
-		print_exit("maximum here-document count exceeded\n", "minishell", obj);
-	}
 	obj->heredoc_fds = ft_calloc(obj->heredocs_count, sizeof(int));
 	if (!obj->heredoc_fds)
 		print_exit("Malloc error\n", NULL, obj);

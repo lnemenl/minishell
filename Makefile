@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
+#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/02/27 15:43:53 by rkhakimu         ###   ########.fr        #
+#    Updated: 2025/02/28 17:18:48 by msavelie         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -45,6 +45,7 @@ SRCS = \
 	${SRC_DIR}/${UTILS}/envp_utils_2.c \
 	${SRC_DIR}/${UTILS}/envp_utils_3.c \
 	${SRC_DIR}/${UTILS}/execution_utils.c \
+	${SRC_DIR}/${UTILS}/heredoc_utils_2.c \
 	${SRC_DIR}/${UTILS}/heredoc_utils.c \
 	${SRC_DIR}/${UTILS}/pipes_allocation.c \
 	${SRC_DIR}/${UTILS}/redirection_utils.c \

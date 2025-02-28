@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 13:04:41 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/28 16:54:39 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:11:52 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -33,6 +33,15 @@ delimited by end-of-file (wanted `%s')\n", del);
 	return (1);
 }
 
+static void	close_last_fd(int *last_fd)
+{
+	if (*last_fd != -1)
+	{
+		close(*last_fd);
+		*last_fd = -1;
+	}
+}
+
 static int	handle_multiple_heredocs(t_mshell *obj, t_ast_node *node,
 	int *is_last_heredoc, int *last_fd)
 {
@@ -41,13 +50,9 @@ static int	handle_multiple_heredocs(t_mshell *obj, t_ast_node *node,
 	i = 0;
 	while (node->redirs[i])
 	{
-		if (*last_fd != -1
-			&& (node->redirs[i]->type == TOKEN_REDIRECT_IN
+		if ((node->redirs[i]->type == TOKEN_REDIRECT_IN
 				|| node->redirs[i]->type == TOKEN_HEREDOC))
-		{
-			close(*last_fd);
-			*last_fd = -1;
-		}
+			close_last_fd(last_fd);
 		if (node->redirs[i]->type == TOKEN_REDIRECT_IN)
 			*is_last_heredoc = 0;
 		else if (node->redirs[i]->type == TOKEN_HEREDOC)
@@ -55,11 +60,7 @@ static int	handle_multiple_heredocs(t_mshell *obj, t_ast_node *node,
 		*last_fd = handle_here_doc(obj, node->redirs[i], *last_fd);
 		if (obj->heredoc_interrupted == 1)
 		{
-			if (*last_fd != -1)
-			{
-				close(*last_fd);
-				*last_fd = -1;
-			}
+			close_last_fd(last_fd);
 			break ;
 		}
 		i++;

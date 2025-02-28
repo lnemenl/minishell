@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 17:16:30 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/02/28 17:18:03 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -280,6 +280,7 @@ t_heredoc		init_heredoc(t_mshell *obj);
 void			cleanup_heredoc(t_heredoc *doc);
 void			choose_heredoc_cmd(t_mshell *obj, t_ast_node *node);
 void			alloc_run_heredoc(t_mshell *obj, t_ast_node *node);
+int				check_heredoc_count(t_mshell *obj);
 
 /* ===== REDIRECTION ===== */
 void			redirection_input(t_mshell *obj, t_ast_node *node);
