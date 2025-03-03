@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/03/03 12:28:37 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 13:55:25 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -55,15 +55,6 @@ typedef enum e_signal_state
 	SIGNAL_STATE_RESET
 }	t_signal_state;
 
-typedef struct s_quote_context
-{
-	char				*buffer;
-	size_t				capacity;
-	size_t				length;
-	char				quote_type;
-	t_quote_state		state;
-}	t_quote_context;
-
 typedef struct s_token
 {
 	t_token_type		type;
@@ -110,7 +101,6 @@ typedef struct s_mshell
 	int					heredocs_count;
 	int					current_heredoc;
 	char				**exp_args;
-	int					parse_success;
 }	t_mshell;
 
 typedef struct s_quote_data
