@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/28 12:03:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/25 16:02:44 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 13:15:08 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,11 +45,11 @@ static int	set_prompt(t_mshell *obj)
 {
 	char	*line;
 
-	if (isatty(fileno(stdin)))
+	if (isatty(STDIN_FILENO))
 		obj->cmd_line = readline(PROMPT);
 	else
 	{
-		line = get_next_line(fileno(stdin));
+		line = get_next_line(STDIN_FILENO);
 		if (!line)
 			return (0);
 		obj->cmd_line = ft_strtrim(line, "\n");
