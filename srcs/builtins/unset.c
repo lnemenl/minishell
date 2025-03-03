@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/02 13:22:30 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 15:56:15 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:40:43 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -74,8 +74,8 @@ int	unset(char **args, t_mshell *obj)
 		if (args[i][0] == '-')
 		{
 			obj->exit_code = 2;
-			ft_fprintf(STDERR_FILENO, "minishell: unset: %s: invalid option",
-				args[i]);
+			concat_print("minishell: unset: ", args[i],
+				": invalid option", obj);
 			return (1);
 		}
 		else if (ft_strcmp(args[i], "PATH") == 0)

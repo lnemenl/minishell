@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   parse_token_utils.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 14:15:04 by rkhakimu          #+#    #+#             */
-/*   Updated: 2025/02/27 13:43:47 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:07:26 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 

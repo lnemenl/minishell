@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   errors.c                                           :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/12/05 15:57:23 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 13:51:24 by rkhakimu         ###   ########.fr       */
+/*   Updated: 2025/03/03 11:56:41 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -29,7 +29,7 @@ int	error_ret(int type, char *arg)
 {
 	ft_putstr_fd("minishell: ", STDERR_FILENO);
 	if (type == 1)
-		ft_fprintf(2, "Do not provide any arguments: %s\n", arg);
+		ft_putstr_fd("Do not provide any arguments\n", STDERR_FILENO);
 	else if (type == 2)
 		perror(arg);
 	else if (type == 3)
@@ -51,7 +51,7 @@ void	print_exit(char *mes, char *cmd, t_mshell *obj)
 	mes_len = ft_strlen(mes) + ft_strlen(cmd) + 3;
 	full_msg = ft_calloc(mes_len, sizeof(char));
 	if (!full_msg)
-		ft_putstr_fd("Malloc failed\n", 2);
+		ft_putstr_fd("Malloc failed\n", STDERR_FILENO);
 	else
 	{
 		if (cmd)

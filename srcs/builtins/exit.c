@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/17 18:46:04 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/27 17:26:13 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:35:24 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -17,9 +17,9 @@ static void	handle_wrong_exit_code(t_mshell *obj, char *arg,
 {
 	obj->exit_code = exit_code;
 	if (arg)
-		ft_fprintf(2, "minishell: exit: %s%s\n", arg, msg);
+		concat_print("minishell: exit: ", arg, msg, obj);
 	else
-		ft_fprintf(2, "minishell: exit: %s\n", msg);
+		concat_print("minishell: exit: ", msg, NULL, obj);
 	if (arg)
 		clean_exit(obj);
 }

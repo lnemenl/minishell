@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/28 17:18:03 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:28:37 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -185,6 +185,8 @@ int				is_cmd_line_invalid(t_mshell *obj);
 int				is_ast_invalid(t_mshell *obj);
 int				is_main_signaled(t_mshell *obj);
 int				error_ret(int type, char *arg);
+void			concat_print(char *arg1, char *arg2, char *arg3,
+					t_mshell *obj);
 
 /* ===== TOKEN CORE (token_core.c) ===== */
 t_token			*new_token(t_token_type type, const char *content,

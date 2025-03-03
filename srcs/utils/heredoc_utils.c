@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/21 11:06:53 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/28 17:18:07 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:06:41 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,9 @@
 void	write_heredoc_line(t_heredoc *doc)
 {
 	if (doc->str[0] == '$')
-		ft_fprintf(doc->pipe_fd[1], "%s", doc->expanded);
+		ft_putstr_fd(doc->expanded, doc->pipe_fd[1]);
 	else
-		ft_fprintf(doc->pipe_fd[1], "%s", doc->str);
+		ft_putstr_fd(doc->str, doc->pipe_fd[1]);
 }
 
 t_heredoc	init_heredoc(t_mshell *obj)

@@ -6,7 +6,7 @@
 /*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/18 15:36:40 by msavelie          #+#    #+#             */
-/*   Updated: 2025/02/28 17:02:17 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/03 12:56:16 by msavelie         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -63,7 +63,7 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 	else if (cd_args[2] && *cd_args[2])
 	{
 		obj->exit_code = 1;
-		ft_fprintf(2, "minishell: cd: too many arguments\n");
+		ft_putstr_fd("minishell: cd: too many arguments\n", STDERR_FILENO);
 		return (1);
 	}
 	return (0);
@@ -72,6 +72,8 @@ static int	check_cd_args(char **cd_args, t_mshell *obj, char *buf)
 static int	change_path(t_mshell *obj, char **cd_args,
 	char *buf, char *full_path)
 {
+	char	*err_mes;
+
 	if (ft_strcmp(buf, cd_args[1]) == 0)
 		obj->exit_code = 0;
 	else if (ft_strcmp(cd_args[1], "-") == 0)
@@ -82,8 +84,11 @@ static int	change_path(t_mshell *obj, char **cd_args,
 	else if (chdir(full_path) == -1)
 	{
 		obj->exit_code = 1;
-		ft_putstr_fd("minishell: cd: ", STDERR_FILENO);
-		perror(cd_args[1]);
+		err_mes = ft_strjoin("minishell: cd: ", cd_args[1]);
+		if (!err_mes)
+			print_exit("Malloc error\n", NULL, obj);
+		perror(err_mes);
+		check_free_str(&err_mes);
 		return (0);
 	}
 	else
