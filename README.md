@@ -1,4 +1,15 @@
 # Minishell
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ayogun/42-project-badges/refs/heads/main/covers/cover-minishell.png" alt="Minitalk Cover">
+</p>
+
+---
+
+<p align="center">
+  <img src="https://raw.githubusercontent.com/ayogun/42-project-badges/refs/heads/main/badges/minishelle.png" alt="Minitalk Badge">
+  <img src="https://img.shields.io/badge/Score-100%2F100-brightgreen" alt="Score Badge">
+</p>
+
 *A 42-born shell that gets the job done.*
 
 Welcome to **Minishell**, a lightweight shell crafted for the 42 school curriculum. Think of it as a bash mini-me: it handles commands, pipes, redirections, and builtins—all while dodging Norminette’s wrath and sporting a cheeky `shit-shell: ` prompt.
