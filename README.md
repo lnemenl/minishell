@@ -103,7 +103,7 @@ Born at 42, but free to fork! Got a tweak? Clone it, hack it, send a pull reques
 ---
 
 ## License
-Licensed under the [MIT License](LICENSE). Use it, mod it, share it—just keep the copyright notice intact.
+Use it, mod it, share it—just keep the copyright notice intact.
 Copyright © 2025 [Nick & Rus].
 
 ---
