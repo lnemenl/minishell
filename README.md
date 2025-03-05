@@ -94,7 +94,7 @@ Born at 42, but free to fork! Got a tweak? Clone it, hack it, send a pull reques
 
 ## <h2 id="License">License</h2>
 Use it, mod it, share it—just keep the copyright notice intact.
-Copyright © 2025 [[Nick](https://github.com/FPyMEHTAPIU) & [Rus](https://github.com/lnemenlRus)].
+Copyright © 2025 [[Nick](https://github.com/FPyMEHTAPIU) & [Rus](https://github.com/lnemenl)].
 
 
 Built with 42 grit and a dash of chaos. Have fun!
