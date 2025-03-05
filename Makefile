@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+         #
+#    By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/09/09 12:42:27 by msavelie          #+#    #+#              #
-#    Updated: 2025/03/03 13:22:15 by msavelie         ###   ########.fr        #
+#    Updated: 2025/03/05 12:42:35 by rkhakimu         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -109,7 +109,7 @@ ${LIBFT_NAME}:
 ${NAME}: ${OBJS}
 	@echo "$(MAGENTA)🗂  Copying libft 🗂$(DEF_COLOR)"
 	@cp ${LIBFT_DIR}/libft.a .
-	@echo "$(BROWN)💩 Compiling shit-shell... 💩$(DEF_COLOR)"
+	@echo "$(BROWN) Compiling shell... $(DEF_COLOR)"
 	@cc ${CFLAGS} ${OBJS} libft.a $(LDFLAGS) -o ${NAME}
 	@echo "$(GREEN)🥳 Success!🥳$(DEF_COLOR)"
 
@@ -117,14 +117,14 @@ ${NAME}: ${OBJS}
 	@cc $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	@echo "$(YELLOW)🚽 Deleting object files... 🚽$(DEF_COLOR)"
+	@echo "$(YELLOW) Deleting object files... $(DEF_COLOR)"
 	@${RM} ${OBJS}
 	@make clean -C ${LIBFT_DIR} --no-print-directory
 
 fclean: clean
 	@make fclean -C ${LIBFT_DIR} --no-print-directory
 	@${RM} libft.a
-	@echo "$(RED)🪦 Deleting minishell... 🪦$(DEF_COLOR)"
+	@echo "$(RED) Deleting minishell... $(DEF_COLOR)"
 	@${RM} ${NAME}
 	@echo "$(RED)☣️  CLEAR ☣️$(DEF_COLOR)"
 

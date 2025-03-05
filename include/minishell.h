@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   minishell.h                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: msavelie <msavelie@student.hive.fi>        +#+  +:+       +#+        */
+/*   By: rkhakimu <rkhakimu@student.hive.fi>        +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/02/12 12:26:56 by msavelie          #+#    #+#             */
-/*   Updated: 2025/03/03 13:55:25 by msavelie         ###   ########.fr       */
+/*   Updated: 2025/03/05 12:42:56 by rkhakimu         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -27,7 +27,7 @@
 #  define PATH_BUFFER_SIZE 4096
 # endif
 
-# define PROMPT "shit-shell: "
+# define PROMPT "shell: "
 
 extern volatile sig_atomic_t	g_signal_received;
 

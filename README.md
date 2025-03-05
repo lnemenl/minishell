@@ -12,12 +12,12 @@
 
 *A 42-born shell that gets the job done.*
 
-Welcome to **Minishell**, a lightweight shell crafted for the 42 school curriculum. Think of it as a bash mini-me: it handles commands, pipes, redirections, and builtins—all while dodging Norminette’s wrath and sporting a cheeky `shit-shell: ` prompt.
+Welcome to **Minishell**, a lightweight shell crafted for the 42 school curriculum. Think of it as a bash mini-me: it handles commands, pipes, redirections, and builtins—all while dodging Norminette’s wrath and sporting a cheeky `shell: ` prompt.
 
 ---
 
 ## Features
-- Shows a prompt (`shit-shell: `) and remembers your command history.
+- Shows a prompt (`shell: `) and remembers your command history.
 - Runs executables via `PATH`, relative, or absolute paths.
 - Groks quotes: `'single'` stops meta-characters; "double" allows $ expansion.
 - Redirections: < (input), > (output), >> (append), << (heredoc, no history).
@@ -83,17 +83,6 @@ Since `readline` leaks like a sieve (not our fault!), we’ve included a suppres
 - **libft**: Included in `./libft_updated/`, built with `make`.
 - **readline**: For fancy input and history (install it if you don’t have it).
 - Standard C libs (GCC or CC required).
-
----
-
-## Project Structure
-- `srcs/`: The guts of the shell.
-  - `builtins/`: `echo`, `cd`, and pals live here.
-  - `parsing/`: Tokenizing and $ expansion wizardry.
-  - `execution/`: Command and redirection logic.
-  - `signals/`: Handles ctrl-C and crew.
-- `minishell.h`: The glue in header form.
-- `Makefile`: Compiles with style (and emojis).
 
 ---
 
