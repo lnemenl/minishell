@@ -79,10 +79,10 @@ Fire these up at the `hive-shell:` prompt:
 ### Check for Leaks
 To test for memory leaks (and ignore `readline`’s noise), use Valgrind with our suppression file:
   ```bash
-  valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-fds=yes --suppressions=./test_scripts/short.supp ./minishell
+  valgrind --leak-check=full --show-leak-kinds=all --trace-children=yes --track-fds=yes --suppressions=./short.supp ./minishell
   ```
 
-Since `readline` leaks like a sieve (not our fault!), we’ve included a suppression file at `test_scripts/short.supp` to quiet those errors. It filters out leaks from `readline` and `add_history` calls, letting you focus on our code’s cleanliness. Future debuggers: feel free to use or tweak it!
+Since `readline` leaks like a sieve (not our fault!), we’ve included a suppression file at `./short.supp` to quiet those errors. It filters out leaks from `readline` and `add_history` calls, letting you focus on our code’s cleanliness. Future debuggers: feel free to use or tweak it!
 
 ## <h2 id="Dependencies">Dependencies</h2>
 - **libft**: Included in `./libft_updated/`, built with `make`.
