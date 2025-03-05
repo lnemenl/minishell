@@ -12,12 +12,12 @@
 
 *A 42-born shell that gets the job done.*
 
-Welcome to **Minishell**, a lightweight shell crafted for the 42 school curriculum. Think of it as a bash mini-me: it handles commands, pipes, redirections, and builtins—all while dodging Norminette’s wrath and sporting a cheeky `shell: ` prompt.
+Welcome to **Minishell**, a lightweight shell crafted for the 42 school curriculum. Think of it as a bash mini-me: it handles commands, pipes, redirections, and builtins—all while dodging Norminette’s wrath and sporting a cheeky `hive-shell: ` prompt.
 
 ---
 
 ## Features
-- Shows a prompt (`shell: `) and remembers your command history.
+- Shows a prompt (`hive-shell: `) and remembers your command history.
 - Runs executables via `PATH`, relative, or absolute paths.
 - Groks quotes: `'single'` stops meta-characters; "double" allows $ expansion.
 - Redirections: < (input), > (output), >> (append), << (heredoc, no history).
@@ -48,7 +48,7 @@ Welcome to **Minishell**, a lightweight shell crafted for the 42 school curricul
 ---
 
 ## Usage
-Fire these up at the `shit-shell: ` prompt:
+Fire these up at the `hive-shell: ` prompt:
 
 - Pipe it:
   ```bash
